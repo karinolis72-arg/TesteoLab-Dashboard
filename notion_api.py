@@ -251,10 +251,12 @@ def health():
 def serve_dashboard():
     """Serve the main dashboard HTML"""
     try:
-        return send_file("dashboard_v2.html")
+        import os
+        dashboard_path = os.path.join(os.path.dirname(__file__), "dashboard_v2.html")
+        return send_file(dashboard_path, mimetype="text/html")
     except Exception as e:
         logging.error(f"Error serving dashboard: {e}")
-        return jsonify({"error": "Dashboard not found"}), 404
+        return jsonify({"error": f"Dashboard not found: {str(e)}"}), 404
 
 
 if __name__ == "__main__":
