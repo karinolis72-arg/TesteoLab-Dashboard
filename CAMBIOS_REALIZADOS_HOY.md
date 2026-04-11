@@ -18,7 +18,7 @@
 
 **Token original removido**:
 ```
-ANTES: NOTION_TOKEN=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
+ANTES: NOTION_TOKEN=[TOKEN_REAL_REMOVIDO]
 DESPUÉS: NOTION_TOKEN=[TU_NOTION_TOKEN_AQUI]
 ```
 
@@ -77,7 +77,7 @@ DESPUÉS: NOTION_TOKEN=[TU_NOTION_TOKEN_AQUI]
 - ❌ Riesgo de acceso no autorizado a Notion
 
 **DESPUÉS**:
-- ✅ Token NO en archivos de código/docs públicas
+- ✅ Token reemplazado con placeholder [TU_NOTION_TOKEN_AQUI]
 - ✅ Token solo en variables de entorno de Render
 - ✅ Seguro y protegido
 
