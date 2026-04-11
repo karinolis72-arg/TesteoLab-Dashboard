@@ -253,7 +253,10 @@ def serve_dashboard():
     try:
         import os
         dashboard_path = os.path.join(os.path.dirname(__file__), "dashboard_v2.html")
-        return send_file(dashboard_path, mimetype="text/html")
+        with open(dashboard_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        from flask import Response
+        return Response(html_content, mimetype="text/html")
     except Exception as e:
         logging.error(f"Error serving dashboard: {e}")
         return jsonify({"error": f"Dashboard not found: {str(e)}"}), 404
