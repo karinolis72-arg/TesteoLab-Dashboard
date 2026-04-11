@@ -4,14 +4,14 @@ TesteoLab Notion API Backend
 Provides REST API endpoints to fetch task and habit data from Notion
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 import logging
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 logging.basicConfig(level=logging.INFO)
 
@@ -245,6 +245,16 @@ def api_nauta_briefing():
 def health():
     """Health check endpoint"""
     return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()})
+
+
+@app.route("/", methods=["GET"])
+def serve_dashboard():
+    """Serve the main dashboard HTML"""
+    try:
+        return send_file("dashboard_v2.html")
+    except Exception as e:
+        logging.error(f"Error serving dashboard: {e}")
+        return jsonify({"error": "Dashboard not found"}), 404
 
 
 if __name__ == "__main__":
