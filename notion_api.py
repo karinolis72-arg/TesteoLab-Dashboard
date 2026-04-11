@@ -4,7 +4,7 @@ TesteoLab Notion API Backend
 Provides REST API endpoints to fetch task and habit data from Notion
 """
 
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, Response
 from flask_cors import CORS
 import os
 from datetime import datetime, timedelta
@@ -251,14 +251,12 @@ def health():
 def serve_dashboard():
     """Serve the main dashboard HTML"""
     try:
-        import os
         dashboard_path = os.path.join(os.path.dirname(__file__), "dashboard_v2.html")
         with open(dashboard_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
-        from flask import Response
         return Response(html_content, mimetype="text/html")
     except Exception as e:
-        logging.error(f"Error serving dashboard: {e}")
+        logging.error(f"Error serving dashboard: {str(e)}")
         return jsonify({"error": f"Dashboard not found: {str(e)}"}), 404
 
 
