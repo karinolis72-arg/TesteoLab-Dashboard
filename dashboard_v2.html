@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TesteoLab Control Center - NAUTA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 80px;
+            background: #1E4682;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            position: relative;
+            gap: 0;
+            z-index: 1000;
+        }
+
+        .sidebar-icons-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-icon {
+            width: 60px;
+            height: 60px;
+            margin: 15px 0;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            color: white;
+            position: relative;
+        }
+
+        .sidebar-icon:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .sidebar-icon.active {
+            border-color: #FFD700;
+            background: rgba(255,215,0,0.2);
+        }
+
+        .icon-label {
+            position: absolute;
+            left: 90px;
+            background: #1E4682;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .sidebar-icon:hover .icon-label {
+            opacity: 1;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            background: rgba(255,255,255,0.95);
+        }
+
+        /* MODULES */
+        .module {
+            display: none;
+        }
+
+        .module.active {
+            display: block;
+        }
+
+        .module-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1E4682;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* NAUTA Module */
+        .nauta-briefing {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border-left: 6px solid #667eea;
+        }
+
+        .nauta-greeting {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1E4682;
+            margin-bottom: 20px;
+        }
+
+        .task-card {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #1E4682;
+            font-size: 14px;
+        }
+
+        .task-meta {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .task-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 0 4px 0 0;
+        }
+
+        .badge-q1 { background: #ffe5e5; color: #d32f2f; }
+        .badge-alta { background: #fff3e0; color: #f57c00; }
+        .badge-media { background: #fff9c4; color: #fbc02d; }
+        .badge-baja { background: #f0f0f0; color: #666; }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-small:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Data Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notifications */
+        .notification-system {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification.success { border-left-color: #4caf50; }
+        .notification.error { border-left-color: #f44336; }
+        .notification.warning { border-left-color: #ff9800; }
+
+        .notification-close {
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .notification-close:hover {
+            color: #333;
+        }
+
+        /* Notification Pause Menu */
+        .notification-pause-menu {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            min-width: 140px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .pause-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .pause-option:last-child {
+            border-bottom: none;
+        }
+
+        .pause-option:hover {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 5px;
+            position: relative;
+        }
+
+        .notification-pause-btn,
+        .notification-close-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .notification-pause-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .notification-close-btn:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Settings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1E4682;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* TEMAS */
+        body.theme-clara {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --background: #ffffff;
+            --sidebar: #1E4682;
+            --text: #333;
+            --accent: #FFD700;
+        }
+
+        body.theme-dark {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --background: #1a1a1a;
+            --sidebar: #0d0d0d;
+            --text: #e0e0e0;
+            --accent: #FFD700;
+            filter: invert(0.9);
+        }
+
+        body.theme-minimal {
+            --primary: #666666;
+            --secondary: #999999;
+            --background: #f5f5f5;
+            --sidebar: #333333;
+            --text: #333;
+            --accent: #000000;
+        }
+
+        body.theme-colorful {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --background: #FFF8F3;
+            --sidebar: #2D3436;
+            --text: #2D3436;
+            --accent: #FFE66D;
+        }
+
+        body.theme-energy {
+            --primary: #00FF41;
+            --secondary: #FF006E;
+            --background: #0a0e27;
+            --sidebar: #0d0a14;
+            --text: #00FF41;
+            --accent: #FF006E;
+            font-weight: bold;
+        }
+
+        .btn-modal {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-modal:hover {
+            background: #764ba2;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .sidebar {
+                width: 60px;
+                padding: 10px 0;
+            }
+
+            .sidebar-icon {
+                width: 50px;
+                height: 50px;
+                margin: 10px 0;
+                font-size: 24px;
+            }
+
+            .notification-system {
+                max-width: calc(100vw - 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-icons-top">
+                <div class="sidebar-icon active" data-module="nauta">
+                    <span class="icon-label">NAUTA</span>
+                    🧭
+                </div>
+                <div class="sidebar-icon" data-module="notion">
+                    <span class="icon-label">NOTION</span>
+                    📓
+                </div>
+                <div class="sidebar-icon" data-module="tracker">
+                    <span class="icon-label">TRACKER</span>
+                    📊
+                </div>
+                <div class="sidebar-icon" data-module="m1">
+                    <span class="icon-label">M1</span>
+                    🔍
+                </div>
+                <div class="sidebar-icon" data-module="m2">
+                    <span class="icon-label">M2</span>
+                    🛠️
+                </div>
+                <div class="sidebar-icon" data-module="m3">
+                    <span class="icon-label">M3</span>
+                    📈
+                </div>
+                <div class="sidebar-icon" data-module="m4">
+                    <span class="icon-label">M4</span>
+                    ⚡
+                </div>
+                <div class="sidebar-icon" data-module="sistema">
+                    <span class="icon-label">SISTEMA</span>
+                    📖
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-icon" id="settings-btn">
+                    <span class="icon-label">SETTINGS</span>
+                    ⚙️
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- NAUTA Module -->
+            <div class="module active" data-module="nauta">
+                <div class="module-title">🧭 NAUTA - Asistente Productividad</div>
+
+                <div id="nauta-container" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando briefing...</p>
+                </div>
+            </div>
+
+            <!-- NOTION Module -->
+            <div class="module" data-module="notion">
+                <div class="module-title">📓 NOTION - Gestor de Tareas</div>
+                <div id="notion-container" class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando tareas...</p>
+                </div>
+            </div>
+
+            <!-- Other modules placeholder -->
+            <div class="module" data-module="tracker">
+                <div class="module-title">📊 TRACKER - Seguimiento</div>
+                <p>Módulo en construcción</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="notification-system" id="notifications"></div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-title">⚙️ Configuración</div>
+
+            <div class="form-group">
+                <label for="lang-front">Idioma FRONT (UI)</label>
+                <select id="lang-front">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="pt">Português</option>
+                    <option value="it">Italiano</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="lang-creatives">Idioma CREATIVES (Contenido)</label>
+                <select id="lang-creatives">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="pt">Português</option>
+                    <option value="it">Italiano</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="theme-selector">🎨 TEMA (Diseño)</label>
+                <select id="theme-selector">
+                    <option value="clara">CLARA - Recomendado (Blanco/Azul)</option>
+                    <option value="dark">DARK - Modo Oscuro (Negro/Gris)</option>
+                    <option value="minimal">MINIMAL - Minimalista (Gris/Blanco)</option>
+                    <option value="colorful">COLORFUL - Colorido (Multicolor)</option>
+                    <option value="energy">ENERGY - High Energy (Neon)</option>
+                </select>
+            </div>
+
+            <button class="btn-modal" id="save-settings">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = "http://localhost:5000/api";
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+
+        // State
+        let currentModule = "nauta";
+        let tasksData = [];
+        let habitsData = [];
+
+        // ===== INITIALIZATION =====
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeUI();
+            loadNautuaBriefing();
+            loadLanguageSettings();
+            setInterval(loadNautuaBriefing, REFRESH_INTERVAL);
+        });
+
+        // ===== UI INITIALIZATION =====
+        function initializeUI() {
+            // Sidebar navigation
+            document.querySelectorAll(".sidebar-icon").forEach(icon => {
+                icon.addEventListener("click", (e) => {
+                    const module = e.currentTarget.dataset.module;
+                    if (module) switchModule(module);
+                });
+            });
+
+            // Settings
+            const settingsBtn = document.getElementById("settings-btn");
+            const settingsModal = document.getElementById("settings-modal");
+
+            settingsBtn.addEventListener("click", () => {
+                settingsModal.classList.add("active");
+            });
+
+            settingsModal.addEventListener("click", (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.remove("active");
+                }
+            });
+
+            document.getElementById("save-settings").addEventListener("click", saveSettings);
+
+            // Keyboard shortcuts
+            document.addEventListener("keydown", (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === "S") {
+                    settingsModal.classList.add("active");
+                }
+                if (e.key === "Escape") {
+                    settingsModal.classList.remove("active");
+                }
+            });
+        }
+
+        // ===== MODULE SWITCHING =====
+        function switchModule(moduleName) {
+            document.querySelectorAll(".module").forEach(m => m.classList.remove("active"));
+            document.querySelectorAll(".sidebar-icon").forEach(i => i.classList.remove("active"));
+
+            const moduleEl = document.querySelector(`[data-module="${moduleName}"]`);
+            if (moduleEl) {
+                moduleEl.classList.add("active");
+            }
+
+            const iconEl = document.querySelector(`.sidebar-icon[data-module="${moduleName}"]`);
+            if (iconEl) {
+                iconEl.classList.add("active");
+            }
+
+            currentModule = moduleName;
+
+            // Load data for module
+            if (moduleName === "notion") {
+                loadAllTasks();
+            } else if (moduleName === "tracker") {
+                loadHabits();
+            }
+        }
+
+        // ===== API CALLS =====
+        async function apiCall(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error(`API Error (${endpoint}):`, error);
+                showNotification("Error al cargar datos", "error");
+                return { success: false, data: [] };
+            }
+        }
+
+        // ===== NAUTA BRIEFING =====
+        async function loadNautuaBriefing() {
+            const container = document.getElementById("nauta-container");
+
+            try {
+                // 1. Fetch del briefing del API
+                const result = await apiCall("/nauta/briefing");
+
+                if (!result.success || !result.data) {
+                    container.innerHTML = '<p style="color: #999; text-align: center;">Error cargando briefing. Revisa la conexión al API.</p>';
+                    return;
+                }
+
+                const data = result.data;
+                const now = new Date().toLocaleTimeString("es-ES", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+
+                let html = `
+                    <div class="nauta-briefing">
+                        <div class="nauta-greeting">
+                            Hola Roxana 👋<br>
+                            <small style="font-size: 14px; color: #888; font-weight: 400;">
+                                HOY ${data.fecha} • ${now}
+                            </small>
+                        </div>
+
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 15px;">
+                                🎯 TOP 3 TAREAS Q1
+                            </h3>
+                `;
+
+                // 2. Mostrar Top 3 Q1
+                if (data.top_3_tareas && data.top_3_tareas.length > 0) {
+                    data.top_3_tareas.forEach((task, idx) => {
+                        const estilo_color =
+                            task.prioridad === "Alta" ? "badge-alta" :
+                            task.prioridad === "Media" ? "badge-media" : "badge-baja";
+
+                        html += `
+                            <div class="task-card">
+                                <div class="task-info">
+                                    <div class="task-title">${idx + 1}. ${task.titulo}</div>
+                                    <div class="task-meta">
+                                        <span class="task-badge ${estilo_color}">${task.prioridad}</span>
+                                        <span class="task-badge" style="background: #f0f0f0; color: #666;">
+                                            ${task.categoria || "—"}
+                                        </span>
+                                        ${task.duracion_bloque ?
+                                            `<span class="task-badge" style="background: #e3f2fd; color: #1976d2;">
+                                                ${task.duracion_bloque}min
+                                            </span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="btn-small" title="Marcar completada">✓</button>
+                                    <button class="btn-small" title="Editar">✎</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += '<p style="color: #999; text-align: center; padding: 20px;">No hay tareas Q1 pendientes</p>';
+                }
+
+                html += `
+                        </div>
+
+                        <div style="margin-bottom: 25px;">
+                            <h3 style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px;">
+                                📋 TAREAS HOY (${data.tareas_hoy.length})
+                            </h3>
+                            <p style="color: #888; font-size: 12px; margin-bottom: 10px;">
+                                ${data.q1_pendientes} Q1 pendientes • ${data.total_tareas_dia} total
+                            </p>
+
+                            ${data.tareas_hoy && data.tareas_hoy.length > 0 ? `
+                                <div style="max-height: 200px; overflow-y: auto;">
+                                    ${data.tareas_hoy.slice(0, 5).map((task, idx) => `
+                                        <div class="task-card" style="margin-bottom: 10px; font-size: 12px;">
+                                            <div class="task-info">
+                                                <div class="task-title">${task.titulo}</div>
+                                                <div class="task-meta">${task.tipo} • ${task.categoria}</div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                    ${data.tareas_hoy.length > 5 ?
+                                        `<p style="color: #999; text-align: center; font-size: 11px;">
+                                            +${data.tareas_hoy.length - 5} más
+                                        </p>` : ''}
+                                </div>
+                            ` : `
+                                <p style="color: #999; text-align: center; padding: 10px;">
+                                    No hay tareas programadas hoy
+                                </p>
+                            `}
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button class="btn-small" style="width: auto; padding: 10px 16px; background: #667eea; color: white; border: none;">
+                                📞 Llamar NAUTA Ahora
+                            </button>
+                            <button class="btn-small" style="width: auto; padding: 10px 16px; margin-left: 10px; background: white; color: #667eea;">
+                                📋 Ver Log Cierres
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+
+                // 3. Event listeners para botones
+                container.querySelectorAll('.btn-small').forEach(btn => {
+                    btn.addEventListener('click', handleTaskAction);
+                });
+
+            } catch (error) {
+                console.error('Error en NAUTA:', error);
+                container.innerHTML = '<p style="color: #f44336; text-align: center;">Error cargando NAUTA briefing</p>';
+            }
+        }
+
+        function handleTaskAction(e) {
+            const action = e.currentTarget.textContent.trim();
+            if (action === '✓') {
+                showNotification('Tarea marcada como completada ✓', 'success');
+            } else if (action === '✎') {
+                showNotification('Función de edición en desarrollo', 'info');
+            }
+        }
+
+        // ===== ALL TASKS =====
+        async function loadAllTasks() {
+            const container = document.getElementById("notion-container");
+            const result = await apiCall("/tasks");
+
+            if (!result.success || !result.data || result.data.length === 0) {
+                container.innerHTML = '<p style="color: #999;">No hay tareas registradas</p>';
+                return;
+            }
+
+            let html = '<div>';
+            result.data.forEach(task => {
+                html += `
+                    <div class="task-card">
+                        <div class="task-info">
+                            <div class="task-title">${task.titulo}</div>
+                            <div class="task-meta">
+                                ${task.estado} • ${task.categoria} • ${task.prioridad}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        // ===== HABITS =====
+        async function loadHabits() {
+            const container = document.getElementById("tracker-container") ||
+                            document.querySelector('[data-module="tracker"]');
+
+            const result = await apiCall("/habits");
+
+            if (!result.success) {
+                return;
+            }
+
+            habitsData = result.data;
+            console.log("Hábitos cargados:", habitsData);
+        }
+
+        // ===== NOTIFICATIONS =====
+        function shouldShowNotification(type, message) {
+            const hash = `${type}-${message}`.replace(/\s/g, '');
+            const isDismissed = localStorage.getItem(`notification-${hash}-dismissed`);
+            return !isDismissed; // true = mostrar, false = saltar
+        }
+
+        function showNotification(message, type = "info") {
+            // Verificar si esta notificación fue cerrada antes
+            if (!shouldShowNotification(type, message)) {
+                return; // No mostrar si fue cerrada
+            }
+            const container = document.getElementById("notifications");
+            const notification = document.createElement("div");
+            const notificationId = `notification-${Date.now()}-${Math.random()}`;
+
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div>${message}</div>
+                <div class="notification-actions">
+                    <button class="notification-pause-btn" title="Pausar notificación">⏸</button>
+                    <button class="notification-close-btn" title="Cerrar permanentemente">✕</button>
+                </div>
+                <div class="notification-pause-menu" style="display: none;">
+                    <div class="pause-option" data-minutes="15">15 min</div>
+                    <div class="pause-option" data-minutes="30">30 min</div>
+                    <div class="pause-option" data-minutes="60">1 hora</div>
+                    <div class="pause-option" data-minutes="1440">1 día</div>
+                    <div class="pause-option" data-minutes="10080">1 semana</div>
+                    <div class="pause-option" data-indefinite="true">Pausa indefinida</div>
+                </div>
+            `;
+
+            container.appendChild(notification);
+
+            // Setup pause button
+            const pauseBtn = notification.querySelector('.notification-pause-btn');
+            const closeBtn = notification.querySelector('.notification-close-btn');
+            const pauseMenu = notification.querySelector('.notification-pause-menu');
+
+            pauseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                pauseMenu.style.display = pauseMenu.style.display === 'none' ? 'block' : 'none';
+            });
+
+            // Handle pause options
+            notification.querySelectorAll('.pause-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const minutes = option.dataset.minutes || 0;
+                    const indefinite = option.dataset.indefinite === 'true';
+
+                    let pauseUntil = Date.now();
+                    if (indefinite) {
+                        pauseUntil = 'indefinite';
+                    } else {
+                        const totalMs = parseInt(minutes) * 60 * 1000;
+                        pauseUntil = Date.now() + totalMs;
+                    }
+
+                    // Guardar en localStorage
+                    localStorage.setItem(`${notificationId}-paused-until`, pauseUntil);
+
+                    // Animar pausa
+                    pauseBtn.textContent = '⏱️';
+                    notification.style.opacity = '0.6';
+                    notification.style.pointerEvents = 'none';
+                    pauseMenu.style.display = 'none';
+
+                    // Notificar que fue pausada
+                    console.log(`Notificación pausada hasta: ${pauseUntil}`);
+                });
+            });
+
+            // Setup close button (cerrar PERMANENTEMENTE)
+            closeBtn.addEventListener('click', () => {
+                // Guardar que fue cerrada (por tipo + mensaje)
+                const hash = `${type}-${message}`.replace(/\s/g, '');
+                localStorage.setItem(`notification-${hash}-dismissed`, 'true');
+
+                // Animar y remover
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => notification.remove(), 300);
+            });
+
+            // Auto-dismiss después de 5 segundos (si no fue pausada)
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    const isPaused = localStorage.getItem(`${notificationId}-paused-until`);
+                    if (!isPaused) {
+                        notification.style.opacity = '0';
+                        notification.style.transform = 'translateX(400px)';
+                        setTimeout(() => notification.remove(), 300);
+                    }
+                }
+            }, 5000);
+        }
+
+        // ===== SETTINGS =====
+        function loadLanguageSettings() {
+            const frontLang = localStorage.getItem("lang-front") || "es";
+            const creativesLang = localStorage.getItem("lang-creatives") || "es";
+            const theme = localStorage.getItem("theme") || "clara";
+
+            document.getElementById("lang-front").value = frontLang;
+            document.getElementById("lang-creatives").value = creativesLang;
+            document.getElementById("theme-selector").value = theme;
+
+            // Aplicar tema
+            applyTheme(theme);
+        }
+
+        function applyTheme(themeName) {
+            // Remover todos los temas
+            document.body.className = document.body.className.replace(/theme-\w+/g, '');
+            // Agregar nuevo tema
+            document.body.classList.add(`theme-${themeName}`);
+            localStorage.setItem("theme", themeName);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Aplicar tema al cargar página
+            const savedTheme = localStorage.getItem("theme") || "clara";
+            applyTheme(savedTheme);
+
+            // Event listener para cambio de tema en tiempo real
+            const themeSelector = document.getElementById("theme-selector");
+            if (themeSelector) {
+                themeSelector.addEventListener("change", (e) => {
+                    applyTheme(e.target.value);
+                });
+            }
+        });
+
+        function saveSettings() {
+            const frontLang = document.getElementById("lang-front").value;
+            const creativesLang = document.getElementById("lang-creatives").value;
+            const theme = document.getElementById("theme-selector").value;
+
+            localStorage.setItem("lang-front", frontLang);
+            localStorage.setItem("lang-creatives", creativesLang);
+            localStorage.setItem("theme", theme);
+
+            applyTheme(theme);
+
+            showNotification("Configuración guardada ✓", "success");
+
+            document.getElementById("settings-modal").classList.remove("active");
+        }
+    </script>
+</body>
+</html>
