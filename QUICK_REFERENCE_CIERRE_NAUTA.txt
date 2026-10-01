@@ -1,0 +1,240 @@
+════════════════════════════════════════════════════════════════════════════════
+                    🤖 QUICK REFERENCE - NAUTA CIERRE
+                         Viernes 25 Abril 2026
+════════════════════════════════════════════════════════════════════════════════
+
+INSTRUCCIÓN 30 SEGUNDOS:
+────────────────────────
+Mañana SÁBADO 08:00 AM:
+1. Abre: NAUTA_REPORTE_FINAL_25042026.md (5 min)
+2. Abre: NAUTA_CIERRE_2026-04-25.md (15 min - LLENA AQUÍ)
+3. Llena: 5 pasos + Rueda (8 números)
+4. Guarda: Screenshot o Excel
+
+TOTAL: 20 minutos
+
+
+════════════════════════════════════════════════════════════════════════════════
+                            📊 RUEDA DE VIDA HOY
+════════════════════════════════════════════════════════════════════════════════
+
+Mañana llena 1-10 para cada:
+
+🏥 Salud:          ___/10  (Plan: 6)
+💰 Dinero:         ___/10  (Plan: 7)
+🎯 Carrera:        ___/10  (Plan: 8)
+🧠 Crecimiento:    ___/10  (Plan: 8)
+👨‍👩‍👧 Familia:        ___/10  (Plan: 7)
+🏠 Entorno:        ___/10  (Plan: 6)
+🎮 Ocio:           ___/10  (Plan: 5)
+✨ Espiritualidad: ___/10  (Plan: 5) ⚠️ CRÍTICO: Lleva 3
+
+
+════════════════════════════════════════════════════════════════════════════════
+                        5 PASOS DEL CIERRE (TEMPLATE)
+════════════════════════════════════════════════════════════════════════════════
+
+Fase 1️⃣ DESCARGA (5 min)
+└─ ¿Qué NO completé hoy? Max 5 items
+   □ _____________________________
+   □ _____________________________
+   □ _____________________________
+
+Fase 2️⃣ EXTRACCIÓN (3 min)
+└─ ¿Qué aprendí? ¿Qué bloqueó?
+   Insight: _____________________________
+
+Fase 3️⃣ MAÑANA (3 min)
+└─ Top 3 prioridades
+   1️⃣ (Q1): _____________________________
+   2️⃣ (Q2): _____________________________
+   3️⃣ (Q3): _____________________________
+
+Fase 4️⃣ HÁBITOS (2 min)
+└─ ¿Completaste hoy?
+   🧘 Meditación (15 min):    ✅ / ❌
+   💪 Gym (45 min):           ✅ / ❌
+   💧 Agua (8 vasos):         ✅ / ❌
+
+Fase 5️⃣ PALABRA (1 min)
+└─ Emoción síntesis del día
+   Una palabra: _____________________________
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          📈 COMPARATIVO RÁPIDO
+════════════════════════════════════════════════════════════════════════════════
+
+Métrica              | Sem 1 | Sem 2 Est. | Target | Trend
+────────────────────────────────────────────────────────
+Completitud          | 20%   | 45%        | 65%    | ↑ +25
+Rueda promedio       | 5.1   | 6.2        | 7.5    | ↑ +1.1
+Ofertas validadas    | N/A   | 6-7/7      | 7/7    | ✅ rango
+Espiritualidad       | 3     | 3          | 6      | ⚠️ urgente
+Dinero               | 5     | 5          | 7      | 🟡 pendiente
+
+
+════════════════════════════════════════════════════════════════════════════════
+                         🚨 PUNTOS CRÍTICOS
+════════════════════════════════════════════════════════════════════════════════
+
+🔴 ESPIRITUALIDAD = 3 (3 DÍAS BAJO)
+   └─ Problema: Meditación inconsistente
+   └─ Solución: Lunes 28/04 → 6:30 AM meditación ANTES desayuno
+   └─ Target: 3→6 en 1 semana
+
+
+🟡 DINERO = 5 (ESTANCADO)
+   └─ Correlato: TesteoLab ofertas validadas
+   └─ Solución: Consolidar 7 ofertas esta semana
+   └─ Target: Si 7 ofertas → Dinero sube a 7
+
+
+🟡 ¿7 OFERTAS VALIDADAS?
+   └─ Pregunta para mañana: Cuántas acumuladas
+   └─ Si 7 → Viernes decisión para escalar
+   └─ Si <7 → Martes empujón extra
+
+
+════════════════════════════════════════════════════════════════════════════════
+                         🎯 PRÓXIMAS ACCIONES
+════════════════════════════════════════════════════════════════════════════════
+
+SÁBADO 26/04 MAÑANA
+├─ 08:00 → Leer reportes (5 min)
+├─ 08:05 → Llenar 5 pasos + Rueda (15 min)
+└─ 08:25 → ✅ HECHO
+
+LUNES 28/04
+├─ 06:30 → NUEVA RUTINA: Meditación 15 min
+└─ Objetivo: 5 días consistencia (lun-vie)
+
+VIERNES 02/05
+├─ 19:00 → Review: ¿Consistencia meditación? ¿7 ofertas?
+├─ Decisión: ¿Mantener o escalar a 5 ofertas/semana?
+└─ 21:30 → Cierre semana 3 (misma estructura)
+
+
+════════════════════════════════════════════════════════════════════════════════
+                        📁 ARCHIVOS GENERADOS
+════════════════════════════════════════════════════════════════════════════════
+
+1. INDEX_NAUTA_CIERRE_25ABR.md ⭐ EMPIEZA AQUÍ
+   └─ Índice y guía rápida
+
+2. NAUTA_REPORTE_FINAL_25042026.md
+   └─ Análisis ejecutivo (5 min lectura)
+
+3. NAUTA_CIERRE_2026-04-25.md ⭐ LLENA AQUÍ
+   └─ Template interactivo con 5 pasos
+
+4. CONTROL_EJECUCION_25042026.xlsx
+   └─ Tracking visual en Excel
+
+5. RESUMEN_CIERRE_AUTOMATICO_25ABR.txt
+   └─ Análisis detallado (opcional)
+
+6. QUICK_REFERENCE_CIERRE_NAUTA.txt (ESTE ARCHIVO)
+   └─ Referencia visual rápida
+
+
+════════════════════════════════════════════════════════════════════════════════
+                        ✅ CHECKLIST MAÑANA
+════════════════════════════════════════════════════════════════════════════════
+
+SÁBADO 26/04 - ANTES DE DORMIR:
+
+☐ Abre NAUTA_REPORTE_FINAL_25042026.md
+☐ Abre NAUTA_CIERRE_2026-04-25.md
+☐ Llena FASE 1: Descarga
+☐ Llena FASE 2: Extracción
+☐ Llena FASE 3: Mañana
+☐ Llena FASE 4: Hábitos
+☐ Llena FASE 5: Palabra
+☐ Llena RUEDA: 8 números
+☐ Reflexiona: ¿Por qué Espiritualidad = 3?
+☐ Valida: ¿Cuántas ofertas esta semana?
+☐ Guarda: Screenshot o Excel
+☐ ✅ CIERRE COMPLETADO
+
+
+════════════════════════════════════════════════════════════════════════════════
+                      💡 INSIGHT CLAVE PARA SEMANA 3
+════════════════════════════════════════════════════════════════════════════════
+
+"Espiritualidad baja = EFECTO CASCADA en todo lo demás"
+
+NO ES QUE MEDITACIÓN SEA "UN HÁBITO MÁS"
+
+ES QUE SIN MEDITACIÓN:
+├─ ↓ Energía cognitiva
+├─ ↓ Enfoque en M1-M4
+├─ ↓ Motivación
+└─ ↓ Rueda de vida global
+
+ACCIÓN SEMANA 3:
+└─ Meditación ANTES desayuno (6:30 AM)
+   └─ No después
+   └─ No "cuando tengas tiempo"
+   └─ ANTES de todo
+
+RESULTADO ESPERADO VIERNES 02/05:
+├─ Espiritualidad: 3→6 ✅
+├─ Completitud: 45%→65% ✅
+├─ Dinero: 5→7 (si 7 ofertas) ✅
+└─ SISTEMA VALIDADO 🚀
+
+
+════════════════════════════════════════════════════════════════════════════════
+                            🎯 TU META
+════════════════════════════════════════════════════════════════════════════════
+
+SEMANA 3: VALIDACIÓN
+
+SI LOGRAS:
+  ✅ Meditación 5 días (lun-vie)
+  ✅ 7 ofertas validadas
+  ✅ Completitud 65%+
+
+ENTONCES:
+  → SISTEMA FUNCIONA
+  → Paso a FASE 3: ESCALA (5 ofertas/semana)
+  → Dinero → 7
+  → Espiritualidad → 6
+  → Rueda → 7.5
+
+ESTA SEMANA ES LA PRUEBA DECISIVA.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          ⏰ TIEMPO ESTIMADO
+════════════════════════════════════════════════════════════════════════════════
+
+Lectura reportes:      5 min ✅
+Llenar 5 pasos:       10 min ✅
+Llenar Rueda:          3 min ✅
+Reflexión final:       2 min ✅
+─────────────────────────────
+TOTAL:                20 min ✅
+
+
+════════════════════════════════════════════════════════════════════════════════
+                      📝 VERSIÓN IMPRIMIBLE MAÑANA
+════════════════════════════════════════════════════════════════════════════════
+
+Imprime este archivo + NAUTA_CIERRE_2026-04-25.md
+
+Úsalos como:
+├─ Referencia visual rápida
+├─ Checklist de acciones
+└─ Tracking del progreso
+
+
+════════════════════════════════════════════════════════════════════════════════
+
+Generado por: NAUTA (Coach Automatizado)
+Timestamp:   2026-04-25 21:30 UTC-3
+Próximo:     Sábado 26/04 08:00 AM
+Status:      ✅ LISTO PARA MAÑANA
+
+════════════════════════════════════════════════════════════════════════════════

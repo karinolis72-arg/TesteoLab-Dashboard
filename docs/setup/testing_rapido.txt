@@ -1,0 +1,156 @@
+═══════════════════════════════════════════════════════════════════════════════
+🧪 TESTING RÁPIDO: NAUTA EN DASHBOARD
+═══════════════════════════════════════════════════════════════════════════════
+
+⏱️ TIEMPO: 5 minutos
+📌 OBJETIVO: Validar que NAUTA funciona en el dashboard
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 1: Inicia el sistema (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Terminal:
+$ cd C:\apptesteo
+$ python notion_api.py
+
+Espera a ver:
+✓ "Listening on http://127.0.0.1:5000"
+✓ "NAUTA Scheduler iniciado"
+✓ "8:30 AM: Briefing automático"
+✓ "21:30: Log de cierre automático"
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 2: Abre el dashboard (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Navegador:
+http://localhost:5000
+
+Deberías ver:
+✓ Dashboard normal
+✓ Módulo NAUTA arriba (con 🤖 icono)
+✓ Mostrando:
+  - 📊 Estado de Hoy
+  - 3 números (tareas, completadas, energía)
+  - 3 botones azules
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 3: Prueba [VER BRIEFING] (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Haz esto:
+1. Click azul botón [📖 VER BRIEFING]
+
+Deberías ver:
+✓ Modal (ventana superpuesta) se abre
+✓ Título: "🤖 NAUTA BRIEFING"
+✓ Contenido:
+  - 💡 Recomendación
+  - 📋 Top 4 Tareas
+  - ✅ Hábitos
+  - ⚖️ Rueda de Vida (8 áreas)
+✓ Botón [X] arriba a la derecha
+
+Cierra:
+2. Click [X] o presiona ESC
+✓ Modal desaparece
+✓ Vuelves al dashboard
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 4: Prueba [REGISTRAR CIERRE] (2 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Haz esto:
+1. Click botón [🌙 REGISTRAR CIERRE]
+
+Deberías ver:
+✓ Modal se abre con formulario
+✓ Sección 1: ✅ ¿Qué completaste? (checkboxes)
+✓ Sección 2: 💬 Notas (textarea)
+✓ Sección 3: ⚡ Energía (dropdown)
+
+Completa el formulario:
+2. Checkea 2-3 tareas (click en checkboxes)
+3. Escribe algo en Notas: "Hoy productivo"
+4. Select Energía: "Alta"
+5. Click [✅ GUARDAR CIERRE]
+
+Deberías ver:
+✓ Alert popup: "✅ Cierre guardado en Notion"
+✓ Modal se cierra
+✓ Vuelves al dashboard
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 5: Prueba [VER ÚLTIMO CIERRE] (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Haz esto:
+1. Click botón [📊 VER ÚLTIMO CIERRE]
+
+Deberías ver:
+✓ Modal se abre (readonly)
+✓ Muestra lo que acabas de guardar:
+  - Fecha
+  - 2-3 completadas
+  - Notas: "Hoy productivo"
+  - Energía: "Alta"
+
+Cierra:
+2. Click [X] o ESC
+✓ Modal desaparece
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ SI VES TODO ESTO = ESTÁ FUNCIONANDO PERFECTO
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Dashboard carga
+□ Módulo NAUTA visible
+□ [VER BRIEFING] abre y cierra
+□ [REGISTRAR CIERRE] abre modal con formulario
+□ Guardar cierre funciona
+□ [VER ÚLTIMO CIERRE] muestra datos guardados
+
+═══════════════════════════════════════════════════════════════════════════════
+❌ SI ALGO FALLA
+═══════════════════════════════════════════════════════════════════════════════
+
+Error: Dashboard no carga
+→ Verifica: ¿python notion_api.py está corriendo?
+
+Error: No veo módulo NAUTA
+→ Verifica: ¿Recargaste la página? (Ctrl+Shift+R)
+
+Error: Modal no abre
+→ Abre console (F12) y busca errores rojos
+
+Error: No puedo guardar cierre
+→ Verifica: ¿Completaste todos los campos? (especialmente Energía)
+
+═══════════════════════════════════════════════════════════════════════════════
+CONSOLE (F12) - Si hay errores
+═══════════════════════════════════════════════════════════════════════════════
+
+Presiona: F12 en navegador
+Busca: Pestaña "Console"
+Deberías ver: NINGÚN error rojo (solo warnings)
+
+═══════════════════════════════════════════════════════════════════════════════
+📌 IMPORTANTE
+═══════════════════════════════════════════════════════════════════════════════
+
+• Los datos se guardan EN MEMORIA (no en Notion todavía)
+• Si cierras el servidor, se pierden
+• Próximo: Guardar en Notion permanentemente
+• El briefing y cierre de 8:30 y 21:30 se ejecutan en background
+• Puedes abrir [VER BRIEFING] en cualquier momento
+
+═══════════════════════════════════════════════════════════════════════════════
+AVÍSAME SI:
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ Todo funciona perfectamente
+✓ Algo no funciona
+✓ Quieres hacer cambios en la UI
+✓ Quieres probar otra cosa
+
+═══════════════════════════════════════════════════════════════════════════════

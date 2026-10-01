@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAUTA · Cierre Diario · 27/06/2026</title>
+<style>
+  :root {
+    --bg: #0f0f14;
+    --card: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #7c6aff;
+    --accent2: #ff6a9a;
+    --green: #3ddc84;
+    --yellow: #ffd166;
+    --orange: #ff9f43;
+    --red: #ff6b6b;
+    --text: #e8e8f0;
+    --muted: #888899;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 24px 16px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding: 24px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .header .nauta-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .header .date { color: var(--muted); font-size: 13px; }
+
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title span { font-size: 18px; }
+
+  .question {
+    background: rgba(124, 106, 255, 0.08);
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #c8c8e0;
+  }
+  .answer-box {
+    width: 100%;
+    background: #12121c;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    padding: 10px 12px;
+    margin-top: 6px;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.2s;
+  }
+  .answer-box:focus { outline: none; border-color: var(--accent); }
+  input.answer-box { min-height: unset; height: 40px; resize: none; }
+
+  .habit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .habit-row:last-child { border-bottom: none; }
+  .habit-name { font-size: 14px; }
+  .habit-toggle {
+    display: flex;
+    gap: 8px;
+  }
+  .toggle-btn {
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .toggle-btn:hover { border-color: var(--accent); color: var(--text); }
+  .toggle-btn.yes.active { background: var(--green); border-color: var(--green); color: #000; font-weight: 600; }
+  .toggle-btn.no.active { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
+
+  .rueda-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .rueda-item { display: flex; flex-direction: column; gap: 4px; }
+  .rueda-label { font-size: 12px; color: var(--muted); }
+  .rueda-input-row { display: flex; align-items: center; gap: 8px; }
+  .rueda-input {
+    width: 56px;
+    background: #12121c;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    padding: 6px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .rueda-input:focus { outline: none; border-color: var(--accent); }
+  .rueda-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .rueda-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 0.3s; }
+
+  .summary-box {
+    background: #12121c;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 8px;
+    display: none;
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #c8d8a0;
+  }
+
+  .btn-generate {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), #5a4aff);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: opacity 0.2s;
+  }
+  .btn-generate:hover { opacity: 0.9; }
+
+  .nota {
+    background: rgba(255, 166, 43, 0.08);
+    border: 1px solid rgba(255, 159, 67, 0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--orange);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .task-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    border: 1px solid;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .chip.comp { border-color: var(--green); color: var(--green); }
+  .chip.comp.active { background: var(--green); color: #000; font-weight: 600; }
+  .chip.parc { border-color: var(--yellow); color: var(--yellow); }
+  .chip.parc.active { background: var(--yellow); color: #000; font-weight: 600; }
+  .chip.mover { border-color: var(--red); color: var(--red); }
+  .chip.mover.active { background: var(--red); color: #fff; font-weight: 600; }
+
+  .chip-legend { display: flex; gap: 16px; font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .chip-legend span::before { content: '● '; }
+  .chip-legend .l-comp::before { color: var(--green); }
+  .chip-legend .l-parc::before { color: var(--yellow); }
+  .chip-legend .l-mover::before { color: var(--red); }
+
+  .score-bar {
+    display: flex;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+    gap: 2px;
+  }
+  .bar-comp { background: var(--green); transition: width 0.3s; }
+  .bar-parc { background: var(--yellow); transition: width 0.3s; }
+  .bar-mover { background: var(--red); transition: width 0.3s; }
+  .score-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 5px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="nauta-label">🤖 NAUTA · Coach Diario</div>
+  <h1>Cierre Ritual</h1>
+  <div class="date">Sábado, 27 de Junio de 2026 · 21:00</div>
+</div>
+
+<div class="nota">
+  ⚡ Ejecutado automáticamente. Completá este formulario para registrar tu cierre en Notion.
+</div>
+
+<!-- FASE 1: TAREAS DEL DÍA -->
+<div class="section">
+  <div class="section-title"><span>📊</span> FASE 1 — Tareas del Día</div>
+  <div class="chip-legend">
+    <span class="l-comp">COMP — completada</span>
+    <span class="l-parc">PARC — parcial</span>
+    <span class="l-mover">MOVER — sin tocar</span>
+  </div>
+  <p style="font-size:12px; color: var(--muted); margin-bottom:12px;">Tocá cada tarea para cambiar su estado. Podés agregar las tuyas abajo.</p>
+
+  <div class="task-chips" id="task-chips">
+    <span class="chip comp" data-state="none" onclick="cycleChip(this)">M1 Análisis Q1</span>
+    <span class="chip comp" data-state="none" onclick="cycleChip(this)">Landing M2</span>
+    <span class="chip comp" data-state="none" onclick="cycleChip(this)">Update Notion</span>
+    <span class="chip comp" data-state="none" onclick="cycleChip(this)">Chat NAUTA (Claude API)</span>
+    <span class="chip comp" data-state="none" onclick="cycleChip(this)">TesteoLab deploy</span>
+  </div>
+
+  <textarea class="answer-box" placeholder="Otras tareas del día (una por línea)..." rows="3" style="margin-top:12px;" id="extra-tasks"></textarea>
+
+  <div class="score-bar" id="score-bar" style="margin-top:12px;">
+    <div class="bar-comp" id="bar-comp" style="width:0%"></div>
+    <div class="bar-parc" id="bar-parc" style="width:0%"></div>
+    <div class="bar-mover" id="bar-mover" style="width:0%"></div>
+  </div>
+  <div class="score-labels">
+    <span id="label-comp">COMP: 0</span>
+    <span id="label-parc">PARC: 0</span>
+    <span id="label-mover">MOVER: 0</span>
+  </div>
+</div>
+
+<!-- FASE 2: APRENDIZAJE -->
+<div class="section">
+  <div class="section-title"><span>🧠</span> FASE 2 — Extracción</div>
+  <div class="question">¿Qué aprendiste hoy? ¿Qué bloqueó?</div>
+  <textarea class="answer-box" id="aprendizaje" placeholder="Ej: Aprendí que las campañas de sábado tienen menor CTR. Me bloqueó no tener copy listo para el anuncio..."></textarea>
+</div>
+
+<!-- FASE 3: MAÑANA -->
+<div class="section">
+  <div class="section-title"><span>🎯</span> FASE 3 — Top 3 Mañana</div>
+  <div class="question">Top 3 para mañana. ¿Cuál es Q1?</div>
+  <input class="answer-box" id="q1" placeholder="🥇 Q1 (lo más importante)..." />
+  <input class="answer-box" id="q2" placeholder="🥈 #2..." style="margin-top:8px;" />
+  <input class="answer-box" id="q3" placeholder="🥉 #3..." style="margin-top:8px;" />
+</div>
+
+<!-- FASE 4: HÁBITOS -->
+<div class="section">
+  <div class="section-title"><span>🔥</span> FASE 4 — Hábitos Hoy</div>
+
+  <div class="habit-row">
+    <div class="habit-name">🧠 Meditación 10-15min</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'med', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'med', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">💪 Gimnasio</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'gym', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'gym', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">🧘 Pilates</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'pilates', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'pilates', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">💧 2.5L Agua</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'agua', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'agua', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">🍎 Comer Fruta</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'fruta', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'fruta', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">🎯 Imaginar Vida</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'visualizar', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'visualizar', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">🙏 Agradecer+Metas</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'gratitud', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'gratitud', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">🚀 Accionar Landing</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'landing', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'landing', false)">❌</button>
+    </div>
+  </div>
+  <div class="habit-row">
+    <div class="habit-name">😴 Descanso Horario</div>
+    <div class="habit-toggle">
+      <button class="toggle-btn yes" onclick="toggleHabit(this, 'descanso', true)">✅</button>
+      <button class="toggle-btn no" onclick="toggleHabit(this, 'descanso', false)">❌</button>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 5: RUEDA DE VIDA -->
+<div class="section">
+  <div class="section-title"><span>🎭</span> FASE 5 — Rueda de Vida (1–10)</div>
+  <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">¿Cómo cerrás el día en cada área?</p>
+  <div class="rueda-grid">
+    <div class="rueda-item">
+      <div class="rueda-label">1. 🏥 Salud</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r1" oninput="updateBar(this,'rb1')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb1"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">2. 💰 Dinero</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r2" oninput="updateBar(this,'rb2')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb2"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">3. 💼 Carrera</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r3" oninput="updateBar(this,'rb3')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb3"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">4. 📚 Crec.Personal</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r4" oninput="updateBar(this,'rb4')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb4"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">5. 👨‍👩‍👧 Familia</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r5" oninput="updateBar(this,'rb5')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb5"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">6. 🏡 Entorno/Hogar</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r6" oninput="updateBar(this,'rb6')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb6"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">7. 🎮 Ocio</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r7" oninput="updateBar(this,'rb7')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb7"></div></div>
+      </div>
+    </div>
+    <div class="rueda-item">
+      <div class="rueda-label">8. ✨ Espiritualidad</div>
+      <div class="rueda-input-row">
+        <input class="rueda-input" type="number" min="1" max="10" id="r8" oninput="updateBar(this,'rb8')" placeholder="—">
+        <div class="rueda-bar"><div class="rueda-fill" id="rb8"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FASE 6: EMOCIÓN -->
+<div class="section">
+  <div class="section-title"><span>💭</span> FASE 6 — Cierre Mental</div>
+  <div class="question">Una palabra o emoción que resuma el día (sin filtros)</div>
+  <input class="answer-box" id="emocion" placeholder="Ej: agotada, enfocada, en llamas, dispersa..." />
+</div>
+
+<!-- GENERAR RESUMEN -->
+<div class="section">
+  <div class="section-title"><span>🎯</span> Resumen NAUTA</div>
+  <button class="btn-generate" onclick="generateSummary()">⚡ Generar Cierre</button>
+  <div class="summary-box" id="summary-output"></div>
+</div>
+
+<script>
+const habitState = {};
+function toggleHabit(btn, id, val) {
+  const row = btn.parentElement;
+  row.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  habitState[id] = val;
+}
+
+function cycleChip(chip) {
+  const states = ['none','comp','parc','mover'];
+  const classes = ['comp','parc','mover'];
+  let current = chip.dataset.state || 'none';
+  let idx = states.indexOf(current);
+  let next = states[(idx + 1) % states.length];
+  chip.dataset.state = next;
+  chip.className = 'chip ' + (next === 'none' ? 'comp' : next);
+  if (next !== 'none') chip.classList.add('active');
+  else chip.classList.remove('active');
+  updateScores();
+}
+
+function updateScores() {
+  const chips = document.querySelectorAll('#task-chips .chip');
+  let comp=0, parc=0, mover=0, total=0;
+  chips.forEach(c => {
+    const s = c.dataset.state;
+    if (s && s !== 'none') {
+      total++;
+      if (s==='comp') comp++;
+      if (s==='parc') parc++;
+      if (s==='mover') mover++;
+    }
+  });
+  const t = total || 1;
+  document.getElementById('bar-comp').style.width = (comp/t*100)+'%';
+  document.getElementById('bar-parc').style.width = (parc/t*100)+'%';
+  document.getElementById('bar-mover').style.width = (mover/t*100)+'%';
+  document.getElementById('label-comp').textContent = `COMP: ${comp}`;
+  document.getElementById('label-parc').textContent = `PARC: ${parc}`;
+  document.getElementById('label-mover').textContent = `MOVER: ${mover}`;
+}
+
+function updateBar(input, barId) {
+  const v = Math.min(10, Math.max(0, parseInt(input.value)||0));
+  const bar = document.getElementById(barId);
+  bar.style.width = (v*10)+'%';
+  if (v >= 8) bar.style.background = '#3ddc84';
+  else if (v >= 6) bar.style.background = '#ffd166';
+  else if (v >= 4) bar.style.background = '#ff9f43';
+  else bar.style.background = '#ff6b6b';
+}
+
+function getColor(v) {
+  if (!v) return '⬜';
+  if (v >= 8) return '🟢';
+  if (v >= 6) return '🟡';
+  if (v >= 4) return '🟠';
+  return '🔴';
+}
+
+function generateSummary() {
+  const chips = document.querySelectorAll('#task-chips .chip');
+  let comp=[], parc=[], mover=[];
+  chips.forEach(c => {
+    if (c.dataset.state==='comp') comp.push(c.textContent);
+    if (c.dataset.state==='parc') parc.push(c.textContent);
+    if (c.dataset.state==='mover') mover.push(c.textContent);
+  });
+  const total = comp.length + parc.length + mover.length;
+  const pct = total ? Math.round(comp.length/total*100) : 0;
+
+  const ruedaLabels = ['Salud','Dinero','Carrera','Crec.Personal','Familia','Entorno','Ocio','Espiritualidad'];
+  const ruedaVals = [1,2,3,4,5,6,7,8].map(i => parseInt(document.getElementById('r'+i).value)||null);
+
+  const habitNames = {
+    med:'🧠 Meditación', gym:'💪 Gimnasio', pilates:'🧘 Pilates',
+    agua:'💧 Agua', fruta:'🍎 Fruta', visualizar:'🎯 Imaginar Vida',
+    gratitud:'🙏 Gratitud', landing:'🚀 Landing', descanso:'😴 Descanso'
+  };
+  const hOK = Object.entries(habitState).filter(([,v])=>v).map(([k])=>habitNames[k]||k);
+  const hNO = Object.entries(habitState).filter(([,v])=>!v).map(([k])=>habitNames[k]||k);
+
+  const q1 = document.getElementById('q1').value.trim();
+  const q2 = document.getElementById('q2').value.trim();
+  const q3 = document.getElementById('q3').value.trim();
+  const aprendizaje = document.getElementById('aprendizaje').value.trim();
+  const emocion = document.getElementById('emocion').value.trim();
+
+  const minAlert = ruedaVals.reduce((acc,v,i)=>{
+    if (v !== null && v < 4) acc.push(ruedaLabels[i]+' '+v);
+    return acc;
+  },[]);
+
+  let out = `🎯 CIERRE 27/06/2026 · SÁBADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Completitud: ${pct}%
+   ├─ COMP: ${comp.length}/${total} — ${comp.join(', ')||'—'}
+   ├─ PARC: ${parc.length}/${total} — ${parc.join(', ')||'—'}
+   └─ MOVER: ${mover.length}/${total} — ${mover.join(', ')||'—'}
+`;
+
+  if (aprendizaje) out += `\n🧠 Learning: ${aprendizaje}`;
+
+  out += `\n\n🔥 Hábitos HOY:`;
+  if (hOK.length) out += `\n   ✅ ${hOK.join(' · ')}`;
+  if (hNO.length) out += `\n   ❌ ${hNO.join(' · ')}`;
+  if (!hOK.length && !hNO.length) out += `\n   — sin registrar`;
+
+  out += `\n\n🎭 Rueda de Vida:`;
+  ruedaLabels.forEach((l,i)=>{
+    const v = ruedaVals[i];
+    out += `\n   ${getColor(v)} ${l}: ${v||'—'}`;
+  });
+
+  if (minAlert.length) out += `\n\n⚠️  Alertas bajas: ${minAlert.join(' · ')}`;
+
+  if (q1||q2||q3) {
+    out += `\n\n🔁 Mañana:`;
+    if (q1) out += `\n   🥇 Q1: ${q1}`;
+    if (q2) out += `\n   🥈 ${q2}`;
+    if (q3) out += `\n   🥉 ${q3}`;
+  }
+
+  if (emocion) out += `\n\n💭 Palabra del día: "${emocion}"`;
+
+  out += `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Registrado por NAUTA · 27/06/2026 21:00`;
+
+  const box = document.getElementById('summary-output');
+  box.style.display = 'block';
+  box.textContent = out;
+  box.scrollIntoView({ behavior:'smooth' });
+}
+</script>
+</body>
+</html>

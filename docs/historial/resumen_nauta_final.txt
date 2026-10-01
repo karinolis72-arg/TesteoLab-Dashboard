@@ -1,0 +1,274 @@
+═══════════════════════════════════════════════════════════════════════════════
+  NAUTA: INTEGRACIÓN COMPLETADA EN DASHBOARD
+═══════════════════════════════════════════════════════════════════════════════
+
+FECHA: 2026-04-11
+ESTADO: Listo para testing
+VERSIÓN: 2.1 (Arquitectura final integrada)
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 QUÉ SE HIZO
+═══════════════════════════════════════════════════════════════════════════════
+
+1. ✅ MÓDULO NAUTA EN DASHBOARD
+   └─ Ya NO es una página separada
+   └─ Es un panel dentro del dashboard_v2.html
+   └─ Muestra estado del día: Tareas, Completadas, Energía
+
+2. ✅ 3 BOTONES EN MÓDULO NAUTA
+   ├─ 📖 VER BRIEFING (8:30 AM)
+   ├─ 🌙 REGISTRAR CIERRE (21:30)
+   └─ 📊 VER ÚLTIMO CIERRE
+
+3. ✅ 3 MODALES SUPERPUESTOS
+   ├─ Modal Briefing → Abre al click [VER BRIEFING]
+   ├─ Modal Cierre → Abre al click [REGISTRAR CIERRE]
+   └─ Modal Último Cierre → Abre al click [VER ÚLTIMO CIERRE]
+
+4. ✅ FORMULARIO DE CIERRE
+   ├─ Checkboxes: ¿Qué completaste?
+   ├─ Textarea: Notas personales
+   ├─ Select: Energía para mañana
+   └─ Botón [GUARDAR CIERRE]
+
+5. ✅ FUNCIONES JAVASCRIPT
+   ├─ openBriefingModal()
+   ├─ closeBriefingModal()
+   ├─ openCierreModal()
+   ├─ closeCierreModal()
+   ├─ guardarCierre()
+   ├─ openLastCierre()
+   ├─ closeLastCierreModal()
+   └─ loadNautaStatus()
+
+6. ✅ ENDPOINTS API NUEVOS
+   ├─ GET /api/nauta/status → Retorna estado actual
+   ├─ POST /api/nauta/save-cierre → Guarda el cierre
+   └─ GET /api/nauta/last-cierre → Obtiene último cierre
+
+7. ✅ SCHEDULER (YA EXISTÍA)
+   ├─ 8:30 AM → Genera datos de briefing
+   └─ 21:30 → Genera template de cierre
+
+═══════════════════════════════════════════════════════════════════════════════
+🎨 CÓMO SE VE AHORA
+═══════════════════════════════════════════════════════════════════════════════
+
+DASHBOARD.HTML
+┌─────────────────────────────────────────────────────────────────────┐
+│                          SIDEBAR                    CONTENT          │
+│  ┌──────┐  ┌───────────────────────────────────────────────────┐   │
+│  │ 🤖   │  │ 🤖 NAUTA - Coach Automático                      │   │
+│  │ 📓   │  │                                                   │   │
+│  │ 📊   │  │ 📊 Estado de Hoy                                │   │
+│  │ M1   │  │ ┌──────────┬──────────┬──────────────┐           │   │
+│  │ M2   │  │ │    3     │    2     │     70%      │           │   │
+│  │ M3   │  │ │ Tareas   │Completas │   Energía    │           │   │
+│  │ M4   │  │ └──────────┴──────────┴──────────────┘           │   │
+│  │      │  │                                                   │   │
+│  │ ⚙️   │  │ [📖 VER BRIEFING]                               │   │
+│  │      │  │ [🌙 REGISTRAR CIERRE]                           │   │
+│  │      │  │ [📊 VER ÚLTIMO CIERRE]                          │   │
+│  │      │  │                                                   │   │
+│  │      │  │ ⚠️ Último cierre: Ayer                           │   │
+│  │      │  │    ✅ 2 completadas | ❌ 3 pendientes           │   │
+│  │      │  │                                                   │   │
+│  └──────┘  └───────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+
+
+AL CLICK [📖 VER BRIEFING]
+┌─────────────────────────────────────────────────────────────┐
+│                     MODAL OVERLAY                      [X]  │
+│                                                             │
+│ 🤖 NAUTA BRIEFING - 11 de April de 2026 - 08:30          │
+│                                                             │
+│ 💡 Recomendación                                          │
+│    Hoy tienes 3 tareas. Comienza por la prioritaria.     │
+│                                                             │
+│ 📋 Top 4 Tareas de Hoy                                    │
+│ 1. Investigar ofertas Meta Ads (M1) - ALTA               │
+│ 2. Crear MVP landing page (M2) - ALTA                    │
+│ 3. Generar 62 ángulos (M3) - MEDIA                       │
+│ 4. Setup Testing Meta (M4) - MEDIA                       │
+│                                                             │
+│ ✅ Hábitos Esperados                                       │
+│ □ Meditación 10 min                                       │
+│ □ Lectura 30 min                                          │
+│ □ Stretching 5 min                                        │
+│                                                             │
+│ ⚖️ Rueda de Vida                                           │
+│ Salud      ████░ 60%                                       │
+│ Familia    ██░░░ 40%                                       │
+│ Amigos     ███░░ 50%                                       │
+│ Romance    ██░░░ 30%                                       │
+│ Finanzas   █████ 85%                                       │
+│ Negocios   █████ 90%                                       │
+│ Personal   ████░ 75%                                       │
+│ Diversión  ██░░░ 25%                                       │
+│                                                             │
+│ [Cerrar]                                                    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+
+AL CLICK [🌙 REGISTRAR CIERRE]
+┌─────────────────────────────────────────────────────────────┐
+│                     MODAL OVERLAY                      [X]  │
+│                                                             │
+│ 🌙 Registra tu Cierre                                     │
+│                                                             │
+│ ✅ ¿Qué completaste hoy?                                  │
+│ ☑ Investigar ofertas Meta Ads (M1) - ALTA               │
+│ ☑ Crear MVP landing (50%) (M2) - ALTA                   │
+│ ☐ Generar 62 ángulos (M3) - MEDIA                       │
+│ ☐ Testing Meta (M4) - MEDIA                             │
+│                                                             │
+│ 💬 Notas Personales                                        │
+│ ┌──────────────────────────────────────────────────┐     │
+│ │ Hoy fue muy productivo. M1 salió rápido. M2     │     │
+│ │ tiene más complejidad de lo esperado. Mañana    │     │
+│ │ necesito comenzar más temprano con M3.          │     │
+│ └──────────────────────────────────────────────────┘     │
+│                                                             │
+│ ⚡ Energía para mañana                                     │
+│ [Baja  ]▼  (Selecciona: Baja, Media, Alta)             │
+│                                                             │
+│ [✅ GUARDAR CIERRE] [Cancelar]                            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+🚀 PARA TESTEAR AHORA
+═══════════════════════════════════════════════════════════════════════════════
+
+PASO 1: Inicia el backend
+────────────────────────────
+cd C:\apptesteo
+python notion_api.py
+
+Deberías ver:
+  ✓ Listening on http://127.0.0.1:5000
+  ✓ NAUTA Scheduler iniciado
+
+PASO 2: Abre el dashboard
+────────────────────────────
+http://localhost:5000
+
+Deberías ver:
+  ✓ Módulo NAUTA en el dashboard
+  ✓ Estado: X Tareas, X Completadas, X% Energía
+  ✓ 3 botones de acción
+
+PASO 3: Prueba los botones
+────────────────────────────
+
+A) Click [📖 VER BRIEFING]
+   Resultado esperado:
+   ✓ Modal se abre
+   ✓ Muestra título "NAUTA BRIEFING"
+   ✓ Muestra tareas, hábitos, rueda de vida
+   ✓ Click [X] cierra el modal
+   ✓ Vuelves al dashboard
+
+B) Click [🌙 REGISTRAR CIERRE]
+   Resultado esperado:
+   ✓ Modal se abre con formulario
+   ✓ Muestra checkboxes de tareas del día
+   ✓ Área de notas
+   ✓ Select para energía
+
+   Completa:
+   1. Checkea 2-3 tareas
+   2. Escribe una nota
+   3. Selecciona "Alta" en energía
+   4. Click [GUARDAR CIERRE]
+
+   Resultado:
+   ✓ Alert: "✅ Cierre guardado en Notion"
+   ✓ Modal se cierra
+   ✓ Vuelves al dashboard
+
+C) Click [📊 VER ÚLTIMO CIERRE]
+   Resultado esperado:
+   ✓ Modal se abre
+   ✓ Muestra los datos que acabas de guardar
+   ✓ Score: X completadas / Y tareas
+   ✓ Tus notas
+   ✓ Energía registrada
+   ✓ Click [X] cierra
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ CHECKLIST DE TESTING
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Backend inicia correctamente
+□ Dashboard carga sin errores
+□ Módulo NAUTA es visible
+□ Estado del día muestra números (tareas, completadas, energía)
+□ [VER BRIEFING] abre modal
+□ [VER BRIEFING] muestra HTML con tareas
+□ [VER BRIEFING] close funciona (ESC, X, click afuera)
+□ [REGISTRAR CIERRE] abre modal con formulario
+□ [REGISTRAR CIERRE] carga tareas del día como checkboxes
+□ Puedo completar el formulario
+□ [GUARDAR CIERRE] guarda sin errores
+□ [VER ÚLTIMO CIERRE] muestra lo que guardé
+□ Cerrar modales con ESC funciona
+□ Cerrar modales con click afuera funciona
+
+═══════════════════════════════════════════════════════════════════════════════
+📁 ARCHIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════════════════════
+
+✓ dashboard_v2.html
+  ├─ Módulo NAUTA reemplazado (líneas 540-548)
+  ├─ 3 Modales agregados
+  └─ ~200 líneas de funciones JavaScript
+
+✓ notion_api.py
+  ├─ Actualizado endpoint /api/nauta/status
+  ├─ Nuevo endpoint /api/nauta/save-cierre
+  └─ Nuevo endpoint /api/nauta/last-cierre
+
+✓ nauta_scheduler.py (ya existía)
+  └─ Funciona en background
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 DATOS QUE USA AHORA
+═══════════════════════════════════════════════════════════════════════════════
+
+LECTURA:
+  • Notion Roadmap Master (tareas del día)
+  • Notion Hábitos (lista de hábitos)
+
+ESCRITURA:
+  • Memoria local (nauta_state)
+  • Próximo: Notion "NAUTA Logs"
+
+═══════════════════════════════════════════════════════════════════════════════
+🎯 PRÓXIMO PASO DESPUÉS DEL TESTING
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Crear tabla "NAUTA Logs" en Notion
+2. Conectar POST /api/nauta/save-cierre con Notion
+3. Cargar últimos cierres desde Notion
+4. Dashboard de histórico de cierres
+
+═══════════════════════════════════════════════════════════════════════════════
+🔗 DOCUMENTOS RELEVANTES
+═══════════════════════════════════════════════════════════════════════════════
+
+• NAUTA_ARQUITECTURA_FINAL.md ......... Arquitectura técnica completa
+• NAUTA_TESTING.md ................... Guía de testing inicial (old)
+• IMPLEMENTACIÓN_NAUTA_COMPLETA.md ... Resumen de implementación (old)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+¿LISTO PARA TESTEAR?
+
+1. python notion_api.py
+2. http://localhost:5000
+3. Prueba los 3 botones
+
+═══════════════════════════════════════════════════════════════════════════════

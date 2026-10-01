@@ -1,0 +1,108 @@
+================================================================================
+                    TESTEOLAB DASHBOARD - COMIENZA AQUI
+================================================================================
+
+Hola Karina,
+
+Todo está listo para hacer el deployment de TesteoLab en Render.
+Solo necesitas 3 pasos simples que toman 5 minutos.
+
+================================================================================
+LEE ESTO PRIMERO: README_INICIO.md
+================================================================================
+
+Ubicación: C:\apptesteo\README_INICIO.md
+Tiempo: 2 minutos
+Contiene: Resumen de qué está hecho y qué falta
+
+================================================================================
+LUEGO EJECUTA ESTOS 3 PASOS
+================================================================================
+
+PASO 1: GitHub
+  → Ve a https://github.com/new
+  → Nombre: TesteoLab-Dashboard
+  → Tipo: PUBLIC
+  → Crea el repositorio
+  → Copia la URL
+
+PASO 2: Git Push
+  → Abre CMD o PowerShell
+  → cd C:\apptesteo
+  → git remote add origin [URL-COPIADA]
+  → git branch -M main
+  → git push -u origin main
+  → Espera a que termine
+
+PASO 3: Render Deploy
+  → Ve a https://render.com/dashboard
+  → Click "New +" → "Web Service"
+  → Conecta el repo TesteoLab-Dashboard
+  → Llena los campos (ver QUICK_START_RENDER.md)
+  → Agrega variables de entorno (ver QUICK_START_RENDER.md)
+  → Click "Create Web Service"
+  → Espera a que diga "Live"
+
+================================================================================
+DOCUMENTACIÓN DISPONIBLE
+================================================================================
+
+En C:\apptesteo\ encontrarás:
+
+1. README_INICIO.md ← EMPIEZA AQUI
+2. QUICK_START_RENDER.md ← Para los 3 pasos
+3. DEPLOYMENT_RENDER.md ← Guía completa
+4. GITHUB_PUSH_INSTRUCTIONS.txt ← Instrucciones detalladas
+
+================================================================================
+RESULTADO FINAL
+================================================================================
+
+Cuando termines:
+  URL: https://testeolab-dashboard.onrender.com
+  Acceso: Desde PC y celular
+  Datos: Conectados a Notion
+
+Todo online y funcionando automáticamente.
+
+================================================================================
+ARCHIVOS LISTOS EN C:\apptesteo
+================================================================================
+
+Configuración:
+  ✓ Procfile
+  ✓ requirements.txt (con gunicorn)
+  ✓ runtime.txt (Python 3.11.7)
+  ✓ .gitignore
+
+Código:
+  ✓ notion_api.py (Backend)
+  ✓ dashboard_v2.html (Frontend)
+
+Git:
+  ✓ .git/ (Repositorio inicializado)
+
+================================================================================
+SI TIENES PROBLEMAS
+================================================================================
+
+1. "Git error" → Ver GITHUB_PUSH_INSTRUCTIONS.txt
+2. "Render build failed" → Ver DEPLOYMENT_RENDER.md (sección troubleshooting)
+3. "Dashboard no carga" → Revisar logs de Render
+4. "Notion no funciona" → Verificar NOTION_TOKEN en Render env vars
+
+================================================================================
+TIEMPO ESTIMADO
+================================================================================
+
+GitHub:     1 minuto
+Git push:   2 minutos
+Render:     2 minutos
+Build:      2-3 minutos
+TOTAL:      8-10 minutos
+
+================================================================================
+
+¡VAMOS\! Abre README_INICIO.md y comienza.
+
+================================================================================

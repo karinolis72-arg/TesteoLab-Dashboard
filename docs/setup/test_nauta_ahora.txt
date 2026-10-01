@@ -1,0 +1,219 @@
+═══════════════════════════════════════════════════════════════════════════════
+🧪 TESTING NAUTA - MODO RÁPIDO (5 MIN)
+═══════════════════════════════════════════════════════════════════════════════
+
+PROBLEMA SOLUCIONADO:
+  ✓ Removida función vieja loadNautuaBriefing() que causaba loop infinito
+  ✓ Removido setInterval que recargaba la página constantemente
+  ✓ Inicialización ahora llama a loadNautaStatus() (nueva versión)
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 1: INICIA SERVIDOR (30 seg)
+═══════════════════════════════════════════════════════════════════════════════
+
+Terminal:
+$ cd C:\apptesteo
+$ python notion_api.py
+
+Espera a ver:
+  ✓ "Listening on http://127.0.0.1:5000"
+  ✓ "NAUTA Scheduler iniciado"
+  ✓ "Próximo briefing: HH:MM"
+  ✓ "Próximo cierre: HH:MM"
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 2: ABRE DASHBOARD EN NAVEGADOR (30 seg)
+═══════════════════════════════════════════════════════════════════════════════
+
+Navegador:
+  http://localhost:5000
+
+IMPORTANTE: Espera a que cargue el módulo NAUTA completo (sin recargarse).
+
+Deberías ver:
+  ✓ Dashboard sin parpadeos ni recargas
+  ✓ Módulo 🤖 NAUTA visible en el contenido principal
+  ✓ Sección "📊 Estado de Hoy" con 3 números:
+    - 3 Tareas Hoy
+    - 2 Completadas
+    - 70% Energía
+  ✓ 3 botones azules:
+    - [📖 VER BRIEFING]
+    - [🌙 REGISTRAR CIERRE]
+    - [📊 VER ÚLTIMO CIERRE]
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 3: TEST [📖 VER BRIEFING] (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Acciones:
+1. Click botón [📖 VER BRIEFING]
+
+Resultado esperado:
+  ✓ Modal se abre (overlay oscuro de fondo)
+  ✓ Título: "🤖 NAUTA BRIEFING - 11 de April de 2026"
+  ✓ Contenido visible:
+    - 💡 Recomendación
+    - 📋 Top 4 Tareas de Hoy
+    - ✅ Hábitos Esperados
+    - ⚖️ Rueda de Vida (8 áreas)
+  ✓ Botón [X] en esquina superior derecha
+
+Cierre:
+2. Click [X] O presiona ESC
+
+Resultado:
+  ✓ Modal desaparece suavemente
+  ✓ Vuelves al dashboard
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 4: TEST [🌙 REGISTRAR CIERRE] (2 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Acciones:
+1. Click botón [🌙 REGISTRAR CIERRE]
+
+Resultado esperado:
+  ✓ Modal se abre con formulario
+  ✓ Sección 1: "✅ ¿Qué completaste hoy?"
+    - 4 checkboxes (tareas del día)
+    - Puedes checkear múltiples
+  ✓ Sección 2: "💬 Notas Personales"
+    - Textarea para escribir
+  ✓ Sección 3: "⚡ Energía para mañana"
+    - Dropdown: [Baja, Media, Alta]
+
+Completa:
+2. Checkea 2-3 tareas (click en checkboxes)
+3. Escribe nota: "Hoy fue productivo"
+4. Select energía: "Alta"
+5. Click [✅ GUARDAR CIERRE]
+
+Resultado:
+  ✓ Alert popup: "✅ Cierre guardado en Notion"
+  ✓ Modal cierra automáticamente
+  ✓ Vuelves al dashboard
+  ✓ Módulo NAUTA actualiza estado
+
+═══════════════════════════════════════════════════════════════════════════════
+PASO 5: TEST [📊 VER ÚLTIMO CIERRE] (1 min)
+═══════════════════════════════════════════════════════════════════════════════
+
+Acciones:
+1. Click botón [📊 VER ÚLTIMO CIERRE]
+
+Resultado esperado:
+  ✓ Modal se abre (readonly)
+  ✓ Muestra lo que acabas de guardar:
+    - Fecha y hora del cierre
+    - 2-3 tareas completadas ✓
+    - Notas: "Hoy fue productivo"
+    - Energía: "Alta"
+    - Score: "2 completadas / 3 total"
+
+Cierre:
+2. Click [X] o ESC
+
+Resultado:
+  ✓ Modal desaparece
+  ✓ Vuelves al dashboard
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ CHECKLIST RÁPIDO
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Dashboard carga sin recargarse constantemente
+□ Módulo NAUTA es visible
+□ Estado del día muestra números (3, 2, 70%)
+□ [VER BRIEFING] abre modal con contenido
+□ Modal tiene 4 secciones (titulo, recomendación, tareas, hábitos, rueda)
+□ [X] cierra modal correctamente
+□ ESC cierra modal correctamente
+□ [REGISTRAR CIERRE] abre modal con formulario
+□ Puedo completar el formulario (checkboxes, notas, energía)
+□ [GUARDAR CIERRE] guarda sin errores
+□ [VER ÚLTIMO CIERRE] muestra lo que guardé
+□ Dashboard NO recarga después de guardar
+
+═══════════════════════════════════════════════════════════════════════════════
+❌ SI ALGO FALLA
+═══════════════════════════════════════════════════════════════════════════════
+
+Error: Dashboard no carga
+  → Verifica: python notion_api.py está corriendo
+  → URL correcta: http://localhost:5000
+
+Error: Dashboard se recarga constantemente
+  → Abre Console (F12)
+  → Busca errores en rojo
+  → Refresca la página (Ctrl+Shift+R)
+
+Error: No veo módulo NAUTA
+  → Recarga la página con Ctrl+Shift+R
+  → Verifica que veas "🤖 NAUTA" en la página
+
+Error: Modal no abre
+  → Abre Console (F12)
+  → Busca "Error opening modal" o similar
+  → Verifica que JavaScript no tiene errores
+
+Error: No puedo guardar cierre
+  → Asegúrate de completar TODOS los campos:
+    ✓ Al menos 1 checkbox
+    ✓ Alguna nota (no puede estar vacío)
+    ✓ Energía seleccionada (no "--")
+  → Abre Console y mira la request POST
+
+═══════════════════════════════════════════════════════════════════════════════
+CONSOLE (F12) - Verificación técnica
+═══════════════════════════════════════════════════════════════════════════════
+
+Presiona: F12
+Pestaña: Console
+Deberías ver: NINGÚN error rojo
+
+Busca especialmente:
+  ✓ NO errors como "loadNautuaBriefing is not defined"
+  ✓ NO errors como "setInterval undefined"
+  ✓ Warnings están OK (amarillos)
+
+═══════════════════════════════════════════════════════════════════════════════
+📌 NOTAS IMPORTANTES
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Datos guardados: EN MEMORIA (temporal)
+   - Si cierras servidor, se pierden
+   - Próximo: Guardar en Notion permanentemente
+
+2. Scheduler en background:
+   - 8:30 AM: Briefing automático (puedes abrirlo en cualquier momento)
+   - 21:30: Cierre automático (puedes registrarlo en cualquier momento)
+
+3. Modales usan:
+   - ESC para cerrar
+   - Click fuera del modal para cerrar
+   - [X] en la esquina superior
+
+═══════════════════════════════════════════════════════════════════════════════
+✅ RESULTADO ESPERADO FINAL
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Dashboard carga sin parpadeos
+2. Módulo NAUTA visible y funcional
+3. 3 botones responden a clicks
+4. 3 modales abren y cierran correctamente
+5. Formulario se puede completar y guardar
+6. Datos guardados aparecen en "VER ÚLTIMO CIERRE"
+7. NO hay recargas automáticas
+8. NO hay errores en console
+
+═══════════════════════════════════════════════════════════════════════════════
+LISTO PARA TESTEAR?
+
+1. python notion_api.py
+2. http://localhost:5000
+3. Sigue los 5 pasos arriba
+
+¡Avísame si todo funciona o si hay algo que arreglar!
+
+═══════════════════════════════════════════════════════════════════════════════

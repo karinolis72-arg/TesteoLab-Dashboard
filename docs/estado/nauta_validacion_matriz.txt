@@ -1,0 +1,228 @@
+═══════════════════════════════════════════════════════════════════════════════════
+🤖 NAUTA - MATRIZ DE VALIDACIÓN VISUAL
+═══════════════════════════════════════════════════════════════════════════════════
+
+LEYENDA:
+✅ = Funciona completamente
+⚠️  = Funciona parcialmente
+❌ = No funciona / no existe
+🔄 = En progreso
+
+═══════════════════════════════════════════════════════════════════════════════════
+1. BRIEFING - "📖 VER BRIEFING"
+═══════════════════════════════════════════════════════════════════════════════════
+
+SECCIÓN                    ESTADO   DATOS                 PROBLEMA
+────────────────────────────────────────────────────────────────────────────────
+Modal abre                 ✅       N/A                   Funciona sin errores
+Título                     ✅       Dinámico (fecha hoy)  OK
+Top 3 Tareas Q1            ❌       Hardcoded             Debe leer Roadmap Master
+  └─ Conecta Notion        ❌       NO                    Necesita GET Notion
+Tareas HOY                 ⚠️       Mix hardcoded/datos   Carga /api/tasks/today pero sin detalles
+  └─ Checkboxes           ⚠️       Parcial              Faltan: duración, bloque horario
+Hábitos Esperados          ❌       Vacío                 Debe mostrar hábitos de hoy
+  └─ Conecta Notion        ❌       NO                    Necesita GET /api/habits
+Rueda de Vida              ❌       Hardcoded (60%/40%)  Debe leer tabla Notion
+  └─ 8 áreas               ❌       Fake numbers          Salud: 60%, Trabajo: 40%, etc.
+Recomendación IA           ❌       NO EXISTE             Podría usar ChatGPT
+Cerrar Modal (X/ESC)       ✅       N/A                   Funciona
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 2/8 funciona | 6/8 falta
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+2. CIERRE - "🌙 REGISTRAR CIERRE"
+═══════════════════════════════════════════════════════════════════════════════════
+
+SECCIÓN                    ESTADO   DATOS                 PROBLEMA
+────────────────────────────────────────────────────────────────────────────────
+Modal abre                 ✅       N/A                   Funciona sin errores
+Título                     ✅       Dinámico             "Registra tu Cierre"
+✅ Tareas Completadas      ⚠️       Desde /api/tasks      Cargan pero faltan detalles
+  └─ Checkboxes           ⚠️       N items               OK pero sin contexto
+  └─ Prioridades          ⚠️       Se muestran          Pero sin colores/estilos
+Notas Personales           ⚠️       Textarea vacío        Funciona escribir pero sin ayuda
+Energía para mañana        ✅       Dropdown              Baja/Media/Alta - funciona
+Guardar botón              ⚠️       POST /api/nauta/save  GUARDA EN MEMORIA, no Notion
+Cancelar botón             ✅       Cierra modal          Funciona
+Validaciones               ❌       NO IMPLEMENTADAS      Falta: "¿nada checkeado?", etc.
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 4/8 funciona | 4/8 falta
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+3. VER ÚLTIMO CIERRE - "📊 VER ÚLTIMO CIERRE"
+═══════════════════════════════════════════════════════════════════════════════════
+
+SECCIÓN                    ESTADO   DATOS                 FUENTE
+────────────────────────────────────────────────────────────────────────────────
+Modal abre                 ✅       N/A                   Funciona
+Fecha del cierre           ⚠️       Si existe             Si NO hay cierre → vacío
+Completadas count          ⚠️       Si existe             Número + visual
+Pendientes count           ⚠️       Si existe             Número + visual
+Notas                      ⚠️       Si existe             Texto + visual
+Energía                    ⚠️       Si existe             Valor seleccionado
+Cerrar (X/ESC)            ✅       N/A                   Funciona
+
+PROBLEMA: Datos vienen de memoria (nauta_state dict)
+           Al reiniciar servidor → SE PIERDEN TODO
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 6/6 funciona SI existen datos | 0/6 funciona si no hay datos
+CRÍTICO: Los datos no se guardan en Notion
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+4. ESTADO DE HOY - Dashboard principal
+═══════════════════════════════════════════════════════════════════════════════════
+
+ELEMENTO                   ESTADO   VALOR                 FUENTE
+────────────────────────────────────────────────────────────────────────────────
+"Tareas Hoy" count         ❌       "--"                  Debería venir de /api/tasks/today
+"Completadas" count        ❌       "--"                  Debería venir de /api/tasks (con estado ✓)
+"Energía %" value          ⚠️       "70%"                 Hardcoded en /api/nauta/status
+
+PROBLEMA: Los números no actualizan realmente
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 0/3 funciona real
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+5. SCHEDULER (Background jobs)
+═══════════════════════════════════════════════════════════════════════════════════
+
+JOB                        ESTADO   HORARIO              ACCIÓN
+────────────────────────────────────────────────────────────────────────────────
+Briefing automático        ✅       8:30 AM              APScheduler corre
+  └─ Genera datos          ❌       Hardcoded            Debería leer Notion
+  └─ Envía notificación    ❌       NO                   Podría notificar usuario
+Cierre automático          ✅       21:30                APScheduler corre
+  └─ Recordatorio          ❌       NO                   Podría recordar al usuario
+
+PROBLEMA: El scheduler corre pero genera datos fake
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 2/4 funciona
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+6. CONEXIONES NOTION
+═══════════════════════════════════════════════════════════════════════════════════
+
+TABLA NOTION              ESTADO   EN NAUTA              PARA USAR
+────────────────────────────────────────────────────────────────────────────────
+Sobre Mí                  ✅ Existe  ❌ No conectada      Contexto NAUTA
+Roadmap Master            ✅ Existe  ❌ No conectada      Top 3 Tareas Q1
+Hábitos                   ✅ Existe  ❌ No conectada      "Hábitos Esperados"
+NAUTA Logs                ❌ NO EXISTE              CREAR - Guardar cierres
+Rueda de Vida             ❌ NO EXISTE              CREAR - Datos 8 áreas
+Notas NAUTA               ❌ NO EXISTE              CREAR - Historial notas
+
+ENDPOINTS QUE FALTAN:
+  /api/nauta/save-cierre   ⚠️  Existe pero guarda en memoria, no Notion
+  /api/nauta/rueda         ❌  NO EXISTE
+  /api/nauta/habitos       ❌  NO EXISTE
+  /api/nauta/cierres-historial ❌  NO EXISTE
+  /api/nauta/chat          ❌  NO EXISTE (OpenAI)
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 3 tablas existen | 3 faltan crear | 1 endpoint roto | 4 faltan
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+7. MÓDULOS SIDEBAR
+═══════════════════════════════════════════════════════════════════════════════════
+
+MÓDULO                     ESTADO   CONTENIDO            FUNCIONALIDAD
+────────────────────────────────────────────────────────────────────────────────
+🤖 NAUTA                   ✅ Existe  Briefing + botones  50% (solo UI, sin datos)
+📓 NOTION                  ✅ Existe  Tareas TODAS        Funciona (muestra /api/tasks)
+📊 TRACKER                 ✅ Existe  Hábitos             Funciona (muestra /api/habits)
+🔍 M1                      ⚠️  Existe  Vacío              Preparado para análisis ofertas
+🛠️  M2                      ⚠️  Existe  Vacío              Preparado
+📈 M3                      ⚠️  Existe  Vacío              Preparado
+⚡ M4                      ⚠️  Existe  Vacío              Preparado
+📖 SISTEMA                 ✅ Existe  Info sistema       Funciona
+📝 NOTAS                   ❌ NO EXISTE              Debería mostrar historial cierres
+⚙️  SETTINGS                ✅ Existe  Config UI          Funciona
+
+─────────────────────────────────────────────────────────────────────────────────
+RESULTADO: 7 existen | 1 falta | 5 vacíos
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+RESUMEN EJECUTIVO
+═══════════════════════════════════════════════════════════════════════════════════
+
+NAUTA HOY:
+  ✅ UI/UX está lista
+  ✅ Modales funcionan
+  ✅ Scheduler corre
+  ❌ Datos son FAKE (hardcoded)
+  ❌ No guarda en Notion
+  ❌ Falta módulo NOTAS
+  ❌ Falta chat IA
+
+PARA VALIDAR NAUTA (100%):
+
+IMPRESCINDIBLE:
+  1. Conectar Roadmap Master → Briefing Top 3 Q1
+  2. Conectar Tareas → Cierre checkboxes
+  3. Conectar Hábitos → Briefing hábitos
+  4. Crear tabla NAUTA Logs + guardar cierres en Notion
+  5. Crear módulo NOTAS + mostrar historial
+
+RECOMENDADO:
+  6. Rueda de Vida datos reales desde Notion
+  7. Validaciones en formulario cierre
+  8. Recomendación IA en briefing
+
+OPCIONAL (después):
+  9. Chat con NAUTA (OpenAI)
+  10. Notificaciones automáticas
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+SCORE DE COMPLETUD
+═══════════════════════════════════════════════════════════════════════════════════
+
+Briefing:        ████░░░░░░ 25%  (solo UI funciona)
+Cierre:          ████████░░ 50%  (formulario OK, guardado FALLA)
+Último Cierre:   ██████░░░░ 40%  (visual OK, sin persistencia)
+Estado de Hoy:   ██░░░░░░░░ 20%  (solo hardcoded)
+Scheduler:       ████░░░░░░ 50%  (corre pero genera fake data)
+Notion Connect:  ███░░░░░░░ 30%  (3/6 tablas, endpoints rotos)
+Módulos:         █████████░ 90%  (todos existen excepto NOTAS)
+
+────────────────────────────────────────────────────────────────────────────
+COMPLETUD TOTAL NAUTA: 40-45% (muy por debajo de "listo")
+────────────────────────────────────────────────────────────────────────────
+
+Para llegar a 100%:
+  Fase 1 (Notion): ~3.5 horas → 75%
+  Fase 2 (Notas):  ~2 horas   → 95%
+  Fase 3 (Chat):   ~2.5 horas → 100%
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+DECISIÓN REQUERIDA
+═══════════════════════════════════════════════════════════════════════════════════
+
+¿Hacemos ahora o después?
+
+OPCIÓN A - HACER AHORA (RECOMENDADO):
+  ✅ Validamos NAUTA completo antes de M1-M4
+  ✅ M1-M4 usarán datos reales de NAUTA Logs
+  ✅ Sistema integrado desde el inicio
+  ⏱️  ~5.5 horas (Fase 1 + 2)
+
+OPCIÓN B - PAUSAR AQUÍ:
+  ❌ M1-M4 sin datos NAUTA (sin sentido)
+  ❌ Duplicar trabajo después
+  ❌ Riesgo: olvidar cómo integrar
+
+OPINIÓN: HACER AHORA es más eficiente
+════════════════════════════════════════════════════════════════════════════════

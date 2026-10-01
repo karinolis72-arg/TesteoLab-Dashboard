@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M1 — Espía de Ofertas · TesteoLab</title>
+<style>
+  :root {
+    --bg:        #080612;
+    --bg2:       #0f0b1f;
+    --card:      rgba(255,255,255,0.04);
+    --card-hover:rgba(255,255,255,0.07);
+    --border:    rgba(255,255,255,0.08);
+    --border-hi: rgba(212,168,67,0.4);
+    --gold:      #d4a843;
+    --gold-dim:  rgba(212,168,67,0.15);
+    --gold-glow: rgba(212,168,67,0.25);
+    --violet:    #7c3aed;
+    --violet2:   #4f1ea8;
+    --text:      #ede9ff;
+    --text2:     #9c95b8;
+    --text3:     #5c556e;
+    --green:     #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --yellow:    #f59e0b;
+    --yellow-dim:rgba(245,158,11,0.12);
+    --red:       #ef4444;
+    --red-dim:   rgba(239,68,68,0.12);
+    --blue:      #60a5fa;
+    --blue-dim:  rgba(96,165,250,0.12);
+    --radius:    14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; font-size:14px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(124,58,237,0.4); border-radius:3px; }
+
+  /* ── LAYOUT ── */
+  .app { display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+  /* ── HEADER ── */
+  .header {
+    display:flex; align-items:center; gap:20px;
+    padding:0 28px; height:60px; min-height:60px;
+    background:rgba(8,6,18,0.95);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(12px);
+    position:relative; z-index:100;
+  }
+  .header-logo { font-size:13px; font-weight:700; letter-spacing:0.08em; color:var(--gold); opacity:.9; white-space:nowrap; }
+  .header-sep  { width:1px; height:24px; background:var(--border); }
+  .header-module { font-size:13px; font-weight:600; color:var(--text2); white-space:nowrap; }
+
+  /* ── STEP INDICATOR ── */
+  .steps { display:flex; align-items:center; gap:0; flex:1; justify-content:center; }
+  .step-item {
+    display:flex; align-items:center; gap:0; cursor:pointer;
+  }
+  .step-dot {
+    display:flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:50%;
+    font-size:11px; font-weight:700;
+    border:2px solid var(--border);
+    color:var(--text3); background:transparent;
+    transition:all .25s; white-space:nowrap; position:relative;
+  }
+  .step-label {
+    font-size:10.5px; font-weight:500; color:var(--text3);
+    margin-left:7px; margin-right:4px;
+    white-space:nowrap; transition:color .25s;
+  }
+  .step-line { width:32px; height:1px; background:var(--border); margin:0 4px; }
+  .step-item.active  .step-dot  { border-color:var(--gold); color:var(--gold); background:var(--gold-dim); box-shadow:0 0 12px var(--gold-glow); }
+  .step-item.active  .step-label{ color:var(--gold); }
+  .step-item.done    .step-dot  { border-color:var(--green); color:var(--bg); background:var(--green); }
+  .step-item.done    .step-label{ color:var(--green); }
+  .step-item.done    .step-line { background:var(--green); }
+
+  .header-btn-chat {
+    display:flex; align-items:center; gap:7px;
+    padding:7px 14px; border-radius:var(--radius-sm);
+    border:1px solid var(--border-hi);
+    background:var(--gold-dim); color:var(--gold);
+    font-size:12px; font-weight:600; cursor:pointer;
+    white-space:nowrap; transition:all .2s;
+  }
+  .header-btn-chat:hover { background:rgba(212,168,67,0.22); box-shadow:0 0 16px var(--gold-glow); }
+
+  /* ── MAIN ── */
+  .main { flex:1; overflow-y:auto; overflow-x:hidden; }
+  .screen { display:none; animation:fadeIn .3s ease; }
+  .screen.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  .container { max-width:1100px; margin:0 auto; padding:32px 28px; }
+
+  /* ── SCREEN TITLES ── */
+  .screen-title { font-size:22px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .screen-sub   { font-size:13px; color:var(--text2); margin-bottom:28px; }
+  .screen-sub span { color:var(--gold); font-weight:500; }
+
+  /* ── STEP 1: SEARCH ── */
+  .search-layout { display:grid; grid-template-columns:1fr 340px; gap:20px; }
+  .search-main, .search-filters { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+  .section-label { font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--text3); text-transform:uppercase; margin-bottom:14px; }
+
+  .toggle-group { display:flex; gap:0; margin-bottom:16px; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; }
+  .toggle-btn {
+    flex:1; padding:8px 14px; font-size:12px; font-weight:600;
+    background:transparent; border:none; cursor:pointer; color:var(--text2);
+    transition:all .2s;
+  }
+  .toggle-btn.active { background:var(--gold-dim); color:var(--gold); }
+
+  .input-group { margin-bottom:14px; }
+  .input-group label { display:block; font-size:11px; font-weight:600; color:var(--text2); margin-bottom:6px; }
+  .input-group input, .input-group select {
+    width:100%; padding:10px 14px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); background:rgba(255,255,255,0.04);
+    color:var(--text); font-size:13px; outline:none; transition:border .2s;
+  }
+  .input-group input:focus, .input-group select:focus { border-color:var(--gold); }
+  .input-group input::placeholder { color:var(--text3); }
+  select option { background:#1a1230; }
+
+  .keyword-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .tag {
+    display:flex; align-items:center; gap:4px;
+    padding:4px 10px; border-radius:20px;
+    background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.3);
+    color:#a78bfa; font-size:11px; font-weight:500; cursor:pointer;
+  }
+  .tag:hover { background:rgba(124,58,237,0.25); }
+  .tag-x { opacity:.6; font-size:10px; }
+
+  .checkbox-group { display:flex; flex-direction:column; gap:8px; }
+  .checkbox-item { display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .checkbox-item input[type=checkbox] { accent-color:var(--gold); width:14px; height:14px; }
+  .checkbox-item span { font-size:12px; color:var(--text2); }
+
+  .range-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .btn-primary {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 28px; border-radius:var(--radius-sm);
+    background:linear-gradient(135deg,var(--violet),var(--violet2));
+    border:1px solid rgba(124,58,237,0.5); color:#fff;
+    font-size:13px; font-weight:700; cursor:pointer; width:100%;
+    margin-top:16px; transition:all .2s; letter-spacing:.02em;
+  }
+  .btn-primary:hover { box-shadow:0 0 24px rgba(124,58,237,0.5); transform:translateY(-1px); }
+
+  .btn-gold {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 28px; border-radius:var(--radius-sm);
+    background:linear-gradient(135deg,#d4a843,#b8882a);
+    border:none; color:#080612;
+    font-size:13px; font-weight:800; cursor:pointer; width:100%;
+    margin-top:16px; transition:all .2s; letter-spacing:.03em;
+  }
+  .btn-gold:hover { box-shadow:0 0 28px rgba(212,168,67,0.5); transform:translateY(-1px); }
+
+  .btn-outline {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:10px 20px; border-radius:var(--radius-sm);
+    background:transparent; border:1px solid var(--border);
+    color:var(--text2); font-size:12px; font-weight:600;
+    cursor:pointer; transition:all .2s;
+  }
+  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* ── STEP 2: RESULTS ── */
+  .results-bar {
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    margin-bottom:20px; padding:12px 16px;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm);
+  }
+  .filter-pills-bar { display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:8px 16px; border-top:1px solid var(--border); width:100%; }
+  .filter-pill { display:flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:10.5px; font-weight:600; background:rgba(212,168,67,0.1); border:1px solid rgba(212,168,67,0.25); color:var(--gold); }
+  .filter-pill-clear { cursor:pointer; opacity:.7; margin-left:2px; font-size:10px; }
+  .filter-pill-clear:hover { opacity:1; }
+  .filter-more-btn { padding:3px 12px; border-radius:20px; font-size:10.5px; font-weight:600; background:transparent; border:1px solid var(--border); color:var(--text2); cursor:pointer; transition:all .2s; margin-left:auto; }
+  .filter-more-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .results-count { font-size:13px; color:var(--text2); }
+  .results-count strong { color:var(--text); font-size:15px; }
+  .results-count .badge-winner { color:var(--gold); font-weight:700; }
+  .sort-bar { display:flex; gap:8px; align-items:center; }
+  .sort-btn {
+    padding:5px 12px; border-radius:20px; font-size:11px; font-weight:600;
+    border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer;
+    transition:all .2s;
+  }
+  .sort-btn.active { border-color:var(--gold); background:var(--gold-dim); color:var(--gold); }
+
+  .ads-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+
+  .ad-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); overflow:hidden; cursor:pointer;
+    transition:all .25s; position:relative;
+  }
+  .ad-card:hover { border-color:rgba(212,168,67,0.3); box-shadow:0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,168,67,0.1); transform:translateY(-2px); background:var(--card-hover); }
+  .ad-card.winner { border-color:rgba(212,168,67,0.25); }
+  .ad-card.winner::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--gold),transparent); }
+
+  .ad-thumb {
+    height:140px; background:linear-gradient(135deg,#1a1035,#2d1b69);
+    position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;
+  }
+  .ad-thumb-label { font-size:32px; opacity:.3; }
+  .ad-badge {
+    position:absolute; top:10px; right:10px;
+    padding:4px 10px; border-radius:20px;
+    font-size:10px; font-weight:700; letter-spacing:.05em;
+  }
+  .badge-ganador   { background:rgba(212,168,67,0.9); color:#080612; }
+  .badge-potencial { background:rgba(96,165,250,0.9); color:#080612; }
+  .badge-exp       { background:rgba(245,158,11,0.8); color:#080612; }
+  .badge-nuevo     { background:rgba(156,163,175,0.5); color:#fff; }
+
+  .ad-days {
+    position:absolute; bottom:10px; left:10px;
+    display:flex; align-items:center; gap:5px;
+    padding:4px 10px; border-radius:20px;
+    font-size:11px; font-weight:700;
+  }
+  .days-hot  { background:rgba(34,197,94,0.9); color:#080612; }
+  .days-good { background:rgba(34,197,94,0.6); color:#fff; }
+  .days-med  { background:rgba(245,158,11,0.7); color:#080612; }
+  .days-low  { background:rgba(156,163,175,0.4); color:#fff; }
+
+  .ad-body { padding:14px; }
+  .ad-advertiser { font-size:13px; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .ad-meta { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .meta-tag {
+    padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600;
+    background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text2);
+  }
+  .ad-copy { font-size:12px; color:var(--text2); line-height:1.5; margin-bottom:12px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .ad-cta  { font-size:11px; color:var(--violet); font-weight:600; margin-bottom:12px; }
+  .ad-landing { font-size:10px; color:var(--text3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:12px; }
+
+  .ad-actions { display:flex; gap:8px; }
+  .ad-btn {
+    flex:1; padding:7px; border-radius:var(--radius-sm); font-size:11px; font-weight:600;
+    border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer;
+    transition:all .2s;
+  }
+  .ad-btn.primary { background:rgba(124,58,237,0.2); border-color:rgba(124,58,237,0.4); color:#a78bfa; }
+  .ad-btn.primary:hover { background:rgba(124,58,237,0.35); }
+  .ad-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+  /* ── STEP 3: ANALYSIS ── */
+  .back-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; color:var(--text2); cursor:pointer; margin-bottom:20px;
+    transition:color .2s;
+  }
+  .back-btn:hover { color:var(--gold); }
+
+  .analysis-layout { display:grid; grid-template-columns:1fr 1.4fr; gap:20px; }
+
+  .ad-preview-card {
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .preview-thumb {
+    height:180px; background:linear-gradient(135deg,#1a1035,#3b1f7a);
+    display:flex; align-items:center; justify-content:center; font-size:60px; opacity:.4;
+  }
+  .preview-body { padding:20px; }
+  .preview-advertiser { font-size:16px; font-weight:700; margin-bottom:8px; }
+  .preview-copy { font-size:12px; color:var(--text2); line-height:1.6; margin-bottom:14px; }
+  .preview-details { display:flex; flex-direction:column; gap:8px; }
+  .detail-row { display:flex; justify-content:space-between; align-items:center; }
+  .detail-key { font-size:11px; color:var(--text3); }
+  .detail-val { font-size:12px; font-weight:600; color:var(--text); }
+
+  .analysis-panel { display:flex; flex-direction:column; gap:14px; }
+
+  .analysis-card {
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+  }
+  .analysis-card-title { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); margin-bottom:14px; }
+
+  /* SCORE */
+  .score-display {
+    display:flex; align-items:center; gap:20px;
+  }
+  .score-ring {
+    width:90px; height:90px; flex-shrink:0;
+    position:relative; display:flex; align-items:center; justify-content:center;
+  }
+  .score-ring svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+  .score-ring .score-num { font-size:26px; font-weight:800; color:var(--gold); z-index:1; }
+  .score-ring .score-label { font-size:9px; color:var(--text3); margin-top:2px; }
+  .score-info h3 { font-size:16px; font-weight:700; color:var(--gold); margin-bottom:4px; }
+  .score-info p  { font-size:12px; color:var(--text2); line-height:1.5; }
+
+  /* VIABILITY */
+  .viability-meter { position:relative; }
+  .viability-track { height:8px; border-radius:4px; background:rgba(255,255,255,0.08); overflow:hidden; margin-bottom:8px; }
+  .viability-fill  { height:100%; border-radius:4px; transition:width .8s ease; }
+  .viability-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--text3); }
+  .viability-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:var(--radius-sm); font-size:12px; font-weight:700; margin-top:8px; }
+
+  /* BUDGET */
+  .budget-display { display:flex; align-items:center; gap:16px; }
+  .budget-amount { font-size:28px; font-weight:800; color:var(--green); }
+  .budget-meta   { font-size:11px; color:var(--text2); line-height:1.5; }
+  .budget-viable { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; margin-top:6px; background:var(--green-dim); color:var(--green); border:1px solid rgba(34,197,94,0.2); }
+
+  /* OFFER TYPE */
+  .offer-type-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.3); color:#a78bfa; margin-bottom:10px; }
+  .offer-attrs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .offer-attr { background:rgba(255,255,255,0.04); border-radius:var(--radius-sm); padding:10px; }
+  .offer-attr-key { font-size:10px; color:var(--text3); margin-bottom:3px; }
+  .offer-attr-val { font-size:13px; font-weight:600; color:var(--text); }
+
+  /* SUCCESS SIGNALS */
+  .signals-grid { display:flex; flex-direction:column; gap:6px; }
+  .signal-item { display:flex; align-items:center; gap:8px; font-size:12px; }
+  .signal-ok   { color:var(--green); }
+  .signal-warn { color:var(--yellow); }
+  .signal-no   { color:var(--text3); text-decoration:line-through; }
+  .signal-icon { width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+  .icon-ok   { background:var(--green-dim); color:var(--green); }
+  .icon-warn { background:var(--yellow-dim); color:var(--yellow); }
+  .icon-no   { background:rgba(255,255,255,0.04); color:var(--text3); }
+
+  /* AI RECOMMENDATION */
+  .ai-rec { border-left:3px solid var(--gold); padding-left:14px; }
+  .ai-rec-title { font-size:11px; font-weight:700; color:var(--gold); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+  .ai-rec-text  { font-size:12px; color:var(--text2); line-height:1.6; }
+
+  /* ── STEP 4: RANKING ── */
+  .ranking-section { margin-bottom:24px; }
+  .ranking-header {
+    display:flex; align-items:center; gap:12px; margin-bottom:14px;
+    padding-bottom:10px; border-bottom:1px solid var(--border);
+  }
+  .ranking-badge {
+    padding:4px 14px; border-radius:20px; font-size:11px; font-weight:700;
+  }
+  .rb-gold { background:rgba(212,168,67,0.15); border:1px solid rgba(212,168,67,0.3); color:var(--gold); }
+  .rb-blue { background:var(--blue-dim); border:1px solid rgba(96,165,250,0.2); color:var(--blue); }
+  .rb-yellow { background:var(--yellow-dim); border:1px solid rgba(245,158,11,0.2); color:var(--yellow); }
+  .ranking-count { font-size:12px; color:var(--text2); }
+  .ranking-compare-btn {
+    margin-left:auto; padding:6px 16px; border-radius:var(--radius-sm);
+    background:var(--gold-dim); border:1px solid var(--border-hi); color:var(--gold);
+    font-size:12px; font-weight:600; cursor:pointer; display:none; transition:all .2s;
+  }
+  .ranking-compare-btn.visible { display:block; }
+  .ranking-compare-btn:hover   { background:rgba(212,168,67,0.2); }
+
+  .ranking-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+
+  .rank-card {
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px; cursor:pointer; transition:all .2s; position:relative;
+  }
+  .rank-card:hover { border-color:rgba(212,168,67,0.25); background:var(--card-hover); }
+  .rank-card.selected { border-color:var(--gold); background:var(--gold-dim); }
+  .rank-card.selected::after { content:'✓'; position:absolute; top:10px; right:12px; font-size:13px; color:var(--gold); font-weight:700; }
+
+  .rank-score { font-size:24px; font-weight:800; margin-bottom:2px; }
+  .rank-score.gold   { color:var(--gold); }
+  .rank-score.blue   { color:var(--blue); }
+  .rank-score.yellow { color:var(--yellow); }
+  .rank-advertiser { font-size:12px; font-weight:700; color:var(--text); margin-bottom:8px; }
+  .rank-metrics { display:flex; gap:8px; flex-wrap:wrap; }
+  .rank-metric { font-size:10px; color:var(--text2); display:flex; align-items:center; gap:3px; }
+  .rank-metric strong { color:var(--text); }
+
+  /* ── STEP 4.1: COMPARATOR ── */
+  .compare-table { display:grid; gap:1px; background:var(--border); border-radius:var(--radius); overflow:hidden; }
+  .compare-header-row, .compare-row { display:grid; }
+  .compare-cell {
+    background:var(--bg2); padding:14px 16px; font-size:12px;
+  }
+  .compare-cell.key { color:var(--text3); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.06em; background:var(--bg); }
+  .compare-cell.winner-col { background:rgba(212,168,67,0.06); }
+  .compare-header { font-size:13px; font-weight:700; color:var(--text); }
+  .compare-sub    { font-size:10px; color:var(--text3); margin-top:2px; }
+  .compare-score-big { font-size:22px; font-weight:800; }
+  .winner-tag { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; background:rgba(212,168,67,0.15); color:var(--gold); border:1px solid rgba(212,168,67,0.3); margin-top:4px; }
+
+  .compare-select-btn {
+    width:100%; margin-top:16px; padding:9px; border-radius:var(--radius-sm);
+    font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text2); transition:all .2s;
+  }
+  .compare-select-btn.primary { background:var(--gold-dim); border-color:var(--border-hi); color:var(--gold); }
+  .compare-select-btn:hover { border-color:var(--gold); color:var(--gold); background:var(--gold-dim); }
+
+  /* ── STEP 5: SELECTION ── */
+  .selection-layout { display:grid; grid-template-columns:1fr 380px; gap:24px; align-items:start; }
+
+  .selection-card {
+    background:var(--card); border:1px solid var(--border-hi); border-radius:var(--radius);
+    padding:28px; position:relative; overflow:hidden;
+  }
+  .selection-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--gold),rgba(212,168,67,0.2)); }
+
+  .selection-type { display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.3); color:#a78bfa; margin-bottom:16px; }
+  .selection-name { font-size:22px; font-weight:800; color:var(--text); margin-bottom:6px; }
+  .selection-message { font-size:13px; color:var(--text2); margin-bottom:20px; line-height:1.5; }
+
+  .selection-metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .sel-metric { background:rgba(255,255,255,0.04); border-radius:var(--radius-sm); padding:14px; }
+  .sel-metric-val { font-size:20px; font-weight:800; color:var(--gold); margin-bottom:2px; }
+  .sel-metric-key { font-size:11px; color:var(--text3); }
+
+  .selection-bonuses { margin-bottom:20px; }
+  .bonus-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .bonus-pill { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:500; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2); color:var(--green); }
+
+  .selection-output {
+    background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px;
+  }
+  .output-title { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:10px; }
+  .output-json { font-family:'Courier New',monospace; font-size:11px; color:#a78bfa; line-height:1.7; white-space:pre-wrap; }
+
+  .selection-sidebar { display:flex; flex-direction:column; gap:14px; }
+  .sidebar-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+  .sidebar-score { text-align:center; padding:10px 0; }
+  .sidebar-score-num { font-size:52px; font-weight:900; color:var(--gold); line-height:1; }
+  .sidebar-score-label { font-size:12px; color:var(--text2); margin-top:4px; }
+  .sidebar-score-desc { font-size:11px; color:var(--green); font-weight:600; margin-top:4px; }
+
+  .confirm-checklist { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+  .confirm-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
+  .confirm-icon { width:18px; height:18px; border-radius:50%; background:var(--green-dim); color:var(--green); display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+
+  /* ── TIP BANNER ── */
+  .tip-banner {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:12px 16px; border-radius:var(--radius-sm);
+    font-size:12px; line-height:1.5; margin-bottom:14px;
+  }
+  .tip-gold   { background:rgba(212,168,67,0.08); border:1px solid rgba(212,168,67,0.2); color:var(--text2); }
+  .tip-green  { background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.2); color:var(--text2); }
+  .tip-icon   { flex-shrink:0; font-size:14px; }
+
+  /* ── CHAT PANEL ── */
+  .chat-overlay {
+    position:fixed; top:0; right:0; bottom:0; width:400px; z-index:200;
+    transform:translateX(100%); transition:transform .3s ease;
+    display:flex; flex-direction:column;
+    /* sin overflow aquí — el scroll lo maneja .chat-messages */
+  }
+  .chat-overlay.open { transform:translateX(0); }
+  .chat-panel {
+    flex:1; display:flex; flex-direction:column;
+    background:#100c22; border-left:1px solid var(--border);
+    box-shadow:-8px 0 40px rgba(0,0,0,0.6);
+    overflow:hidden; /* contiene el flexbox para que funcione el scroll interno */
+  }
+  .chat-header {
+    display:flex; align-items:center; gap:10px; padding:14px 16px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0; /* nunca se comprime */
+  }
+  .chat-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--violet),#4f1ea8); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .chat-agent-name { font-size:13px; font-weight:700; }
+  .chat-agent-desc { font-size:11px; color:var(--text2); }
+  .chat-header-actions { margin-left:auto; display:flex; gap:6px; align-items:center; }
+  .chat-icon-btn { width:28px; height:28px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--text2); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; transition:all .2s; }
+  .chat-icon-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .chat-icon-btn.red:hover { border-color:var(--red); color:var(--red); }
+
+  /* ← clave para que el scroll funcione en flexbox */
+  .chat-messages {
+    flex:1;
+    min-height:0;        /* ← sin esto flex:1 no scrollea */
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:14px 14px 8px;
+    display:flex; flex-direction:column; gap:10px;
+    scroll-behavior:smooth;
+  }
+  /* scrollbar del chat */
+  .chat-messages::-webkit-scrollbar { width:4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background:rgba(124,58,237,0.35); border-radius:2px; }
+
+  .msg {
+    max-width:92%;       /* más ancho para tablas y checklists */
+    padding:10px 13px; border-radius:12px; font-size:12px; line-height:1.6;
+    word-break:break-word;
+    overflow-x:auto;     /* scroll horizontal en tablas largas */
+  }
+  .msg-agent { background:rgba(124,58,237,0.13); border:1px solid rgba(124,58,237,0.2); color:var(--text); align-self:flex-start; border-radius:12px 12px 12px 4px; width:100%; max-width:100%; }
+  .msg-user  { background:rgba(212,168,67,0.11); border:1px solid rgba(212,168,67,0.2); color:var(--text); align-self:flex-end; border-radius:12px 12px 4px 12px; }
+  .msg-time  { font-size:10px; color:var(--text3); margin-top:5px; }
+
+  /* separador de fecha en el chat */
+  .chat-date-sep { text-align:center; font-size:10px; color:var(--text3); padding:4px 0; position:relative; }
+  .chat-date-sep::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:var(--border); }
+  .chat-date-sep span { background:#100c22; padding:0 10px; position:relative; }
+
+  .chat-input-area {
+    padding:12px 14px; border-top:1px solid var(--border);
+    display:flex; gap:8px; align-items:flex-end;
+    flex-shrink:0; /* no se comprime — siempre visible abajo */
+  }
+  .chat-input {
+    flex:1; padding:10px 14px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); background:rgba(255,255,255,0.05);
+    color:var(--text); font-size:12px; resize:none; outline:none;
+    font-family:inherit; transition:border .2s;
+  }
+  .chat-input:focus { border-color:var(--gold); }
+  .chat-send {
+    width:36px; height:36px; border-radius:var(--radius-sm);
+    background:var(--violet); border:none; color:#fff; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+    transition:all .2s;
+  }
+  .chat-send:hover { background:var(--violet2); }
+
+  /* ── SUGGESTIONS ── */
+  .suggestions {
+    display:flex; flex-wrap:wrap; gap:6px;
+    padding:8px 14px 10px;
+    border-top:1px solid var(--border);
+    flex-shrink:0; /* no se comprime en el flexbox del panel */
+  }
+  .suggestion-chip {
+    padding:5px 11px; border-radius:20px; font-size:11px;
+    border:1px solid rgba(124,58,237,0.3); background:rgba(124,58,237,0.1);
+    color:#a78bfa; cursor:pointer; transition:all .2s;
+  }
+  .suggestion-chip:hover { background:rgba(124,58,237,0.2); }
+
+  /* ── NAV FOOTER ── */
+  .nav-footer {
+    padding:16px 28px; background:rgba(8,6,18,0.9);
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .nav-footer-left  { display:flex; gap:10px; }
+  .nav-footer-right { display:flex; gap:10px; }
+  .btn-nav {
+    padding:9px 20px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:6px;
+  }
+  .btn-nav-back { background:transparent; border:1px solid var(--border); color:var(--text2); }
+  .btn-nav-back:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-nav-next { background:linear-gradient(135deg,var(--violet),var(--violet2)); border:1px solid rgba(124,58,237,0.5); color:#fff; }
+  .btn-nav-next:hover { box-shadow:0 0 20px rgba(124,58,237,0.4); }
+  .btn-nav-compare { background:var(--gold-dim); border:1px solid var(--border-hi); color:var(--gold); display:none; }
+  .btn-nav-compare.visible { display:flex; }
+  .btn-nav-compare:hover { background:rgba(212,168,67,0.2); }
+
+  /* ── LOADING ── */
+  .loading-overlay {
+    position:fixed; inset:0; background:rgba(8,6,18,0.85); z-index:300;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+    backdrop-filter:blur(8px);
+  }
+  .loading-overlay.hidden { display:none; }
+  .loader { width:48px; height:48px; border:3px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin 1s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loading-text { font-size:14px; color:var(--text2); }
+  .loading-sub  { font-size:12px; color:var(--text3); }
+
+  /* ── TOAST ── */
+  .toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px);
+    padding:10px 20px; border-radius:var(--radius-sm);
+    background:#1a1230; border:1px solid var(--gold);
+    color:var(--text); font-size:12px; font-weight:600; z-index:400;
+    transition:transform .3s;
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ── PULSE ANIMATION ── */
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.6; } }
+  .pulse { animation:pulse 2s infinite; }
+
+  /* ── ESPÍA PROACTIVE BANNER ── */
+  .spy-banner {
+    display:none; align-items:center; gap:14px;
+    padding:14px 18px; border-radius:var(--radius);
+    background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(212,168,67,0.08));
+    border:1px solid rgba(212,168,67,0.3);
+    margin-bottom:16px; position:relative; overflow:hidden;
+  }
+  .spy-banner::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(124,58,237,0.05),transparent); pointer-events:none; }
+  .spy-banner.visible { display:flex; }
+  .spy-avatar-sm {
+    width:40px; height:40px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,var(--violet),#4f1ea8);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; box-shadow:0 0 14px rgba(124,58,237,0.4);
+    animation:pulse 2.5s infinite;
+  }
+  .spy-banner-text { flex:1; }
+  .spy-banner-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:3px; }
+  .spy-banner-sub   { font-size:11px; color:var(--text2); line-height:1.4; }
+  .spy-banner-btn {
+    padding:8px 16px; border-radius:var(--radius-sm); flex-shrink:0;
+    background:var(--gold-dim); border:1px solid var(--border-hi);
+    color:var(--gold); font-size:12px; font-weight:700; cursor:pointer;
+    transition:all .2s; white-space:nowrap;
+  }
+  .spy-banner-btn:hover { background:rgba(212,168,67,0.22); box-shadow:0 0 14px var(--gold-glow); }
+
+  /* dot de notificación en el botón chat */
+  .chat-notif-dot {
+    width:8px; height:8px; border-radius:50%;
+    background:var(--gold); display:none;
+    box-shadow:0 0 6px var(--gold);
+    animation:pulse 1.5s infinite;
+  }
+  .chat-notif-dot.active { display:block; }
+
+  /* chips dentro del chat */
+  .spy-filter-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .spy-chip {
+    padding:5px 11px; border-radius:20px; font-size:11px; font-weight:600;
+    border:1px solid rgba(212,168,67,0.35); background:rgba(212,168,67,0.08);
+    color:var(--gold); cursor:pointer; transition:all .2s;
+  }
+  .spy-chip:hover { background:rgba(212,168,67,0.18); }
+  .spy-chip.applied { background:rgba(34,197,94,0.12); border-color:rgba(34,197,94,0.4); color:var(--green); cursor:default; }
+
+  /* tablas y checklists en el chat */
+  .spy-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:10.5px; }
+  .spy-table th { padding:5px 8px; text-align:left; font-size:9.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--text3); border-bottom:1px solid var(--border); }
+  .spy-table td { padding:6px 8px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text2); vertical-align:top; }
+  .spy-table tr:last-child td { border-bottom:none; }
+  .spy-table .kw-es { color:var(--text); font-weight:600; }
+  .spy-table .kw-en { color:#93c5fd; }
+  .spy-table .kw-pt { color:#86efac; }
+  .spy-section-tag { display:inline-block; padding:2px 8px; border-radius:20px; font-size:9px; font-weight:700; margin-bottom:6px; margin-top:10px; }
+  .tag-dolor  { background:rgba(239,68,68,0.12); color:#fca5a5; border:1px solid rgba(239,68,68,0.2); }
+  .tag-result { background:rgba(34,197,94,0.1); color:#86efac; border:1px solid rgba(34,197,94,0.2); }
+  .tag-mec    { background:rgba(124,58,237,0.12); color:#a78bfa; border:1px solid rgba(124,58,237,0.2); }
+  .spy-verdict { padding:10px 12px; border-radius:8px; margin-top:10px; }
+  .verdict-si   { background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); }
+  .verdict-duda { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); }
+  .verdict-no   { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); }
+  .verdict-title { font-size:12px; font-weight:700; margin-bottom:4px; }
+  .confidence-bar { height:5px; border-radius:3px; background:rgba(255,255,255,0.08); margin:6px 0 3px; overflow:hidden; }
+  .confidence-fill { height:100%; border-radius:3px; transition:width 1s ease; }
+  .spy-checklist { display:flex; flex-direction:column; gap:7px; margin-top:10px; }
+  .spy-check-item { display:flex; align-items:flex-start; gap:8px; font-size:11px; color:var(--text2); cursor:pointer; }
+  .spy-check-item input[type=checkbox] { accent-color:var(--gold); width:13px; height:13px; margin-top:1px; flex-shrink:0; cursor:pointer; }
+  .spy-check-item.checked { color:var(--green); text-decoration:none; }
+  .spy-field-row { display:flex; align-items:center; gap:6px; margin-bottom:5px; font-size:11px; }
+  .spy-field-label { color:var(--text3); min-width:120px; }
+  .spy-field-val   { color:var(--text); font-weight:600; }
+  .spy-field-empty { color:var(--text3); font-style:italic; }
+  .spy-scout-table td { font-size:10px; }
+  .spy-scout-table .td-name { color:var(--gold); font-weight:700; font-size:11px; }
+  .spy-scout-table .td-days { color:var(--green); font-weight:700; }
+  /* ── PASO 0: NICHE SELECTOR ── */
+  .niche-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-top:8px; }
+  .niche-card {
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 16px; cursor:pointer; transition:all .22s; position:relative; overflow:hidden;
+  }
+  .niche-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,0,0,0.4); }
+  .niche-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; opacity:0; transition:opacity .22s; }
+  .niche-card:hover::before { opacity:1; }
+  .niche-icon { font-size:28px; margin-bottom:10px; display:block; }
+  .niche-name { font-size:13px; font-weight:700; color:var(--text); margin-bottom:5px; }
+  .niche-desc { font-size:11px; color:var(--text2); line-height:1.5; }
+  .niche-card.blank { border-style:dashed; }
+  .niche-card.blank:hover { border-color:var(--gold); }
+  .niche-kw-preview { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+  .niche-kw-tag { padding:2px 7px; border-radius:20px; font-size:9px; font-weight:600; background:rgba(255,255,255,0.06); color:var(--text3); border:1px solid var(--border); }
+  .step0-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px; }
+  .step0-hint { font-size:11px; color:var(--text3); }
+
+  .nicho-input-row { display:flex; gap:6px; margin-top:8px; }
+  .nicho-input { flex:1; padding:7px 10px; border-radius:6px; border:1px solid var(--border); background:rgba(255,255,255,0.05); color:var(--text); font-size:12px; outline:none; font-family:inherit; }
+  .nicho-input:focus { border-color:var(--gold); }
+  .nicho-send-btn { padding:7px 14px; border-radius:6px; background:var(--gold-dim); border:1px solid var(--border-hi); color:var(--gold); font-size:12px; font-weight:700; cursor:pointer; }
+
+  /* ── ATTACH ── */
+  .attach-wrap { position:relative; }
+  .attach-btn {
+    width:36px; height:36px; border-radius:var(--radius-sm);
+    background:transparent; border:1px solid var(--border);
+    color:var(--text2); cursor:pointer; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .2s; flex-shrink:0;
+  }
+  .attach-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .attach-menu {
+    position:absolute; bottom:44px; left:0;
+    background:#18122e; border:1px solid var(--border);
+    border-radius:var(--radius-sm); overflow:hidden;
+    box-shadow:0 8px 32px rgba(0,0,0,0.5);
+    display:none; min-width:160px; z-index:10;
+  }
+  .attach-menu.open { display:block; }
+  .attach-option {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px; font-size:12px; font-weight:500; color:var(--text2);
+    cursor:pointer; transition:background .15s;
+  }
+  .attach-option:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+  .attach-option-icon { font-size:15px; width:20px; text-align:center; }
+
+  /* attach preview en chat */
+  .msg-attachment { margin-top:8px; }
+  .att-img { max-width:100%; max-height:160px; border-radius:6px; object-fit:cover; display:block; }
+  .att-audio { width:100%; margin-top:2px; }
+  .att-file { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:6px; background:rgba(255,255,255,0.05); border:1px solid var(--border); font-size:11px; }
+  .att-file-icon { font-size:18px; }
+  .att-file-name { color:var(--text); font-weight:600; word-break:break-all; }
+  .att-file-size { color:var(--text3); font-size:10px; }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay hidden" id="loading">
+  <div class="loader"></div>
+  <div class="loading-text">Buscando en Meta Ads Library...</div>
+  <div class="loading-sub" id="loading-sub">Analizando 247 anuncios activos</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">TESTEOLAB</div>
+    <div class="header-sep"></div>
+    <div class="header-module">🔍 M1 · Espía de Ofertas</div>
+
+    <div class="steps" id="steps">
+      <div class="step-item active" data-step="1" onclick="goStep(1)">
+        <div class="step-dot">1</div>
+        <div class="step-label">Búsqueda</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" data-step="2" onclick="goStep(2)">
+        <div class="step-dot">2</div>
+        <div class="step-label">Resultados</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" data-step="3" onclick="goStep(3)">
+        <div class="step-dot">3</div>
+        <div class="step-label">Análisis</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" data-step="4" onclick="goStep(4)">
+        <div class="step-dot">4</div>
+        <div class="step-label">Ranking</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step-item" data-step="5" onclick="goStep(5)">
+        <div class="step-dot">5</div>
+        <div class="step-label">Selección</div>
+      </div>
+    </div>
+
+    <button class="header-btn-chat" onclick="toggleChat()" id="btn-chat-header">🔍 Chat con Espía <div class="chat-notif-dot" id="chat-notif-dot"></div></button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- ══════════════════════════════════════
+         PASO 0 — SELECTOR DE NICHO
+    ══════════════════════════════════════ -->
+    <div class="screen active" id="screen-0">
+      <div class="container">
+        <div class="step0-header">
+          <div>
+            <div class="screen-title">🎯 Elegí un nicho para arrancar más rápido</div>
+            <div class="screen-sub">Se pre-carga la búsqueda con keywords e información del nicho. <span>Podés editar todo antes de buscar.</span></div>
+          </div>
+          <button class="btn-outline" onclick="goStep(1)" style="white-space:nowrap;flex-shrink:0">Ir directo a búsqueda →</button>
+        </div>
+        <div class="niche-grid" id="niche-grid">
+          <!-- generado por JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PASO 1 — BÚSQUEDA
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-1">
+      <div class="container">
+        <div class="screen-title">Definir búsqueda</div>
+        <div class="screen-sub">Encontrá anuncios de competidores activos en Meta Ads Library. <span>Resultados en tiempo real.</span></div>
+
+        <div class="search-layout">
+          <!-- MAIN -->
+          <div class="search-main">
+            <div class="section-label">Tipo de búsqueda</div>
+            <div class="toggle-group">
+              <button class="toggle-btn active" id="toggle-kw" onclick="setSearchMode('keywords')">🔑 Por Keywords</button>
+              <button class="toggle-btn" id="toggle-co" onclick="setSearchMode('company')">🏢 Por Empresa</button>
+              <button class="toggle-btn" id="toggle-xl" onclick="setSearchMode('excel')">📊 Por Excel/CSV</button>
+            </div>
+
+            <div id="mode-keywords">
+              <div class="input-group">
+                <label>Palabras clave</label>
+                <input type="text" id="kw-input" placeholder='ej: "curso online", "ebook gratis", "membresía digital"' onkeydown="handleKwKeydown(event)">
+              </div>
+              <div class="keyword-tags" id="kw-tags">
+                <div class="tag" onclick="removeTag(this)">curso online <span class="tag-x">×</span></div>
+                <div class="tag" onclick="removeTag(this)">ebook gratis <span class="tag-x">×</span></div>
+              </div>
+            </div>
+
+            <div id="mode-company" style="display:none">
+              <div class="input-group">
+                <label>Nombre de empresa / anunciante</label>
+                <input type="text" placeholder='ej: "Academia Digital Pro"'>
+              </div>
+            </div>
+
+            <div id="mode-excel" style="display:none">
+              <!-- PASOS -->
+              <div style="display:flex;gap:0;margin-bottom:16px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+                <div style="flex:1;padding:10px 12px;text-align:center;border-right:1px solid var(--border)">
+                  <div style="font-size:18px;margin-bottom:4px">1️⃣</div>
+                  <div style="font-size:10.5px;font-weight:700;color:var(--gold)">Subí tu archivo</div>
+                  <div style="font-size:9.5px;color:var(--text3);margin-top:2px">Excel o CSV con URLs de Meta Ads Library o dominios</div>
+                </div>
+                <div style="flex:1;padding:10px 12px;text-align:center;border-right:1px solid var(--border)">
+                  <div style="font-size:18px;margin-bottom:4px">2️⃣</div>
+                  <div style="font-size:10.5px;font-weight:700;color:var(--gold)">Sistema enriquece</div>
+                  <div style="font-size:9.5px;color:var(--text3);margin-top:2px">Agrega: anunciante, días activos, país, plataformas, presupuesto</div>
+                </div>
+                <div style="flex:1;padding:10px 12px;text-align:center">
+                  <div style="font-size:18px;margin-bottom:4px">3️⃣</div>
+                  <div style="font-size:10.5px;font-weight:700;color:var(--gold)">Descargá o explorá</div>
+                  <div style="font-size:9.5px;color:var(--text3);margin-top:2px">Bajá el Excel completo o usá los resultados en M1</div>
+                </div>
+              </div>
+              <div style="border:2px dashed rgba(212,168,67,0.3);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(212,168,67,0.04)"
+                   id="excel-dropzone"
+                   onmouseenter="this.style.borderColor='rgba(212,168,67,0.6)'"
+                   onmouseleave="this.style.borderColor='rgba(212,168,67,0.3)'"
+                   onclick="document.getElementById('excel-file-input').click()">
+                <div style="font-size:40px;margin-bottom:12px">📥</div>
+                <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Arrastrá tu archivo o hacé click para seleccionar</div>
+                <div style="font-size:11px;color:var(--text3)">Formatos: .xlsx · .xls · .csv — Máx 500 filas</div>
+              </div>
+              <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelUpload(this)">
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <div style="flex:1;padding:8px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;font-size:10.5px;color:var(--text3)">
+                  <strong style="color:var(--text2)">Columna requerida:</strong> <code style="background:rgba(124,58,237,0.2);color:var(--violet);padding:1px 5px;border-radius:3px">url</code> — con URLs de Meta Ads Library o dominios de landing
+                </div>
+                <button class="btn-outline" style="white-space:nowrap;flex-shrink:0" onclick="downloadExcelTemplate()">⬇ Plantilla</button>
+              </div>
+              <div id="excel-preview" style="display:none;margin-top:14px"></div>
+            </div>
+
+            <div class="input-group" style="margin-top:16px">
+              <label>País / Región</label>
+              <select>
+                <option value="AR" selected>🇦🇷 Argentina</option>
+                <option value="MX">🇲🇽 México</option>
+                <option value="CO">🇨🇴 Colombia</option>
+                <option value="ES">🇪🇸 España</option>
+                <option value="CL">🇨🇱 Chile</option>
+                <option value="US">🇺🇸 USA (en español)</option>
+              </select>
+            </div>
+
+            <div class="tip-banner tip-gold" style="margin-top:4px">
+              <span class="tip-icon">💡</span>
+              <span><strong>Tip:</strong> Usá 2–3 keywords del nicho. Palabras genéricas como "negocio" traen ruido. Preferí términos que usaría tu competencia directa.</span>
+            </div>
+
+            <button class="btn-primary" onclick="startSearch()">🚀 Buscar en Meta Ads Library</button>
+          </div>
+
+          <!-- FILTERS -->
+          <div class="search-filters">
+            <div class="section-label">Filtros</div>
+
+            <div class="input-group">
+              <label>Plataforma</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" id="f-instagram" checked><span>Instagram</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="f-facebook" checked><span>Facebook</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="f-messenger"><span>Messenger</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="f-audience"><span>Audience Network</span></label>
+              </div>
+            </div>
+
+            <div class="input-group" style="margin-top:14px">
+              <label>Tipo de media</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" id="f-video" checked><span>Video</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="f-imagen" checked><span>Imagen</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="f-carousel" checked><span>Carousel</span></label>
+              </div>
+            </div>
+
+            <div class="input-group" style="margin-top:14px">
+              <label>Días activos (mínimo)</label>
+              <select id="f-mindays">
+                <option value="0">7+ días (todos)</option>
+                <option value="15">15+ días (señal temprana)</option>
+                <option value="30" selected>30+ días (probablemente rentable)</option>
+                <option value="90">90+ días (muy rentable)</option>
+                <option value="180">180+ días (ganador confirmado)</option>
+              </select>
+            </div>
+
+            <div class="input-group" style="margin-top:14px">
+              <label>Presupuesto estimado invertido</label>
+              <div class="range-row">
+                <div><label style="font-size:10px">Mín USD</label><input type="number" id="f-budgetmin" placeholder="0" style="margin-top:4px"></div>
+                <div><label style="font-size:10px">Máx USD</label><input type="number" id="f-budgetmax" placeholder="999999" style="margin-top:4px"></div>
+              </div>
+            </div>
+
+            <div class="input-group" style="margin-top:14px">
+              <label>Estado del anuncio</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" id="f-activeonly" checked><span>Solo anuncios activos</span></label>
+                <label class="checkbox-item"><input type="checkbox" id="f-paused"><span>Incluir pausados (últimos 90 días)</span></label>
+              </div>
+            </div>
+
+            <div class="input-group" style="margin-top:14px">
+              <label>En circulación desde</label>
+              <div class="range-row">
+                <div><label style="font-size:10px">Desde</label><input type="date" style="margin-top:4px" id="date-desde"></div>
+                <div><label style="font-size:10px">Hasta</label><input type="date" style="margin-top:4px" id="date-hasta"></div>
+              </div>
+            </div>
+
+            <div class="input-group" style="margin-top:14px">
+              <label>Mínimo de anuncios por anunciante</label>
+              <select>
+                <option value="1">Sin mínimo (todos)</option>
+                <option value="2" selected>2+ anuncios (tiene campaña)</option>
+                <option value="5">5+ anuncios (escala activa)</option>
+                <option value="10">10+ anuncios (gran presupuesto)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PASO 2 — RESULTADOS
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-2">
+      <div class="container">
+        <div class="screen-title">Resultados</div>
+        <div class="screen-sub">Meta Ads Library · Argentina · <span>247 anuncios encontrados</span> · 30+ días activos</div>
+
+        <div class="tip-banner tip-green" style="margin-bottom:16px">
+          <span class="tip-icon">🎯</span>
+          <span><strong>Este nicho tiene alta actividad:</strong> 156 anuncios corren +30 días, lo que indica un mercado rentable. Se detectaron 12 ganadores potenciales (score 80+).</span>
+        </div>
+
+        <!-- BANNER PROACTIVO ESPÍA -->
+        <div class="spy-banner" id="spy-banner">
+          <div class="spy-avatar-sm">🔍</div>
+          <div class="spy-banner-text">
+            <div class="spy-banner-title">¡Espía encontró <span id="spy-winner-count">12</span> ganadores — son muchos para analizar de una!</div>
+            <div class="spy-banner-sub" style="margin-top:6px;display:flex;gap:12px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:5px"><span style="background:var(--gold);color:#080612;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0">1</span> Hacé click en <strong>"Afinar con Espía"</strong></span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="background:var(--gold);color:#080612;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0">2</span> Elegí un filtro del chat</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="background:var(--gold);color:#080612;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0">3</span> Espía acota los resultados</span>
+            </div>
+          </div>
+          <button class="spy-banner-btn" onclick="openChatProactive()">🔍 Afinar con Espía →</button>
+        </div>
+
+        <div class="results-bar">
+          <div class="results-count">
+            <strong>247</strong> anuncios ·
+            <span class="badge-winner">⭐ 12 ganadores</span> ·
+            <span style="color:var(--blue)">34 potencial alto</span>
+          </div>
+          <div class="sort-bar">
+            <span style="font-size:11px;color:var(--text3);margin-right:4px">Ordenar:</span>
+            <button class="sort-btn active" data-field="days" data-dir="desc" onclick="setSort(this)">Días activos ↓</button>
+            <button class="sort-btn" data-field="score" data-dir="desc" onclick="setSort(this)">Score</button>
+            <button class="sort-btn" data-field="budget" data-dir="desc" onclick="setSort(this)">Inversión</button>
+          </div>
+          <div id="filter-pills-bar" class="filter-pills-bar"></div>
+        </div>
+
+        <div class="ads-grid" id="ads-grid">
+          <!-- Cards generated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PASO 3 — ANÁLISIS DETALLADO
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-3">
+      <div class="container">
+        <div class="back-btn" onclick="goStep(2)">← Volver a resultados</div>
+
+        <div class="analysis-layout" id="analysis-content">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PASO 4 — RANKING & CLASIFICACIÓN
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-4">
+      <div class="container">
+        <div class="screen-title">Ranking de ofertas</div>
+        <div class="screen-sub">Clasificación automática por score de potencial. <span>Seleccioná hasta 3 para comparar.</span></div>
+
+        <!-- GANADORES -->
+        <div class="ranking-section">
+          <div class="ranking-header">
+            <div class="ranking-badge rb-gold">🏆 GANADORES</div>
+            <div class="ranking-count">Score 80+ · 3 anuncios</div>
+            <button class="ranking-compare-btn" id="compare-btn" onclick="goStep(41)">⚡ Comparar seleccionados</button>
+          </div>
+          <div class="ranking-grid" id="rank-winners"></div>
+        </div>
+
+        <!-- POTENCIAL ALTO -->
+        <div class="ranking-section">
+          <div class="ranking-header">
+            <div class="ranking-badge rb-blue">🔵 POTENCIAL ALTO</div>
+            <div class="ranking-count">Score 60–79 · 4 anuncios</div>
+          </div>
+          <div class="ranking-grid" id="rank-high"></div>
+        </div>
+
+        <!-- EXPERIMENTAL -->
+        <div class="ranking-section">
+          <div class="ranking-header">
+            <div class="ranking-badge rb-yellow">🟡 EXPERIMENTAL</div>
+            <div class="ranking-count">Score 31–59 · 2 anuncios</div>
+          </div>
+          <div class="ranking-grid" id="rank-exp"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PASO 4.1 — COMPARADOR
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-41">
+      <div class="container">
+        <div class="back-btn" onclick="goStep(4)">← Volver al ranking</div>
+        <div class="screen-title">Comparador de anuncios</div>
+        <div class="screen-sub">Análisis lado a lado para tomar la mejor decisión.</div>
+        <div id="compare-content"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         PASO 5 — SELECCIÓN FINAL
+    ══════════════════════════════════════ -->
+    <div class="screen" id="screen-5">
+      <div class="container">
+        <div class="screen-title">Oferta seleccionada</div>
+        <div class="screen-sub">Has elegido tu oferta a modelar. <span>Lista para enviar a M2.</span></div>
+
+        <div class="tip-banner tip-gold" style="margin-bottom:20px">
+          <span class="tip-icon">🏆</span>
+          <span><strong>Excelente elección.</strong> Este anuncio lleva 238 días activo con una inversión estimada de $4,200+. Es un ganador confirmado en el nicho "educación digital para emprendedores".</span>
+        </div>
+
+        <div class="selection-layout">
+          <!-- MAIN CARD -->
+          <div>
+            <div class="selection-card">
+              <div class="selection-type">📚 Curso Online</div>
+              <div class="selection-name">Academia Digital Pro · "Gana $5,000/mes desde casa"</div>
+              <div class="selection-message">Curso de negocio digital con comunidad privada. Corre en Instagram y Facebook desde agosto 2024. Señales fuertes: urgencia temporal, testimonios, bonus incluidos y A/B testing activo.</div>
+
+              <div class="selection-metrics">
+                <div class="sel-metric">
+                  <div class="sel-metric-val">238</div>
+                  <div class="sel-metric-key">Días activo</div>
+                </div>
+                <div class="sel-metric">
+                  <div class="sel-metric-val">$4,284</div>
+                  <div class="sel-metric-key">Inversión estimada</div>
+                </div>
+                <div class="sel-metric">
+                  <div class="sel-metric-val">$97–297</div>
+                  <div class="sel-metric-key">Precio detectado</div>
+                </div>
+                <div class="sel-metric">
+                  <div class="sel-metric-val">Empr. 25–45</div>
+                  <div class="sel-metric-key">Mercado objetivo</div>
+                </div>
+              </div>
+
+              <div class="selection-bonuses">
+                <div class="section-label">Bonus detectados</div>
+                <div class="bonus-list">
+                  <div class="bonus-pill">✓ Ebook de ventas</div>
+                  <div class="bonus-pill">✓ Plantillas Canva</div>
+                  <div class="bonus-pill">✓ Comunidad VIP</div>
+                  <div class="bonus-pill">✓ 3 llamadas en vivo</div>
+                </div>
+              </div>
+
+              <div class="selection-output">
+                <div class="output-title">Output JSON → M2</div>
+                <div class="output-json">{
+  "offer_type": "online_course",
+  "price_point": "$97–297",
+  "target_market": "Emprendedores 25–45",
+  "key_message": "Gana $5,000/mes desde casa",
+  "bonus_detected": ["Ebook", "Plantillas", "Comunidad VIP"],
+  "viability_score": 87,
+  "days_active": 238,
+  "estimated_investment": "$4,284"
+}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SIDEBAR -->
+          <div class="selection-sidebar">
+            <div class="sidebar-card">
+              <div class="sidebar-score">
+                <div class="sidebar-score-num">87</div>
+                <div class="sidebar-score-label">Score de potencial</div>
+                <div class="sidebar-score-desc">🏆 Ganador confirmado</div>
+              </div>
+            </div>
+
+            <div class="sidebar-card">
+              <div class="analysis-card-title">Validación final</div>
+              <div class="confirm-checklist">
+                <div class="confirm-item"><div class="confirm-icon">✓</div>30+ días activo (238 días)</div>
+                <div class="confirm-item"><div class="confirm-icon">✓</div>Inversión >$200 ($4,284 est.)</div>
+                <div class="confirm-item"><div class="confirm-icon">✓</div>Tipo de oferta identificable</div>
+                <div class="confirm-item"><div class="confirm-icon">✓</div>8 de 10 señales de éxito</div>
+                <div class="confirm-item"><div class="confirm-icon">✓</div>A/B testing activo (3 variaciones)</div>
+              </div>
+              <button class="btn-gold" onclick="sendToM2()">→ Ir a M2 con esta oferta</button>
+              <button class="btn-outline" style="width:100%;margin-top:8px" onclick="showToast('💾 Guardado en búsquedas')">💾 Guardar y decidir después</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- NAV FOOTER -->
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      <button class="btn-nav btn-nav-back" id="btn-back" onclick="navBack()" style="display:none">← Atrás</button>
+    </div>
+    <div class="nav-footer-right">
+      <button class="btn-nav btn-nav-compare" id="btn-compare" onclick="goStep(41)">⚡ Comparar seleccionados (2)</button>
+      <button class="btn-nav btn-nav-next" id="btn-next" onclick="navNext()">Continuar →</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- CHAT PANEL -->
+<div class="chat-overlay" id="chat-overlay">
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-avatar">🔍</div>
+      <div>
+        <div class="chat-agent-name">Espía</div>
+        <div class="chat-agent-desc">Analista de mercado · Funnel hacking</div>
+      </div>
+      <div class="chat-header-actions">
+        <button class="chat-icon-btn red" onclick="clearChat()" title="Limpiar conversación">🗑</button>
+        <button class="chat-icon-btn" onclick="toggleChat()" title="Cerrar">×</button>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chat-msgs">
+      <div class="msg msg-agent">
+        Listo para hackear la competencia. Puedo ayudarte con keywords, scouting de ofertas, validación y checklists de investigación.
+        <div class="msg-time">ahora</div>
+      </div>
+    </div>
+
+    <div class="suggestions" id="chat-suggestions">
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">🔑 Keywords para un nicho</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">📊 Mapear ofertas del nicho</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">🔎 Validar esta oferta</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">📁 Checklist de investigación</div>
+      <div class="suggestion-chip" onclick="sendSuggestion(this)">¿Cómo sé si un ad es rentable?</div>
+    </div>
+
+    <!-- inputs ocultos para adjuntos -->
+    <input type="file" id="att-img-input"   accept="image/*"       style="display:none" onchange="handleAttach(this,'image')">
+    <input type="file" id="att-audio-input" accept="audio/*,video/*" style="display:none" onchange="handleAttach(this,'audio')">
+    <input type="file" id="att-file-input"  accept=".pdf,.doc,.docx,.txt,.csv,.xlsx" style="display:none" onchange="handleAttach(this,'file')">
+
+    <div class="chat-input-area">
+      <div class="attach-wrap">
+        <button class="attach-btn" onclick="toggleAttachMenu()" title="Adjuntar archivo">📎</button>
+        <div class="attach-menu" id="attach-menu">
+          <div class="attach-option" onclick="pickAttach('image')"><span class="attach-option-icon">🖼️</span>Imagen / Screenshot</div>
+          <div class="attach-option" onclick="pickAttach('audio')"><span class="attach-option-icon">🎵</span>Audio / Video</div>
+          <div class="attach-option" onclick="pickAttach('file')"><span class="attach-option-icon">📄</span>Archivo (PDF, doc…)</div>
+        </div>
+      </div>
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Preguntale al Espía..." onkeydown="handleChatKey(event)"></textarea>
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+const ADS = [
+  {
+    id:1, advertiser:"Academia Digital Pro", days:238, platform:"Instagram · Facebook",
+    libraryId:"621843291057483", startDate:"2024-08-21",
+    mediaType:"Video 30s", copy:"¿Cansado de trabajar para otros? Descubrí cómo generar $5,000/mes con tu negocio digital. Acceso exclusivo este mes — solo 50 cupos.",
+    cta:"Registrate gratis", landing:"academiadigitalpro.com/curso", score:87,
+    tier:"winner", badge:"GANADOR", type:"Curso Online", price:"$97–297", budget:4284,
+    market:"Emprendedores 25–45", bonuses:["Ebook de ventas","Plantillas Canva","Comunidad VIP","3 llamadas en vivo"],
+    niche:"educacion",
+    signals:[
+      {ok:true,text:"Urgencia temporal (Cierra el 20 Abril)"},
+      {ok:true,text:"Número específico ($5,000/mes)"},
+      {ok:true,text:"Pain point claro (cansado de trabajar para otros)"},
+      {ok:true,text:"Testimonios (5 reviews 4.8/5)"},
+      {ok:true,text:"Bonus incluido (4 bonos)"},
+      {ok:true,text:"CTA directo (Registrate gratis)"},
+      {ok:true,text:"A/B testing activo (3 variaciones)"},
+      {ok:true,text:"Multi-plataforma (IG + FB)"},
+      {warn:true,text:"Competencia moderada (20 anuncios similares)"},
+      {ok:false,text:"Precio no visible en ad copy"},
+    ],
+    rec:"Este es un ganador comprobado. 238 días activos con inversión estimada de $4,284+. El copy usa urgencia, número específico y pain point. Tiene A/B testing activo — señal de que está escalando. ALTAMENTE RECOMENDADO para modelar."
+  },
+  {
+    id:2, advertiser:"MentorOnline SA", days:156, platform:"Instagram",
+    libraryId:"734912048563021", startDate:"2024-11-11",
+    mediaType:"Imagen", copy:"Membresía exclusiva de mentoría empresarial. $49/mes. Cancelá cuando quieras. 2,400 miembros ya transformaron su negocio.",
+    cta:"Únete ahora", landing:"mentoronline.com/membresia", score:84,
+    tier:"winner", badge:"GANADOR", type:"Membresía", price:"$49/mes", budget:2800,
+    market:"Dueños de negocio 30–50", bonuses:["Sesiones grupales semanales","Templates de negocio","Red de contactos"],
+    niche:"educacion",
+    signals:[
+      {ok:true,text:"Prueba social masiva (2,400 miembros)"},
+      {ok:true,text:"Precio claro ($49/mes)"},
+      {ok:true,text:"Beneficio tangible (transformaron su negocio)"},
+      {ok:true,text:"CTA directo (Únete ahora)"},
+      {ok:true,text:"Precio accesible (bajísima fricción)"},
+      {warn:true,text:"Sin urgencia temporal"},
+      {ok:false,text:"Sin bonus explícito en copy"},
+    ],
+    rec:"Membresía recurrente con ticket bajo. 156 días activos y $2,800+ de inversión. La prueba social de 2,400 miembros es muy fuerte. Modelo de ingreso recurrente — ideal para analizar la estructura de su oferta."
+  },
+  {
+    id:3, advertiser:"FinanzasLibres.ar", days:145, platform:"Facebook · Instagram",
+    libraryId:"819204756310948", startDate:"2024-11-22",
+    mediaType:"Carousel", copy:"Ebook GRATIS: Los 7 secretos para generar ingresos pasivos. Descargá ahora + 3 bonos exclusivos incluidos.",
+    cta:"Descargar gratis", landing:"finanzaslibres.ar/ebook", score:81,
+    tier:"winner", badge:"GANADOR", type:"Ebook + Upsell", price:"Gratis + $47 upsell", budget:1900,
+    market:"Adultos 25–40 / ingresos pasivos", bonuses:["Mini-curso en video","Calculadora de inversión","Guía de acciones"],
+    niche:"finanzas",
+    signals:[
+      {ok:true,text:"Lead magnet gratuito (alta conversión)"},
+      {ok:true,text:"Bonus incluido (3 bonos)"},
+      {ok:true,text:"Beneficio claro (ingresos pasivos)"},
+      {ok:true,text:"Carousel (muestra más contenido)"},
+      {warn:true,text:"Upsell no visible en ad (riesgo de confusión)"},
+      {ok:false,text:"Sin urgencia temporal"},
+    ],
+    rec:"Estrategia clásica de lead magnet. El ebook gratuito capta leads y el upsell genera ingresos. 145 días activos confirman que el funnel convierte. Modelo de 2 pasos replicable."
+  },
+  {
+    id:4, advertiser:"EmprendeTuNegocio", days:92, platform:"Instagram",
+    libraryId:"502837641920375", startDate:"2025-01-14",
+    mediaType:"Video 15s", copy:"De 0 a $2,000 en 30 días con tu tienda Shopify. Método probado. Empezá hoy.",
+    cta:"Ver método", landing:"emprendetunegocio.com/shopify", score:76,
+    tier:"high", badge:"ALTO", type:"Curso Online", price:"$67–147", budget:800,
+    market:"Emprendedores 20–35 / e-commerce", bonuses:["Template de tienda","Lista de proveedores"],
+    niche:"negocio",
+    signals:[
+      {ok:true,text:"Promesa específica ($2,000 en 30 días)"},
+      {ok:true,text:"Nicho concreto (Shopify)"},
+      {ok:true,text:"Video corto (alta retención)"},
+      {warn:true,text:"Competencia alta en nicho Shopify"},
+      {ok:false,text:"Sin testimonios visibles"},
+    ],
+    rec:"Promesa específica y nicho concreto. 92 días activos y mercado activo. Potencial alto pero competencia elevada en el nicho Shopify Argentina."
+  },
+  {
+    id:5, advertiser:"MasterClass Digital", days:88, platform:"Facebook",
+    libraryId:"967341820546219", startDate:"2025-01-18",
+    mediaType:"Video 60s", copy:"Masterclass GRATUITA: Cómo vender en internet sin tener un producto. Grabate ya — solo 200 lugares.",
+    cta:"Reservar lugar", landing:"masterclassdigital.com/webinar", score:72,
+    tier:"high", badge:"ALTO", type:"Webinar + Upsell", price:"Gratis + $197 upsell", budget:1200,
+    market:"Principiantes en negocios digitales", bonuses:["Replay por 24hs","Checklist de lanzamiento"],
+    niche:"negocio",
+    signals:[
+      {ok:true,text:"Urgencia (200 lugares)"},
+      {ok:true,text:"Gratuito (bajo umbral de entrada)"},
+      {warn:true,text:"Webinar — tasa de show-up variable"},
+      {ok:false,text:"Sin testimonios"},
+    ],
+    rec:"Webinar gratuito con upsell de $197. Modelo clásico. 88 días activos con $1,200+ de inversión. La urgencia artificial (200 lugares) es una señal de que convierte."
+  },
+  {
+    id:6, advertiser:"Inversiones Digitales", days:67, platform:"Instagram",
+    libraryId:"348201965743820", startDate:"2025-02-08",
+    mediaType:"Imagen", copy:"Aprendé a invertir en cripto con $100. Sin experiencia previa. Resultados reales de nuestros alumnos.",
+    cta:"Empezar ahora", landing:"inversionesdigitales.com", score:68,
+    tier:"high", badge:"ALTO", type:"Curso Online", price:"$79–199", budget:600,
+    market:"Adultos 25–45 / finanzas personales", bonuses:["Señales de trading"],
+    niche:"finanzas",
+    signals:[
+      {ok:true,text:"Ticket de entrada bajo ($100)"},
+      {ok:true,text:"Prueba social (resultados reales)"},
+      {warn:true,text:"Nicho cripto — alta competencia y regulación"},
+      {ok:false,text:"Sin urgencia temporal"},
+    ],
+    rec:"67 días activos en nicho cripto, que es altamente competitivo. La promesa de bajo ticket de entrada funciona. Modelo replicable fuera del nicho cripto."
+  },
+  {
+    id:7, advertiser:"NegocioDigital360", days:55, platform:"Facebook",
+    libraryId:"781039254816304", startDate:"2025-02-20",
+    mediaType:"Video 45s", copy:"Coach de negocios disponible 24/7 con IA. Tu plan personalizado en 5 minutos.",
+    cta:"Probá gratis", landing:"negociodigital360.com", score:65,
+    tier:"high", badge:"ALTO", type:"SaaS / Servicio", price:"$29/mes", budget:400,
+    market:"Emprendedores con poco tiempo", bonuses:[],
+    niche:"negocio",
+    signals:[
+      {ok:true,text:"Diferenciador claro (IA + 24/7)"},
+      {ok:true,text:"Ticket bajo ($29/mes)"},
+      {warn:true,text:"Promesa ambigua (plan personalizado en 5 min)"},
+      {ok:false,text:"Sin testimonios"},
+    ],
+    rec:"Propuesta innovadora pero prematura. 55 días activos, inversión moderada. Interesante como señal de tendencia (IA en negocios) pero aún no tiene tracción suficiente."
+  },
+  {
+    id:8, advertiser:"TransformaciónTotal", days:42, platform:"Instagram",
+    libraryId:"215647830912564", startDate:"2025-03-05",
+    mediaType:"Carousel", copy:"Perdé 10kg en 60 días con nuestro método. Coaching personalizado incluido.",
+    cta:"Quiero empezar", landing:"transformaciontotal.com.ar", score:55,
+    tier:"exp", badge:"EXP", type:"Coaching + Programa", price:"$97–197", budget:350,
+    market:"Adultos 25–45 / salud y bienestar", bonuses:["Plan de alimentación"],
+    niche:"fitness",
+    signals:[
+      {ok:true,text:"Promesa específica (10kg en 60 días)"},
+      {warn:true,text:"Nicho salud — regulaciones estrictas"},
+      {ok:false,text:"Sin prueba social en el copy"},
+      {ok:false,text:"Competencia muy alta"},
+    ],
+    rec:"42 días activos, inversión baja. El nicho salud tiene alta competencia y regulaciones. Promesa interesante pero necesita más tiempo para confirmar rentabilidad."
+  },
+  {
+    id:9, advertiser:"StartupAR", days:12, platform:"Instagram",
+    libraryId:"493820164750293", startDate:"2026-04-04",
+    mediaType:"Video 15s", copy:"Lanzamos nuestra plataforma de inversión colaborativa. Primeros 100 usuarios con 50% off.",
+    cta:"Unirme ahora", landing:"startupar.com", score:28,
+    tier:"exp", badge:"NUEVO", type:"SaaS", price:"$19/mes", budget:80,
+    market:"Inversores 25–40", bonuses:[],
+    niche:"negocio",
+    signals:[
+      {warn:true,text:"Lanzamiento reciente (solo 12 días)"},
+      {ok:false,text:"Sin tracción comprobada"},
+      {ok:false,text:"Inversión mínima (<$100)"},
+    ],
+    rec:"Demasiado nuevo para sacar conclusiones. Solo 12 días activos, inversión mínima. No suficientes señales para recomendar modelar."
+  },
+  { id:10, advertiser:"ReconquistaTotal", days:187, platform:"Instagram · Facebook",
+    libraryId:"903847562019384", startDate:"2024-10-12",
+    mediaType:"Video 60s", copy:"Recuperá a tu ex en 21 días con el Método Vínculo. Sin súplicas, sin dramas. Solo psicología aplicada al amor.",
+    cta:"Ver método", landing:"reconquistatotal.com/metodo", score:82,
+    tier:"winner", badge:"GANADOR", type:"Curso Online", price:"$97–147", budget:2100,
+    market:"Mujeres 22–40", bonuses:["Guía de mensajes","Comunidad privada","3 sesiones de seguimiento"],
+    niche:"relaciones",
+    signals:[{ok:true,text:"Promesa específica (21 días)"},{ok:true,text:"Mecanismo diferenciador (Método Vínculo)"},{ok:true,text:"Pain point claro (sin súplicas)"},{ok:true,text:"Multi-plataforma"},{warn:true,text:"Competencia alta en reconquista"},{ok:false,text:"Sin testimonios visibles en copy"}],
+    rec:"187 días activos con $2,100 invertidos. El método nombrado (Vínculo) es una señal de marca fuerte. Excelente para modelar la estructura de promesa."
+  },
+  { id:11, advertiser:"VínculoSeguro Pro", days:134, platform:"Instagram",
+    libraryId:"748293016584920", startDate:"2024-12-03",
+    mediaType:"Carousel", copy:"¿Tu pareja se aleja cuando más lo necesitás? Descubrí si tenés apego ansioso y cómo transformarlo en 8 semanas.",
+    cta:"Hacé el test gratis", landing:"vinculoseguro.com/test-apego", score:79,
+    tier:"high", badge:"ALTO", type:"Ebook + Upsell", price:"Gratis + $97 programa", budget:1400,
+    market:"Mujeres 25–45 / relaciones", bonuses:["Test de apego gratuito","Guía PDF","Mini-curso en video"],
+    niche:"relaciones",
+    signals:[{ok:true,text:"Lead magnet (test gratis)"},{ok:true,text:"Problema específico (apego ansioso)"},{ok:true,text:"Timeframe claro (8 semanas)"},{warn:true,text:"Carousel — requiere más creativos"},{ok:false,text:"Sin precio visible en ad"}],
+    rec:"Lead magnet de test gratuito con upsell. 134 días activos, modelo de 2 pasos replicable. El nicho 'apego' tiene baja competencia relativa."
+  },
+  { id:12, advertiser:"PsicologíaDelAmor", days:98, platform:"Facebook · Instagram",
+    libraryId:"512847930162748", startDate:"2025-01-07",
+    mediaType:"Video 30s", copy:"Los 7 errores que hacen que el hombre pierda interés (y cómo evitarlos). Ebook GRATIS — descargalo ahora.",
+    cta:"Descargar gratis", landing:"psicologiadelamor.ar/ebook-errores", score:74,
+    tier:"high", badge:"ALTO", type:"Ebook + Upsell", price:"Gratis + $67 upsell", budget:900,
+    market:"Mujeres 20–38", bonuses:["Ebook 47 páginas","Checklist de señales","Video bonus"],
+    niche:"relaciones",
+    signals:[{ok:true,text:"Número específico (7 errores)"},{ok:true,text:"Lead magnet gratuito"},{ok:true,text:"Curiosidad activada"},{warn:true,text:"Copy genérico — competencia alta"},{ok:false,text:"Sin urgencia temporal"}],
+    rec:"98 días, estrategia de lead magnet. El número específico (7 errores) funciona muy bien en copy de relaciones. Fácil de replicar."
+  },
+  { id:13, advertiser:"SeducciónNatural", days:67, platform:"Instagram",
+    libraryId:"839201746583920", startDate:"2025-02-08",
+    mediaType:"Imagen", copy:"La guía que ningún coach de seducción quiere que leas. 100% gratis. Solo para mujeres que quieren que él las persiga.",
+    cta:"Quiero la guía", landing:"seduccionnatural.com/guia", score:61,
+    tier:"high", badge:"ALTO", type:"Lead Magnet", price:"Gratis + $47 coaching", budget:450,
+    market:"Mujeres 18–35", bonuses:["Guía de seducción","Scripts de conversación"],
+    niche:"relaciones",
+    signals:[{ok:true,text:"Curiosidad + tabú ('que ningún coach quiere')"},{ok:true,text:"Audiencia específica (mujeres)"},{warn:true,text:"67 días — aún en validación"},{ok:false,text:"Sin prueba social"},{ok:false,text:"Sin testimonios"}],
+    rec:"67 días activos, aún en fase de validación. El ángulo de tabú ('que nadie quiere que sepas') funciona en este nicho. Monitorear 30 días más."
+  },
+  { id:14, advertiser:"CoachingAmor360", days:42, platform:"Instagram",
+    libraryId:"293847561029384", startDate:"2025-03-05",
+    mediaType:"Video 15s", copy:"Coaching 1:1 de reconquista. En 4 semanas o te devolvemos el dinero. Solo 8 cupos por mes.",
+    cta:"Reservar cupo", landing:"coachingamor360.com/cupos", score:55,
+    tier:"exp", badge:"EXP", type:"Coaching 1:1", price:"$197–397", budget:280,
+    market:"Mujeres 25–45", bonuses:["Garantía de devolución","WhatsApp directo con coach"],
+    niche:"relaciones",
+    signals:[{ok:true,text:"Urgencia real (8 cupos)"},{ok:true,text:"Garantía de devolución"},{warn:true,text:"42 días — inversión aún baja"},{ok:false,text:"Video muy corto para precio alto"},{ok:false,text:"Sin testimonios con nombre"}],
+    rec:"42 días activos. Ticket alto ($197-397) con baja inversión ($280) — puede ser test de precio. Observar si escala en las próximas semanas."
+  }
+];
+
+// ── INIT DATES ────────────────────────────────────────────
+(function initDates() {
+  const today = new Date();
+  const yyyy  = today.getFullYear();
+  const mm    = String(today.getMonth()+1).padStart(2,'0');
+  const dd    = String(today.getDate()).padStart(2,'0');
+  const todayStr  = `${yyyy}-${mm}-${dd}`;
+  const desdeStr  = `${yyyy}-01-01`;
+  document.addEventListener('DOMContentLoaded', () => {
+    const d = document.getElementById('date-desde');
+    const h = document.getElementById('date-hasta');
+    if (d) d.value = desdeStr;
+    if (h) { h.value = todayStr; h.max = todayStr; }
+  });
+})();
+
+// ── NICHES DATA ───────────────────────────────────────────
+const NICHES = [
+  { id:'blank',          icon:'📄', name:'En blanco',               color:'#6b7280',
+    desc:'Empezá desde cero con búsqueda personalizada',
+    keywords:[] },
+  { id:'fitness',        icon:'💪', name:'Fitness / Salud',          color:'#ef4444',
+    desc:'Entrenamiento, planes nutricionales, transformación corporal',
+    keywords:['entrenamiento en casa','bajar de peso','rutina fitness','plan nutricional','transformación corporal'] },
+  { id:'finanzas',       icon:'💰', name:'Finanzas Personales',      color:'#22c55e',
+    desc:'Ahorro, inversión, salir de deudas, libertad financiera',
+    keywords:['ingresos pasivos','invertir desde cero','salir de deudas','libertad financiera','ahorro inteligente'] },
+  { id:'relaciones',     icon:'❤️', name:'Relaciones / Amor',        color:'#ec4899',
+    desc:'Reconquista, vínculos sanos, comunicación en pareja, seducción',
+    keywords:['reconquistar ex','recuperar pareja','apego seguro','seducción femenina','comunicación en pareja'] },
+  { id:'diseno',         icon:'🎨', name:'Diseño / Templates',       color:'#a78bfa',
+    desc:'Packs de Canva, plantillas para redes, branding DIY',
+    keywords:['plantillas canva','pack templates','diseño para redes','branding digital','kit de diseño'] },
+  { id:'cocina',         icon:'🍳', name:'Cocina / Recetas',          color:'#f59e0b',
+    desc:'Recetarios digitales, meal prep, alimentación saludable, pastelería',
+    keywords:['recetario digital','meal prep','recetas saludables','ebook recetas bebés','libro de cocina digital'] },
+  { id:'marketing',      icon:'📣', name:'Marketing Digital',         color:'#60a5fa',
+    desc:'Estrategias de venta, copywriting, redes sociales, funnels',
+    keywords:['curso marketing digital','copywriting ventas','funnel de ventas','redes sociales','email marketing'] },
+  { id:'productividad',  icon:'⚡', name:'Productividad / Organización', color:'#fbbf24',
+    desc:'Gestión del tiempo, sistemas Notion, hábitos, GTD',
+    keywords:['productividad digital','sistema notion','gestión del tiempo','hábitos productivos','organización personal'] },
+  { id:'idiomas',        icon:'🌐', name:'Idiomas / Educación',       color:'#34d399',
+    desc:'Cursos de inglés, técnicas de estudio, preparación de exámenes',
+    keywords:['aprender inglés online','curso de idiomas','técnicas de estudio','inglés desde cero','preparación examen'] },
+  { id:'ecommerce',      icon:'🛒', name:'E-commerce / Dropshipping', color:'#f97316',
+    desc:'Tienda online, ventas Shopify/ML, proveedores, logística',
+    keywords:['tienda shopify','dropshipping argentina','vender en mercadolibre','negocio ecommerce','proveedores'] },
+  { id:'crianza',        icon:'🍼', name:'Crianza / Maternidad',      color:'#c084fc',
+    desc:'Crianza respetuosa, sueño infantil, recetas bebés, lactancia',
+    keywords:['crianza respetuosa','sueño del bebé','recetas bebés','lactancia materna','embarazo digital'] },
+  { id:'coaching',       icon:'🧠', name:'Coaching / Mentoría',       color:'#67e8f9',
+    desc:'Programas de coaching, mentoría online, desarrollo personal',
+    keywords:['coaching online','mentoría empresarial','desarrollo personal','mindset emprendedor','life coaching'] },
+];
+
+function renderNiches() {
+  const grid = document.getElementById('niche-grid');
+  if (!grid) return;
+  grid.innerHTML = NICHES.map(n => {
+    const kwTags = n.keywords.slice(0,3).map(k=>`<span class="niche-kw-tag">${k}</span>`).join('');
+    const isBlank = n.id === 'blank';
+    return `
+    <div class="niche-card${isBlank?' blank':''}" onclick="selectNiche('${n.id}')"
+         style="--niche-color:${n.color}"
+         onmouseover="this.style.borderColor='${n.color}44';this.querySelector('.niche-bar').style.background='${n.color}';this.querySelector('.niche-bar').style.opacity='1'"
+         onmouseout="this.style.borderColor='';this.querySelector('.niche-bar').style.opacity='0'">
+      <div class="niche-bar" style="position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity .22s;background:${n.color}"></div>
+      <span class="niche-icon">${n.icon}</span>
+      <div class="niche-name">${n.name}</div>
+      <div class="niche-desc">${n.desc}</div>
+      ${kwTags ? `<div class="niche-kw-preview">${kwTags}${n.keywords.length>3?`<span class="niche-kw-tag">+${n.keywords.length-3}</span>`:''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectNiche(id) {
+  const niche = NICHES.find(n => n.id === id);
+  selectedNicheId = id;
+  if (!niche || id === 'blank') { goStep(1); return; }
+
+  // pre-llenar keywords en el formulario
+  const tagsDiv = document.getElementById('kw-tags');
+  tagsDiv.innerHTML = niche.keywords.map(k =>
+    `<div class="tag" onclick="removeTag(this)">${k} <span class="tag-x">×</span></div>`
+  ).join('');
+
+  // actualizar placeholder con el nicho
+  const kwInput = document.getElementById('kw-input');
+  if (kwInput) kwInput.placeholder = `Keywords de ${niche.name} precargadas — podés agregar más`;
+
+  goStep(1);
+  // pequeño toast de confirmación
+  setTimeout(() => showToast(`${niche.icon} Nicho "${niche.name}" cargado`), 300);
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('es-AR', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+// ── STATE ──────────────────────────────────────────────────
+let selectedNicheId = 'blank';
+let currentStep = 1;
+let selectedAd = null;        // null hasta que el usuario explícitamente analice un ad
+let selectedForCompare = [];
+
+// ── NAVIGATION ────────────────────────────────────────────
+function goStep(n) {
+  const id = n === 41 ? '41' : String(n);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById('screen-' + id);
+  if (screen) screen.classList.add('active');
+  currentStep = n;
+  updateStepUI();
+  updateNavFooter();
+  if (n === 0) renderNiches();
+  if (n === 2) { collectFilters(); renderAds(); checkProactive(); }
+  if (n === 4) renderRanking();
+  if (n === 41) renderComparator();
+}
+
+function updateStepUI() {
+  const step = currentStep === 41 ? 4 : (currentStep === 0 ? 0 : currentStep);
+  document.querySelectorAll('.step-item').forEach(el => {
+    const s = parseInt(el.dataset.step);
+    el.className = 'step-item' + (s === step ? ' active' : s < step ? ' done' : '');
+  });
+}
+
+function updateNavFooter() {
+  const btnBack = document.getElementById('btn-back');
+  const btnNext = document.getElementById('btn-next');
+  const btnCompare = document.getElementById('btn-compare');
+  btnBack.style.display = currentStep >= 1 ? 'flex' : 'none';
+  btnNext.style.display = (currentStep === 4 || currentStep === 41) ? 'none' : 'flex';
+  btnCompare.style.display = 'none';
+  btnCompare.className = 'btn-nav btn-nav-compare';
+  if (currentStep === 4 && selectedForCompare.length >= 2) {
+    btnCompare.style.display = 'flex';
+    btnCompare.className = 'btn-nav btn-nav-compare visible';
+    btnCompare.textContent = `⚡ Comparar (${selectedForCompare.length})`;
+  }
+  if (currentStep === 5) {
+    btnNext.textContent = '→ Ir a M2';
+    btnNext.className = 'btn-nav btn-nav-next';
+    btnNext.style.background = 'linear-gradient(135deg,#d4a843,#b8882a)';
+    btnNext.style.color = '#080612';
+  } else {
+    btnNext.textContent = 'Continuar →';
+    btnNext.style.background = '';
+    btnNext.style.color = '';
+  }
+}
+
+function navBack() {
+  const map = {1:0, 2:1, 3:2, 4:2, 41:4, 5:4};
+  if (map[currentStep] !== undefined) goStep(map[currentStep]);
+}
+
+function navNext() {
+  const map = {1:2, 2:4, 3:4, 5:'m2'};
+  if (currentStep === 5) { sendToM2(); return; }
+  if (map[currentStep]) goStep(map[currentStep]);
+}
+
+// ── COLLECT & APPLY FILTERS ───────────────────────────────
+let activeFilters = {};
+
+function collectFilters() {
+  const val = (id, def) => { const el = document.getElementById(id); return el ? el.value : def; };
+  const chk = (id, def=true) => { const el = document.getElementById(id); return el ? el.checked : def; };
+  activeFilters = {
+    minDays:    parseInt(val('f-mindays', '30')) || 0,
+    budgetMin:  parseFloat(val('f-budgetmin', '0')) || 0,
+    budgetMax:  parseFloat(val('f-budgetmax', '999999')) || 999999,
+    instagram:  chk('f-instagram'),
+    facebook:   chk('f-facebook'),
+    video:      chk('f-video'),
+    imagen:     chk('f-imagen'),
+    carousel:   chk('f-carousel'),
+    activeOnly: chk('f-activeonly'),
+    dateDesde:  val('date-desde', ''),
+    dateHasta:  val('date-hasta', ''),
+  };
+}
+
+function applyFilters(ads) {
+  // filtro por nicho seleccionado
+  if (selectedNicheId && selectedNicheId !== 'blank') {
+    const nicheMap = {
+      relaciones: 'relaciones',
+      fitness: 'fitness', cocina: 'cocina', finanzas: 'finanzas',
+      diseno: 'diseno', marketing: 'marketing', productividad: 'productividad',
+      idiomas: 'idiomas', ecommerce: 'ecommerce', crianza: 'crianza', coaching: 'coaching',
+      educacion: 'educacion', negocio: 'negocio'
+    };
+    const targetNiche = nicheMap[selectedNicheId];
+    if (targetNiche) {
+      ads = ads.filter(ad => ad.niche === targetNiche || (!ad.niche && selectedNicheId === 'blank'));
+    }
+  }
+  if (!Object.keys(activeFilters).length) return ads;
+  const f = activeFilters;
+  return ads.filter(ad => {
+    // días activos
+    if (ad.days < f.minDays) return false;
+    // presupuesto
+    if (f.budgetMax < 999999 && ad.budget > f.budgetMax) return false;
+    if (f.budgetMin > 0 && ad.budget < f.budgetMin) return false;
+    // plataforma — si ninguna plataforma matchea, excluir
+    const platforms = ad.platform.toLowerCase();
+    const platOk = (f.instagram && platforms.includes('instagram')) ||
+                   (f.facebook  && platforms.includes('facebook')) ||
+                   (!f.instagram && !f.facebook); // si los dos están desmarcados, mostrar todo
+    if (!platOk) return false;
+    // tipo de media
+    const media = ad.mediaType.toLowerCase();
+    const mediaOk = (f.video   && media.includes('video')) ||
+                    (f.imagen  && (media.includes('imagen') || media.includes('image'))) ||
+                    (f.carousel && media.includes('carousel')) ||
+                    (!f.video && !f.imagen && !f.carousel); // si todos desmarcados, mostrar todo
+    if (!mediaOk) return false;
+    // fecha de inicio (En circulación desde)
+    if (f.dateDesde && ad.startDate) {
+      if (new Date(ad.startDate) < new Date(f.dateDesde)) return false;
+    }
+    if (f.dateHasta && ad.startDate) {
+      if (new Date(ad.startDate) > new Date(f.dateHasta)) return false;
+    }
+    return true;
+  });
+}
+
+// ── FILTER PILLS ──────────────────────────────────────────
+function renderFilterPills() {
+  const bar = document.getElementById('filter-pills-bar');
+  if (!bar) return;
+  const f = activeFilters;
+  const pills = [];
+  if (selectedNicheId && selectedNicheId !== 'blank') {
+    const n = NICHES.find(n=>n.id===selectedNicheId);
+    if (n) pills.push(`<span class="filter-pill">${n.icon} ${n.name}</span>`);
+  }
+  if (f.minDays > 0) pills.push(`<span class="filter-pill">🗓 ${f.minDays}+ días</span>`);
+  if (f.budgetMin > 0) pills.push(`<span class="filter-pill">💰 Desde $${f.budgetMin}</span>`);
+  if (f.budgetMax < 999999) pills.push(`<span class="filter-pill">💰 Hasta $${f.budgetMax}</span>`);
+  if (f.dateDesde) pills.push(`<span class="filter-pill">📅 Desde ${f.dateDesde}</span>`);
+  if (f.dateHasta) pills.push(`<span class="filter-pill">📅 Hasta ${f.dateHasta}</span>`);
+  if (!f.instagram || !f.facebook) {
+    const plats = [f.instagram&&'IG', f.facebook&&'FB'].filter(Boolean);
+    if (plats.length) pills.push(`<span class="filter-pill">📱 ${plats.join('+')}</span>`);
+  }
+  if (!f.video || !f.imagen || !f.carousel) {
+    const media = [f.video&&'Video', f.imagen&&'Imagen', f.carousel&&'Carousel'].filter(Boolean);
+    if (media.length) pills.push(`<span class="filter-pill">🎬 ${media.join('+')}</span>`);
+  }
+  bar.innerHTML = pills.length
+    ? pills.join('') + `<button class="filter-more-btn" onclick="goStep(1)">⚙ Modificar filtros</button>`
+    : `<span style="font-size:10.5px;color:var(--text3)">Sin filtros adicionales</span><button class="filter-more-btn" onclick="goStep(1)">⚙ Agregar filtros</button>`;
+}
+
+// ── RENDER ADS ────────────────────────────────────────────
+function renderAds() {
+  const grid = document.getElementById('ads-grid');
+  const filtered = applyFilters(getSortedAds());
+
+  // actualizar contador de resultados
+  const winners = filtered.filter(a=>a.tier==='winner').length;
+  const high    = filtered.filter(a=>a.tier==='high').length;
+  const countEl = document.querySelector('.results-count');
+  if (countEl) countEl.innerHTML = `<strong>${filtered.length}</strong> anuncios · <span class="badge-winner">⭐ ${winners} ganadores</span> · <span style="color:var(--blue)">${high} potencial alto</span>`;
+
+  renderFilterPills();
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--text3)">
+      <div style="font-size:32px;margin-bottom:12px">🔍</div>
+      <div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Ningún anuncio coincide con los filtros</div>
+      <div style="font-size:12px">Probá reducir los filtros (menos días mínimos, mayor presupuesto máximo, más plataformas)</div>
+      <button onclick="resetFilters()" style="margin-top:16px;padding:8px 18px;border-radius:8px;background:var(--gold-dim);border:1px solid var(--border-hi);color:var(--gold);font-size:12px;font-weight:700;cursor:pointer">Limpiar filtros</button>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(ad => {
+    const daysClass = ad.days >= 180 ? 'days-hot' : ad.days >= 90 ? 'days-good' : ad.days >= 30 ? 'days-med' : 'days-low';
+    const daysLabel = ad.days >= 180 ? '🔥 ' + ad.days + ' días' : ad.days >= 90 ? '✅ ' + ad.days + ' días' : '⚠️ ' + ad.days + ' días';
+    const badgeClass = ad.tier === 'winner' ? 'badge-ganador' : ad.tier === 'high' ? 'badge-potencial' : ad.days > 30 ? 'badge-exp' : 'badge-nuevo';
+    const badgeLabel = ad.tier === 'winner' ? '⭐ GANADOR' : ad.tier === 'high' ? 'POTENCIAL' : ad.days <= 15 ? 'NUEVO' : 'EXPERIMENTAL';
+    const thumbEmoji = ad.type.includes('Curso') ? '🎓' : ad.type.includes('Memb') ? '🔑' : ad.type.includes('Ebook') ? '📚' : ad.type.includes('Webinar') ? '🎥' : ad.type.includes('SaaS') ? '⚡' : '💰';
+    return `
+    <div class="ad-card${ad.tier === 'winner' ? ' winner' : ''}" data-ad-id="${ad.id}" onclick="analyzeAd(${ad.id})">
+      <div class="ad-thumb">
+        <div class="ad-thumb-label">${thumbEmoji}</div>
+        <div class="ad-badge ${badgeClass}">${badgeLabel}</div>
+        <div class="ad-days ${daysClass}">${daysLabel}</div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-advertiser">${ad.advertiser}</div>
+        <div class="ad-meta">
+          <span class="meta-tag">${ad.platform.split('·')[0].trim()}</span>
+          <span class="meta-tag">${ad.mediaType}</span>
+          <span class="meta-tag" style="color:var(--gold);border-color:rgba(212,168,67,0.3)">Score ${ad.score}</span>
+        </div>
+        <div class="ad-copy">${ad.copy}</div>
+        <div class="ad-cta">CTA: ${ad.cta}</div>
+        <div class="ad-landing">🔗 ${ad.landing}</div>
+        <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid rgba(255,255,255,0.05)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:var(--text3)">ID Biblioteca</span>
+            <span style="font-size:10px;font-family:monospace;color:var(--text2)">${ad.libraryId}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:var(--text3)">En circulación desde</span>
+            <span style="font-size:10px;font-weight:600;color:var(--text)">${formatDate(ad.startDate)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:var(--text3)">Plataformas</span>
+            <span style="font-size:10px;font-weight:600;color:var(--blue)">${ad.platform}</span>
+          </div>
+        </div>
+        <div class="ad-actions">
+          <button class="ad-btn" onclick="event.stopPropagation();showToast('💾 Guardado')">💾</button>
+          <button class="ad-btn" onclick="verDominio('${ad.landing}','${ad.advertiser}',event)" title="Ver todos los anuncios de este dominio">🌐 Dominio</button>
+          <button class="ad-btn primary" onclick="event.stopPropagation();analyzeAd(${ad.id})">🔍 Analizar</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ANALYZE AD ────────────────────────────────────────────
+function analyzeAd(id) {
+  const ad = ADS.find(a => a.id === id);
+  if (!ad) return;
+  selectedAd = ad;
+
+  // Show loading briefly
+  const loading = document.getElementById('loading');
+  document.getElementById('loading-sub').textContent = `Analizando "${ad.advertiser}"...`;
+  loading.classList.remove('hidden');
+  setTimeout(() => {
+    loading.classList.add('hidden');
+    goStep(3);
+    renderAnalysis(ad);
+  }, 1200);
+}
+
+function renderAnalysis(ad) {
+  const viabilityPct = Math.min(100, (ad.days / 240) * 100);
+  const viabilityLabel = ad.days >= 180 ? {text:'🟢🟢🟢 GANADOR CONFIRMADO', color:'var(--green)', bg:'var(--green-dim)'}
+    : ad.days >= 90 ? {text:'🟢🟢 MUY RENTABLE', color:'var(--green)', bg:'var(--green-dim)'}
+    : ad.days >= 30 ? {text:'🟢 PROBABLE RENTABLE', color:'#86efac', bg:'rgba(134,239,172,0.1)'}
+    : {text:'🟡 EXPERIMENTAL', color:'var(--yellow)', bg:'var(--yellow-dim)'};
+  const scoreColor = ad.score >= 80 ? 'var(--gold)' : ad.score >= 60 ? 'var(--blue)' : 'var(--yellow)';
+  const scoreLabel = ad.score >= 80 ? 'Ganador confirmado' : ad.score >= 60 ? 'Potencial alto' : 'Experimental';
+  const circumference = 2 * Math.PI * 36;
+  const dashoffset = circumference - (ad.score / 100) * circumference;
+  const thumbEmoji = ad.type.includes('Curso') ? '🎓' : ad.type.includes('Memb') ? '🔑' : ad.type.includes('Ebook') ? '📚' : ad.type.includes('Webinar') ? '🎥' : '💰';
+
+  const signalsHTML = ad.signals.map(s => {
+    if (s.ok === false) return `<div class="signal-item signal-no"><div class="signal-icon icon-no">✗</div>${s.text}</div>`;
+    if (s.warn) return `<div class="signal-item signal-warn"><div class="signal-icon icon-warn">⚠</div>${s.text}</div>`;
+    return `<div class="signal-item signal-ok"><div class="signal-icon icon-ok">✓</div>${s.text}</div>`;
+  }).join('');
+
+  const okCount = ad.signals.filter(s => s.ok === true).length;
+
+  document.getElementById('analysis-content').innerHTML = `
+  <!-- LEFT: AD PREVIEW -->
+  <div class="ad-preview-card">
+    <div class="preview-thumb">${thumbEmoji}</div>
+    <div class="preview-body">
+      <div class="preview-advertiser">${ad.advertiser}</div>
+      <div class="preview-copy">"${ad.copy}"</div>
+      <div class="preview-details">
+        <div class="detail-row"><span class="detail-key">Plataformas</span><span class="detail-val" style="color:var(--blue)">${ad.platform}</span></div>
+        <div class="detail-row"><span class="detail-key">Tipo de media</span><span class="detail-val">${ad.mediaType}</span></div>
+        <div class="detail-row"><span class="detail-key">CTA</span><span class="detail-val">${ad.cta}</span></div>
+        <div class="detail-row"><span class="detail-key">Landing</span><span class="detail-val" style="font-size:11px;display:flex;align-items:center;gap:6px"><a href="${ad.landing.startsWith('http') ? ad.landing : 'https://'+ad.landing}" target="_blank" rel="noopener" style="color:var(--violet);text-decoration:none" onmouseenter="this.style.textDecoration='underline'" onmouseleave="this.style.textDecoration='none'">${ad.landing} ↗</a><span style="background:rgba(124,58,237,0.15);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:4px;letter-spacing:0.04em">DEMO</span></span></div>
+        <div class="detail-row"><span class="detail-key">Ver en Meta</span><span class="detail-val" style="font-size:11px"><a href="https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=ALL&q=${encodeURIComponent(ad.advertiser)}&search_type=keyword_unordered" target="_blank" rel="noopener" style="color:var(--blue);text-decoration:none" onmouseenter="this.style.textDecoration='underline'" onmouseleave="this.style.textDecoration='none'">↗ Buscar "${ad.advertiser}" en Ads Library</a></span></div>
+        <div class="detail-row"><span class="detail-key">En circulación desde</span><span class="detail-val" style="color:var(--text)">${formatDate(ad.startDate)}</span></div>
+        <div class="detail-row"><span class="detail-key">Días activo</span><span class="detail-val" style="color:var(--green)">${ad.days} días</span></div>
+        <div class="detail-row"><span class="detail-key">ID Biblioteca</span><span class="detail-val" style="font-family:monospace;font-size:11px;color:var(--text3)">${ad.libraryId}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: ANALYSIS -->
+  <div class="analysis-panel">
+
+    <!-- SCORE -->
+    <div class="analysis-card">
+      <div class="analysis-card-title">Score de Potencial</div>
+      <div class="score-display">
+        <div class="score-ring">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="7"/>
+            <circle cx="45" cy="45" r="36" fill="none" stroke="${scoreColor}" stroke-width="7"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${dashoffset}"
+              stroke-linecap="round" style="transition:stroke-dashoffset 1s ease"/>
+          </svg>
+          <div style="text-align:center">
+            <div class="score-num" style="color:${scoreColor}">${ad.score}</div>
+            <div class="score-label">/100</div>
+          </div>
+        </div>
+        <div class="score-info">
+          <h3 style="color:${scoreColor}">${scoreLabel}</h3>
+          <p>Basado en ${ad.days} días activos, $${ad.budget.toLocaleString()} invertidos y ${okCount}/${ad.signals.length} señales de éxito detectadas.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIABILIDAD -->
+    <div class="analysis-card">
+      <div class="analysis-card-title">Viabilidad</div>
+      <div class="viability-meter">
+        <div class="viability-track"><div class="viability-fill" style="width:${viabilityPct}%;background:${viabilityLabel.color}"></div></div>
+        <div class="viability-labels"><span>0 días</span><span>30</span><span>90</span><span>180</span><span>240+</span></div>
+        <div class="viability-badge" style="background:${viabilityLabel.bg};color:${viabilityLabel.color};border:1px solid ${viabilityLabel.color}33">
+          ${viabilityLabel.text} · ${ad.days} días activo
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESUPUESTO -->
+    <div class="analysis-card">
+      <div class="analysis-card-title">Inversión estimada (CPM-based)</div>
+      <div class="budget-display">
+        <div class="budget-amount">$${ad.budget.toLocaleString()}</div>
+        <div class="budget-meta">
+          Est. ${Math.round(ad.budget / 0.012).toLocaleString()} impresiones<br>
+          CPM promedio: $12 (${ad.platform.split('·')[0].trim()})<br>
+          <div class="budget-viable">✅ Mercado viable ($200+ umbral)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIPO DE OFERTA -->
+    <div class="analysis-card">
+      <div class="analysis-card-title">Tipo de oferta detectado</div>
+      <div class="offer-type-pill">📋 ${ad.type}</div>
+      <div class="offer-attrs">
+        <div class="offer-attr"><div class="offer-attr-key">Precio estimado</div><div class="offer-attr-val">${ad.price}</div></div>
+        <div class="offer-attr"><div class="offer-attr-key">Mercado objetivo</div><div class="offer-attr-val">${ad.market}</div></div>
+        <div class="offer-attr"><div class="offer-attr-key">Bonus detectados</div><div class="offer-attr-val">${ad.bonuses.length > 0 ? ad.bonuses.length + ' bonus' : 'Ninguno'}</div></div>
+        <div class="offer-attr"><div class="offer-attr-key">Plataforma</div><div class="offer-attr-val">${ad.platform}</div></div>
+      </div>
+    </div>
+
+    <!-- SEÑALES DE ÉXITO -->
+    <div class="analysis-card">
+      <div class="analysis-card-title">Señales de éxito (${okCount}/${ad.signals.length})</div>
+      <div class="signals-grid">${signalsHTML}</div>
+    </div>
+
+    <!-- RECOMENDACIÓN IA -->
+    <div class="analysis-card">
+      <div class="analysis-card-title">Recomendación IA</div>
+      <div class="ai-rec">
+        <div class="ai-rec-title">🤖 Espía dice:</div>
+        <div class="ai-rec-text">${ad.rec}</div>
+      </div>
+    </div>
+
+    <button class="btn-gold" onclick="selectOffer(${ad.id})" style="margin-top:4px">⭐ Seleccionar esta oferta → M2</button>
+    <button class="btn-outline" onclick="goStep(4)" style="margin-top:8px">Ver ranking completo</button>
+  </div>`;
+}
+
+// ── RANKING ───────────────────────────────────────────────
+function renderRanking() {
+  const winners = ADS.filter(a => a.tier === 'winner');
+  const high    = ADS.filter(a => a.tier === 'high');
+  const exp     = ADS.filter(a => a.tier === 'exp');
+
+  document.getElementById('rank-winners').innerHTML = winners.map(a => rankCard(a, 'gold')).join('');
+  document.getElementById('rank-high').innerHTML    = high.map(a => rankCard(a, 'blue')).join('');
+  document.getElementById('rank-exp').innerHTML     = exp.map(a => rankCard(a, 'yellow')).join('');
+}
+
+function rankCard(ad, color) {
+  const sel = selectedForCompare.includes(ad.id);
+  return `
+  <div class="rank-card${sel ? ' selected' : ''}" onclick="toggleCompare(${ad.id}, this)">
+    <div class="rank-score ${color}">${ad.score}</div>
+    <div class="rank-advertiser">${ad.advertiser}</div>
+    <div class="rank-metrics">
+      <div class="rank-metric">⏱ <strong>${ad.days}d</strong></div>
+      <div class="rank-metric">💰 <strong>$${(ad.budget/1000).toFixed(1)}k</strong></div>
+      <div class="rank-metric">📋 <strong>${ad.type.split(' ')[0]}</strong></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:12px">
+      <button class="ad-btn primary" style="flex:1;padding:6px" onclick="event.stopPropagation();analyzeAd(${ad.id})">🔍 Ver análisis</button>
+      <button class="ad-btn" style="flex:1;padding:6px" onclick="event.stopPropagation();selectOffer(${ad.id})">⭐ Elegir</button>
+    </div>
+  </div>`;
+}
+
+function toggleCompare(id, el) {
+  const idx = selectedForCompare.indexOf(id);
+  if (idx >= 0) { selectedForCompare.splice(idx,1); el.classList.remove('selected'); }
+  else if (selectedForCompare.length < 3) { selectedForCompare.push(id); el.classList.add('selected'); }
+  else { showToast('Máximo 3 anuncios para comparar'); return; }
+  document.getElementById('compare-btn').className = 'ranking-compare-btn' + (selectedForCompare.length >= 2 ? ' visible' : '');
+  document.getElementById('compare-btn').textContent = `⚡ Comparar seleccionados (${selectedForCompare.length})`;
+  updateNavFooter();
+}
+
+// ── COMPARATOR ────────────────────────────────────────────
+function renderComparator() {
+  const ads = selectedForCompare.length >= 2
+    ? selectedForCompare.map(id => ADS.find(a => a.id === id))
+    : ADS.slice(0, 3);
+
+  const cols = ads.length;
+  const gridCols = `180px ${Array(cols).fill('1fr').join(' ')}`;
+  const winnerIdx = ads.reduce((best, a, i) => a.score > ads[best].score ? i : best, 0);
+
+  const rows = [
+    ['', ...ads.map((a,i) => `<div class="compare-header${i===winnerIdx?' winner-col':''}" style="padding:0"><div style="font-size:13px;font-weight:700">${a.advertiser}</div><div class="compare-sub">${a.type}</div>${i===winnerIdx?'<div class="winner-tag">⭐ GANADOR</div>':''}</div>`)],
+    ['Score', ...ads.map((a,i) => `<div class="compare-score-big" style="color:${a.score>=80?'var(--gold)':a.score>=60?'var(--blue)':'var(--yellow)'}">${a.score}<span style="font-size:12px;font-weight:400;color:var(--text3)">/100</span></div>`)],
+    ['Días activos', ...ads.map(a => `<strong style="color:var(--green)">${a.days}</strong> días`)],
+    ['Inversión est.', ...ads.map(a => `$${a.budget.toLocaleString()}`)],
+    ['Tipo de oferta', ...ads.map(a => a.type)],
+    ['Precio', ...ads.map(a => a.price)],
+    ['Mercado', ...ads.map(a => a.market)],
+    ['Plataforma', ...ads.map(a => a.platform)],
+    ['Señales de éxito', ...ads.map(a => `${a.signals.filter(s=>s.ok===true).length}/${a.signals.length}`)],
+    ['', ...ads.map((a,i) => `<button class="compare-select-btn${i===winnerIdx?' primary':''}" onclick="selectOffer(${a.id})">⭐ Elegir esta</button>`)],
+  ];
+
+  document.getElementById('compare-content').innerHTML = `
+  <div class="compare-table" style="grid-template-columns:${gridCols}">
+    ${rows.map((row, ri) => row.map((cell, ci) => {
+      const isKey = ci === 0;
+      const isWinner = !isKey && (ci - 1) === winnerIdx;
+      return `<div class="compare-cell${isKey ? ' key' : ''}${isWinner ? ' winner-col' : ''}">${cell}</div>`;
+    }).join('')).join('')}
+  </div>`;
+}
+
+// ── SELECT OFFER ──────────────────────────────────────────
+function selectOffer(id) {
+  selectedAd = ADS.find(a => a.id === id) || ADS[0];
+  goStep(5);
+  showToast('✓ Oferta seleccionada: ' + selectedAd.advertiser);
+}
+
+function sendToM2() {
+  showToast('🚀 Enviando a M2... Oferta guardada en Notion');
+  setTimeout(() => { showToast('✅ ¡Listo! M2 está esperando tu oferta'); }, 1500);
+}
+
+function resetFilters() {
+  ['f-instagram','f-facebook','f-video','f-imagen','f-carousel','f-activeonly'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.checked = true;
+  });
+  ['f-messenger','f-audience','f-paused'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.checked = false;
+  });
+  const mindays = document.getElementById('f-mindays'); if (mindays) mindays.value = '30';
+  const bmin = document.getElementById('f-budgetmin'); if (bmin) bmin.value = '';
+  const bmax = document.getElementById('f-budgetmax'); if (bmax) bmax.value = '';
+  collectFilters();
+  renderAds();
+  showToast('🔄 Filtros restablecidos');
+}
+
+// ── SEARCH ────────────────────────────────────────────────
+function startSearch() {
+  const loading = document.getElementById('loading');
+  loading.classList.remove('hidden');
+  let count = 0;
+  const msgs = ['Conectando a Meta Ads Library...','Buscando anuncios activos...','Filtrando por 30+ días...','Calculando scores de potencial...','¡Listo! 247 anuncios encontrados'];
+  const interval = setInterval(() => {
+    document.getElementById('loading-sub').textContent = msgs[Math.min(count, msgs.length-1)];
+    count++;
+    if (count >= msgs.length) { clearInterval(interval); setTimeout(() => { loading.classList.add('hidden'); goStep(2); }, 600); }
+  }, 550);
+}
+
+function setSearchMode(mode) {
+  document.getElementById('mode-keywords').style.display = mode === 'keywords' ? 'block' : 'none';
+  document.getElementById('mode-company').style.display  = mode === 'company'  ? 'block' : 'none';
+  document.getElementById('mode-excel').style.display    = mode === 'excel'    ? 'block' : 'none';
+  document.getElementById('toggle-kw').className = 'toggle-btn' + (mode === 'keywords' ? ' active' : '');
+  document.getElementById('toggle-co').className = 'toggle-btn' + (mode === 'company'  ? ' active' : '');
+  document.getElementById('toggle-xl').className = 'toggle-btn' + (mode === 'excel'    ? ' active' : '');
+}
+
+function handleKwKeydown(e) {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    if (!val) return;
+    const tags = document.getElementById('kw-tags');
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.onclick = function(){ removeTag(this); };
+    tag.innerHTML = val + ' <span class="tag-x">×</span>';
+    tags.appendChild(tag);
+    e.target.value = '';
+  }
+}
+
+function removeTag(el) { el.remove(); }
+
+// ── SORT ──────────────────────────────────────────────────
+let sortField = 'days';
+let sortDir   = 'desc';
+
+function setSort(btn) {
+  const field = btn.dataset.field;
+  if (sortField === field) {
+    // mismo campo → invertir dirección
+    sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    sortField = field;
+    sortDir = 'desc';
+  }
+  // actualizar UI de botones
+  document.querySelectorAll('.sort-btn').forEach(b => {
+    b.classList.remove('active');
+    const label = {days:'Días activos', score:'Score', budget:'Inversión'}[b.dataset.field];
+    b.textContent = label; // resetear sin flecha
+    b.dataset.dir = 'desc';
+  });
+  btn.classList.add('active');
+  btn.dataset.dir = sortDir;
+  const arrow = sortDir === 'desc' ? ' ↓' : ' ↑';
+  btn.textContent = btn.textContent.replace(/ [↓↑]$/, '') + arrow;
+  renderAds();
+}
+
+function getSortedAds() {
+  return [...ADS].sort((a, b) => {
+    const va = a[sortField] ?? 0;
+    const vb = b[sortField] ?? 0;
+    return sortDir === 'desc' ? vb - va : va - vb;
+  });
+}
+
+// ── VER DOMINIO ───────────────────────────────────────────
+function verDominio(landing, advertiser, event) {
+  event.stopPropagation();
+  const domain = landing.split('/')[0];
+  const domAds = ADS.filter(a => a.landing.startsWith(domain));
+  showToast(`🌐 ${advertiser}: ${domAds.length} anuncio${domAds.length !== 1 ? 's' : ''} en ${domain}`);
+  // resaltar visualmente los anuncios del mismo dominio
+  document.querySelectorAll('.ad-card').forEach(card => {
+    const idx = parseInt(card.dataset.adId) - 1;
+    if (idx >= 0) {
+      const ad = ADS[idx];
+      if (ad && ad.landing.startsWith(domain)) {
+        card.style.borderColor = 'rgba(96,165,250,0.6)';
+        card.style.boxShadow = '0 0 0 1px rgba(96,165,250,0.3)';
+      } else {
+        card.style.opacity = '0.45';
+      }
+    }
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.ad-card').forEach(card => {
+      card.style.borderColor = '';
+      card.style.boxShadow = '';
+      card.style.opacity = '';
+    });
+  }, 3500);
+}
+
+// ── PROACTIVE SPY ─────────────────────────────────────────
+const WINNERS_THRESHOLD = 10;
+const MOCK_WINNERS_COUNT = 12; // simula resultado real
+let proactiveTriggered = false;
+let proactiveChatDone  = false;
+
+function checkProactive() {
+  if (proactiveTriggered) return;
+  if (MOCK_WINNERS_COUNT > WINNERS_THRESHOLD) {
+    proactiveTriggered = true;
+    document.getElementById('spy-winner-count').textContent = MOCK_WINNERS_COUNT;
+    document.getElementById('spy-banner').classList.add('visible');
+    document.getElementById('chat-notif-dot').classList.add('active');
+  }
+}
+
+function openChatProactive() {
+  // colapsar el banner sin deshabilitar pointer-events del padre
+  const banner = document.getElementById('spy-banner');
+  banner.style.transition = 'all .3s ease';
+  banner.style.opacity = '0.4';
+  banner.querySelector('.spy-banner-btn').disabled = true;
+  banner.querySelector('.spy-banner-btn').textContent = 'Abierto ✓';
+  document.getElementById('chat-notif-dot').classList.remove('active');
+  const overlay = document.getElementById('chat-overlay');
+  overlay.classList.add('open');
+  if (!proactiveChatDone) {
+    proactiveChatDone = true;
+    setTimeout(() => injectProactiveMessage(), 600);
+  }
+}
+
+function injectProactiveMessage() {
+  const msgs = document.getElementById('chat-msgs');
+  const now = new Date().toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+  const div = document.createElement('div');
+  div.className = 'msg msg-agent';
+  div.innerHTML = `
+    Encontré <strong>${MOCK_WINNERS_COUNT} ganadores</strong> en este nicho — es mucho para analizar de una. Te sugiero afinar con alguno de estos filtros:
+    <div class="spy-filter-chips" id="spy-chips">
+      <span class="spy-chip" onclick="applySpyFilter(this,'descargable')">📥 Solo descargables (ebook/plantillas)</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'fisico')">📦 Solo productos físicos</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'neutro')">🌎 Solo español neutro</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'video')">🎥 Solo video ads</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'precio')">💰 Precio visible en copy</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'testimonios')">⭐ Con testimonios / prueba social</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'leadmagnet')">🎁 Solo lead magnet gratuito</span>
+      <span class="spy-chip" onclick="applySpyFilter(this,'90dias')">⏳ Solo 90+ días activos</span>
+    </div>
+    <div class="msg-time">${now}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+const spyFilterResponses = {
+  descargable:  { label:'Solo descargables', resp:'Filtro aplicado ✅ Mostrando solo anuncios de ebooks, plantillas y recursos descargables. En este nicho, <strong>4 ganadores</strong> encajan: FinanzasLibres.ar (ebook gratis), Academia Digital Pro (plantillas Canva incluidas) y 2 más. El lead magnet descargable tiene el ticket de entrada más bajo — ideal para analizar el funnel.', count:'4 ganadores · descargables' },
+  fisico:       { label:'Solo físicos', resp:'Filtro aplicado ✅ En Meta Ads Library podés detectar productos físicos por el CTA (Comprar ahora, Envío gratis) y el copy (recibís en casa, entrega 24hs). De los 12 ganadores, <strong>2</strong> podrían tener componente físico (libros impresos, kits). ¿Querés que filtre por CTA "Comprar"?', count:'~2 con componente físico' },
+  neutro:       { label:'Español neutro', resp:'Filtro aplicado ✅ Excluí anuncios con localismo marcado (vos, che, güey, tío, tronco). Quedan <strong>7 ganadores</strong> con copy replicable en cualquier mercado hispanohablante. Esto es clave si vas a expandir a México, Colombia o España.', count:'7 ganadores · español neutro' },
+  video:        { label:'Solo video', resp:'Filtro aplicado ✅ Los video ads tienen, en promedio, <strong>40% más engagement</strong> que imagen estática. De los 12 ganadores, <strong>5 son video</strong>: Academia Digital Pro (30s), MasterClass Digital (60s), EmprendeTuNegocio (15s) y 2 más. Recomiendo analizar el de 30s — mejor ratio de finalización.', count:'5 ganadores · video' },
+  precio:       { label:'Precio visible', resp:'Filtro aplicado ✅ Anuncios con precio en el copy generan menos clics pero <strong>mayor tasa de conversión</strong> porque el lead llega precalificado. <strong>6 de 12 ganadores</strong> muestran precio: desde "$49/mes" hasta "$97–297". Ideal si querés modelar una oferta de precio similar.', count:'6 ganadores · precio visible' },
+  testimonios:  { label:'Con testimonios', resp:'Filtro aplicado ✅ La prueba social en el copy es una de las señales más fuertes de conversión. <strong>8 ganadores</strong> tienen testimonios o número de clientes (ej: "2,400 miembros", "5 reviews 4.8/5"). Te los muestro ordenados por volumen de prueba social.', count:'8 ganadores · con prueba social' },
+  leadmagnet:   { label:'Lead magnet gratuito', resp:'Filtro aplicado ✅ El funnel de 2 pasos (gratis → upsell) es el modelo más replicable con bajo presupuesto inicial. <strong>3 ganadores</strong> usan lead magnet: FinanzasLibres.ar (ebook gratis + $47 upsell), MasterClass Digital (webinar gratis + $197 upsell) y uno más. Score promedio: 78/100.', count:'3 ganadores · lead magnet' },
+  '90dias':     { label:'90+ días activos', resp:'Filtro aplicado ✅ Con 90+ días activos la probabilidad de ROI positivo supera el 85%. De los 12 ganadores, <strong>3 superan los 90 días</strong>: Academia Digital Pro (238d), MentorOnline SA (156d) y FinanzasLibres.ar (145d). Estos son los más seguros para modelar.', count:'3 ganadores · 90+ días' },
+};
+
+function applySpyFilter(chip, key) {
+  if (chip.classList.contains('applied')) return;
+  chip.classList.add('applied');
+  chip.textContent = '✓ ' + chip.textContent;
+  const r = spyFilterResponses[key];
+  setTimeout(() => {
+    const msgs = document.getElementById('chat-msgs');
+    const now = new Date().toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+    const div = document.createElement('div');
+    div.className = 'msg msg-agent';
+    div.innerHTML = `${r.resp} <div style="margin-top:8px;padding:6px 10px;background:rgba(34,197,94,0.08);border-radius:6px;border:1px solid rgba(34,197,94,0.2);font-size:10px;font-weight:700;color:var(--green)">📊 ${r.count}</div><div class="msg-time">${now}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 700);
+}
+
+// ── CHAT ──────────────────────────────────────────────────
+function toggleChat() {
+  const overlay = document.getElementById('chat-overlay');
+  const isOpen = overlay.classList.toggle('open');
+  if (isOpen) document.getElementById('chat-notif-dot').classList.remove('active');
+}
+
+function clearChat() {
+  if (!confirm('¿Limpiar la conversación con Espía?')) return;
+  const msgs = document.getElementById('chat-msgs');
+  msgs.innerHTML = '';
+  const now = new Date().toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+  msgs.innerHTML = `<div class="chat-date-sep"><span>Conversación nueva</span></div>
+    <div class="msg msg-agent">Listo para empezar de nuevo. Puedo ayudarte con keywords, scouting de ofertas, validación y checklists de investigación.<div class="msg-time">${now}</div></div>`;
+  document.getElementById('chat-suggestions').style.display = 'flex';
+  chatState = 'idle';
+  proactiveChatDone = false;
+}
+
+// ── CHAT RESPONSES ────────────────────────────────────────
+let chatState = 'idle'; // idle | waiting_niche_kw | waiting_niche_scout
+
+// Mensaje contextual al abrir el chat según el paso actual
+const STEP_CONTEXT = {
+  1: { msg:'Estás configurando la búsqueda. ¿Necesitás ayuda para elegir keywords, entender los filtros o saber qué países convienen para este nicho?',
+       chips:['🔑 Keywords para un nicho','¿Qué filtros usar?','¿Qué país elegir?','¿Días mínimos recomendados?'] },
+  2: { msg:'Estás en Resultados. Tengo los anuncios cargados. Puedo ayudarte a filtrar, interpretar scores o armar el mapa de competencia del nicho.',
+       chips:['📊 Mapear competencia','¿Cómo interpreto el score?','¿Cuántos días es buena señal?','🔑 Más keywords del nicho'] },
+  3: { msg:`Estás analizando ${()=>selectedAd?'"'+selectedAd.advertiser+'"':'un anuncio'}. Puedo validarlo, armar el checklist de investigación o compararlo con otros.`,
+       chips:['🔎 Validar esta oferta','📁 Checklist de investigación','¿Es viable modelarla?','¿Qué riesgos tiene?'] },
+  4: { msg:'Estás en el Ranking. Puedo ayudarte a decidir cuál modelar, comparar las top 2 o darte un criterio de selección.',
+       chips:['¿Cuál me recomendás?','📊 Mapear competencia','🔎 Validar el ganador','¿Qué criterio usar para elegir?'] },
+  5: { msg:'Estás a punto de enviar la oferta a M2. ¿Querés hacer una validación final o armar el checklist antes de avanzar?',
+       chips:['🔎 Validación final','📁 Checklist de investigación','¿Está listo para M2?','Guardar notas de la oferta'] },
+};
+
+function getChatContext() {
+  const step = currentStep === 41 ? 4 : currentStep;
+  return STEP_CONTEXT[step] || STEP_CONTEXT[1];
+}
+
+function getResponse(msg) {
+  const m = msg.toLowerCase();
+
+  // Estados de espera de input del usuario
+  if (chatState === 'waiting_niche_kw') {
+    chatState = 'idle';
+    return buildKeywordsResponse(msg.trim());
+  }
+  if (chatState === 'waiting_niche_scout') {
+    chatState = 'idle';
+    return buildScoutResponse(msg.trim());
+  }
+
+  // ① KEYWORDS — debe ir ANTES que mapear
+  if (m.includes('keyword') || m.includes('palabra') || m.includes('🔑') || m.includes('palabras')) {
+    chatState = 'waiting_niche_kw';
+    return `¿Para qué nicho querés las keywords? (ej: <em>relaciones</em>, <em>finanzas</em>, <em>fitness</em>, <em>crianza</em>…)
+    <div class="nicho-input-row">
+      <input class="nicho-input" id="nicho-kw-input" placeholder="Nombre del nicho..." onkeydown="if(event.key==='Enter'){submitNichoKw()}">
+      <button class="nicho-send-btn" onclick="submitNichoKw()">→</button>
+    </div>`;
+  }
+
+  // ② VALIDAR — antes que mapear para evitar falsos positivos con "oferta"
+  if (m.includes('valid') || m.includes('🔎') || m.includes('verificar') || m.includes('confiar')) {
+    return buildValidationResponse();
+  }
+
+  // ③ CHECKLIST — antes que mapear
+  if (m.includes('checklist') || m.includes('📁') || m.includes('guardar') || m.includes('archivo') || m.includes('investigaci')) {
+    return buildChecklistResponse();
+  }
+
+  // ④ MAPEAR / SCOUTING — solo con intención explícita, sin "oferta" sola
+  if (m.includes('mapear') || m.includes('scout') || m.includes('📊') || m.includes('competencia') || m.includes('tabla')) {
+    chatState = 'waiting_niche_scout';
+    return `Vamos a mapear la competencia. ¿Cuál es el nicho o keyword que buscaste?
+    <div class="nicho-input-row">
+      <input class="nicho-input" id="nicho-scout-input" placeholder="Nicho o keyword (ej: emprendimiento / negocio digital)..." onkeydown="if(event.key==='Enter'){submitNichoScout()}">
+      <button class="nicho-send-btn" onclick="submitNichoScout()">→</button>
+    </div>`;
+  }
+
+  // ⑤ Respuestas de filtros de búsqueda
+  if (m.includes('filtro') || m.includes('filter') || m.includes('país') || m.includes('pais') || m.includes('días mínimo')) {
+    return `Para búsquedas de ofertas escaladas recomiendo:<br><br>
+    📍 <strong>País:</strong> Argentina o México para nicho hispanohablante. Si querés capturar presupuestos grandes, buscá también en España y USA (español).<br><br>
+    📅 <strong>Días mínimos:</strong> 30d para detectar rentabilidad, 90d para validar escalabilidad. Arrancar con 30d y subir si hay demasiado ruido.<br><br>
+    🎯 <strong>Plataformas:</strong> activá Instagram + Facebook siempre. Los ganadores reales suelen correr en ambas — si solo corre en una, puede ser test.`;
+  }
+
+  if (m.includes('recomend') || m.includes('cuál') || m.includes('cual') || m.includes('mejor') || m.includes('elegir')) {
+    const winners = ADS.filter(a=>a.tier==='winner');
+    if (winners.length) {
+      const best = winners.reduce((a,b)=>a.score>b.score?a:b);
+      return `De los anuncios actuales, mi recomendación es <strong>${best.advertiser}</strong>.<br><br>Razones: <strong>${best.days} días activos</strong>, score <strong>${best.score}/100</strong>, inversión estimada <strong>$${best.budget.toLocaleString()}</strong> y tipo de oferta <em>${best.type}</em> con alta replicabilidad.<br><br>¿Querés que lo valide en detalle?`;
+    }
+    return 'Hacé click en "Analizar" en cualquier anuncio de los resultados y te doy una recomendación específica.';
+  }
+
+  if (m.includes('rentable') || m.includes('días') || m.includes('dias') || m.includes('tiempo')) {
+    return 'Regla de oro: <strong>30+ días</strong> → probablemente rentable. <strong>90+ días</strong> → muy rentable. <strong>180+ días</strong> → ganador confirmado. Meta no mantiene anuncios sin ROI — cada día activo es plata real gastada.';
+  }
+  if (m.includes('score') || m.includes('puntaje') || m.includes('punt')) {
+    return 'El score combina 4 factores: <strong>días activos</strong> (30pts), <strong>inversión estimada</strong> (20pts), <strong>tipo de oferta identificable</strong> (15pts) y <strong>señales de éxito en copy</strong> (25pts+). Techo real ~90/100 — 80+ es ganador, 60–79 potencial alto.';
+  }
+  if (m.includes('m2') || m.includes('listo') || m.includes('enviar') || m.includes('siguiente')) {
+    if (selectedAd) return `${selectedAd.advertiser} con score ${selectedAd.score}/100 está lista para M2. Antes de enviar, te recomiendo hacer la <strong>validación final</strong> y completar el <strong>checklist de investigación</strong>. ¿Lo hacemos ahora?`;
+    return 'Seleccioná primero un anuncio en el Paso 2 haciendo click en 🔍 Analizar, luego llegás al Paso 5 para enviarlo a M2.';
+  }
+
+  // Respuesta genérica contextual
+  const ctx = getChatContext();
+  return `Entendido. Estás en el Paso ${currentStep === 41 ? '4' : currentStep}. ${ctx.msg.replace(/`.*?`/g,'')}`;
+}
+
+// ── KEYWORDS RESPONSE ─────────────────────────────────────
+const KEYWORDS_DB = {
+  relaciones: {
+    dolor:[
+      {es:'miedo al abandono',en:'fear of abandonment',pt:'medo do abandono'},
+      {es:'pareja infiel',en:'cheating partner',pt:'parceiro infiel'},
+      {es:'cómo recuperar mi ex',en:'how to get my ex back',pt:'como reconquistar meu ex'},
+      {es:'relación tóxica cómo salir',en:'how to leave toxic relationship',pt:'como sair de relacionamento tóxico'},
+      {es:'me ignoró después de intimar',en:'he ignored me after intimacy',pt:'ele me ignorou depois da intimidade'},
+      {es:'cómo dejar de sufrir por amor',en:'stop suffering for love',pt:'como parar de sofrer por amor'},
+      {es:'inseguridad en la pareja',en:'insecurity in a relationship',pt:'insegurança no relacionamento'},
+      {es:'cómo saber si me ama de verdad',en:'how to know if he truly loves me',pt:'como saber se ele me ama de verdade'},
+      {es:'comunicación en pareja problemas',en:'relationship communication problems',pt:'problemas de comunicação no casal'},
+      {es:'celos destructivos solución',en:'how to stop being jealous',pt:'ciúmes destrutivos solução'},
+    ],
+    resultado:[
+      {es:'reconquistar pareja método probado',en:'win back your partner proven method',pt:'reconquistar parceiro método comprovado'},
+      {es:'relación feliz y duradera',en:'happy lasting relationship',pt:'relacionamento feliz e duradouro'},
+      {es:'hombre que se compromete',en:'make him commit',pt:'homem que se compromete'},
+      {es:'despertar el deseo en pareja',en:'reignite desire in relationship',pt:'despertar o desejo no casal'},
+      {es:'amor propio después de una ruptura',en:'self love after breakup',pt:'amor próprio após término'},
+      {es:'pareja que te elija siempre',en:'partner who always chooses you',pt:'parceiro que sempre te escolhe'},
+      {es:'vínculos sanos sin ansiedad',en:'healthy relationships without anxiety',pt:'vínculos saudáveis sem ansiedade'},
+      {es:'atraer pareja ideal manifestación',en:'attract ideal partner manifestation',pt:'atrair parceiro ideal manifestação'},
+      {es:'ex que vuelve solo',en:'ex comes back on his own',pt:'ex que volta sozinho'},
+      {es:'hombre que persiga sin esfuerzo',en:'make him chase you effortlessly',pt:'homem que corra atrás sem esforço'},
+    ],
+    mecanismo:[
+      {es:'método de reconquista en 30 días',en:'30-day reconquest method',pt:'método de reconquista em 30 dias'},
+      {es:'psicología masculina secretos',en:'male psychology secrets',pt:'psicologia masculina segredos'},
+      {es:'programa de apego seguro online',en:'online secure attachment program',pt:'programa de apego seguro online'},
+      {es:'guía de seducción femenina PDF',en:'feminine seduction guide PDF',pt:'guia de sedução feminina PDF'},
+      {es:'curso manejo emocional relaciones',en:'emotional management in relationships course',pt:'curso gestão emocional relacionamentos'},
+      {es:'ebook lenguaje del amor digital',en:'love languages digital ebook',pt:'ebook linguagem do amor digital'},
+      {es:'masterclass comunicación no violenta',en:'nonviolent communication masterclass',pt:'masterclass comunicação não violenta'},
+      {es:'membresía bienestar emocional mensual',en:'monthly emotional wellness membership',pt:'assinatura bem-estar emocional mensal'},
+      {es:'terapia online pareja accesible',en:'affordable online couples therapy',pt:'terapia online casal acessível'},
+      {es:'coaching vínculo afectivo programa',en:'emotional bonding coaching program',pt:'coaching vínculo afetivo programa'},
+    ]
+  }
+};
+
+const KEYWORDS_GENERIC = (niche) => ({
+  dolor:[
+    {es:`no avanzar en ${niche}`,en:`stuck in ${niche}`,pt:`sem progresso em ${niche}`},
+    {es:`frustración por ${niche}`,en:`${niche} frustration`,pt:`frustração com ${niche}`},
+    {es:`cómo resolver ${niche} rápido`,en:`how to fix ${niche} fast`,pt:`como resolver ${niche} rápido`},
+    {es:`${niche} que no funciona`,en:`${niche} not working`,pt:`${niche} que não funciona`},
+    {es:`cansado de luchar con ${niche}`,en:`tired of struggling with ${niche}`,pt:`cansado de lutar com ${niche}`},
+    {es:`${niche} sin resultados`,en:`no results in ${niche}`,pt:`${niche} sem resultados`},
+    {es:`errores comunes en ${niche}`,en:`common ${niche} mistakes`,pt:`erros comuns em ${niche}`},
+    {es:`bloqueo mental en ${niche}`,en:`${niche} mental block`,pt:`bloqueio mental em ${niche}`},
+    {es:`cómo salir del estancamiento en ${niche}`,en:`how to stop being stuck in ${niche}`,pt:`como sair do bloqueio em ${niche}`},
+    {es:`${niche} me genera ansiedad`,en:`${niche} anxiety`,pt:`${niche} me gera ansiedade`},
+  ],
+  resultado:[
+    {es:`lograr resultado en ${niche}`,en:`achieve result in ${niche}`,pt:`alcançar resultado em ${niche}`},
+    {es:`transformación con ${niche}`,en:`${niche} transformation`,pt:`transformação com ${niche}`},
+    {es:`${niche} en 30 días`,en:`${niche} in 30 days`,pt:`${niche} em 30 dias`},
+    {es:`resultados rápidos en ${niche}`,en:`fast ${niche} results`,pt:`resultados rápidos em ${niche}`},
+    {es:`dominar ${niche} desde cero`,en:`master ${niche} from scratch`,pt:`dominar ${niche} do zero`},
+    {es:`ganar dinero con ${niche}`,en:`make money with ${niche}`,pt:`ganhar dinheiro com ${niche}`},
+    {es:`libertad gracias a ${niche}`,en:`freedom through ${niche}`,pt:`liberdade graças a ${niche}`},
+    {es:`éxito comprobado en ${niche}`,en:`proven success in ${niche}`,pt:`sucesso comprovado em ${niche}`},
+    {es:`cambio real en ${niche} método`,en:`real ${niche} change method`,pt:`mudança real em ${niche} método`},
+    {es:`${niche} que funciona de verdad`,en:`${niche} that actually works`,pt:`${niche} que realmente funciona`},
+  ],
+  mecanismo:[
+    {es:`curso online ${niche}`,en:`${niche} online course`,pt:`curso online ${niche}`},
+    {es:`ebook gratis ${niche}`,en:`free ${niche} ebook`,pt:`ebook grátis ${niche}`},
+    {es:`programa ${niche} 30 días`,en:`30-day ${niche} program`,pt:`programa ${niche} 30 dias`},
+    {es:`membresía ${niche} mensual`,en:`monthly ${niche} membership`,pt:`assinatura mensal ${niche}`},
+    {es:`coaching ${niche} resultados`,en:`${niche} results coaching`,pt:`coaching ${niche} resultados`},
+    {es:`webinar gratuito ${niche}`,en:`free ${niche} webinar`,pt:`webinar gratuito ${niche}`},
+    {es:`masterclass ${niche} acceso`,en:`${niche} masterclass access`,pt:`masterclass ${niche} acesso`},
+    {es:`plantillas ${niche} descargar`,en:`${niche} templates download`,pt:`templates ${niche} baixar`},
+    {es:`método ${niche} probado`,en:`proven ${niche} method`,pt:`método ${niche} comprovado`},
+    {es:`comunidad ${niche} privada`,en:`private ${niche} community`,pt:`comunidade ${niche} privada`},
+  ]
+});
+
+function buildKeywordsResponse(niche) {
+  const nicheKey = niche.toLowerCase().replace(/\s+/g,'');
+  const db = KEYWORDS_DB[nicheKey] || KEYWORDS_GENERIC(niche);
+  const rows = (list, type) => list.map((k,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td class="kw-es">${k.es}</td>
+      <td class="kw-en">${k.en}</td>
+      <td class="kw-pt">${k.pt}</td>
+    </tr>`).join('');
+
+  return `
+    <strong>30 keywords para: ${niche.toUpperCase()}</strong>
+    <div style="font-size:10px;color:var(--text3);margin:4px 0 8px">Ordenadas por intención de compra · 🇦🇷 ES · 🇺🇸 EN · 🇧🇷 PT</div>
+
+    <div class="spy-section-tag tag-dolor">😣 DOLOR PRINCIPAL · 10 keywords</div>
+    <table class="spy-table">
+      <tr><th>#</th><th>Español</th><th>English</th><th>Português</th></tr>
+      ${rows(db.dolor,'dolor')}
+    </table>
+
+    <div class="spy-section-tag tag-result">✅ RESULTADO DESEADO · 10 keywords</div>
+    <table class="spy-table">
+      <tr><th>#</th><th>Español</th><th>English</th><th>Português</th></tr>
+      ${rows(db.resultado,'resultado')}
+    </table>
+
+    <div class="spy-section-tag tag-mec">⚙️ MECANISMO / FORMATO · 10 keywords</div>
+    <table class="spy-table">
+      <tr><th>#</th><th>Español</th><th>English</th><th>Português</th></tr>
+      ${rows(db.mecanismo,'mecanismo')}
+    </table>
+
+    <div style="margin-top:10px;font-size:10px;color:var(--text3)">💡 Tip: empezá por las de <span style="color:#fca5a5">dolor</span> — tienen mayor intención inmediata. Las de <span style="color:#a78bfa">mecanismo</span> son ideales para filtrar por tipo de producto.</div>`;
+}
+
+// ── SCOUT RESPONSE ────────────────────────────────────────
+// Genera filas dinámicas según el nicho ingresado
+const SCOUT_DB = {
+  relaciones: [
+    {n:'ReconquistaTotal',p:'Recuperá tu ex en 21 días — método probado',d:187,ads:14,url:'reconquistatotal.com/metodo'},
+    {n:'VínculoSeguro Pro',p:'Programa de apego seguro · $97 · 3,200 alumnos',d:134,ads:9,url:'vinculoseguro.com/programa'},
+    {n:'PsicologíaDelAmor',p:'Ebook: Los 7 errores que alejan al hombre',d:98,ads:5,url:'psicologiadelamor.ar/ebook'},
+    {n:'CoachingAmor360',p:'Coaching 1:1 reconquista · $197 · solo 10 cupos',d:67,ads:3,url:'coachingamor360.com'},
+  ],
+  fitness: [
+    {n:'TransformaTuCuerpo',p:'Perdé 10kg en 60 días sin pasar hambre',d:201,ads:18,url:'transformatucuerpo.com/plan'},
+    {n:'FitnessMujer AR',p:'Método hormonal femenino · $79/mes membresía',d:155,ads:11,url:'fitnessmujer.ar/membresia'},
+    {n:'NutriciónPro',p:'Ebook gratis: Dieta sin rebote en 30 días',d:88,ads:4,url:'nutricionpro.com.ar/ebook'},
+  ],
+  finanzas: [
+    {n:'IngresosPasivos360',p:'De 0 a $2,000/mes con inversiones digitales',d:220,ads:16,url:'ingresospasivos360.com/curso'},
+    {n:'LibertadFinanciera',p:'Método de ahorro inteligente · $47 ebook',d:143,ads:7,url:'libertadfinanciera.ar'},
+    {n:'CriptoArgentina',p:'Invertí en cripto con $100 · 4,500 alumnos',d:91,ads:6,url:'criptoargentina.com/guia'},
+  ],
+};
+
+function buildScoutResponse(query) {
+  const q = query.toLowerCase().trim();
+  // buscar coincidencia en DB por clave
+  let rows = null;
+  for (const [key, val] of Object.entries(SCOUT_DB)) {
+    if (q.includes(key) || key.includes(q.split(' ')[0])) { rows = val; break; }
+  }
+  // si no hay coincidencia: generar filas dinámicas con el nombre del nicho
+  if (!rows) {
+    const cap = query.charAt(0).toUpperCase() + query.slice(1);
+    rows = [
+      {n:`${cap} Pro Academy`,p:`Curso de ${query} de 0 a resultados en 30 días`,d:Math.floor(Math.random()*100)+90,ads:Math.floor(Math.random()*8)+5,url:`${q.replace(/\s/g,'')}pro.com/curso`},
+      {n:`Método ${cap}`,p:`Ebook gratis: los 7 secretos de ${query}`,d:Math.floor(Math.random()*60)+60,ads:Math.floor(Math.random()*5)+2,url:`metodo${q.replace(/\s/g,'')}.com/ebook`},
+      {n:`${cap} Membership`,p:`Membresía mensual $49 · comunidad + coaching`,d:Math.floor(Math.random()*50)+40,ads:Math.floor(Math.random()*4)+2,url:`${q.replace(/\s/g,'')}club.ar/join`},
+    ];
+  }
+
+  const rowsHTML = rows.map(r => {
+    const dClass = r.d >= 150 ? 'td-days' : r.d >= 90 ? '' : '';
+    const dColor = r.d >= 150 ? 'var(--green)' : r.d >= 90 ? '#86efac' : 'var(--yellow)';
+    return `<tr>
+      <td class="td-name">${r.n}</td>
+      <td style="font-size:10px">${r.p}</td>
+      <td style="font-weight:700;color:${dColor}">${r.d}</td>
+      <td style="color:var(--text2)">${r.ads}</td>
+      <td style="font-size:9px;color:var(--violet)">${r.url}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <strong>Mapa de competencia: ${query}</strong>
+    <div style="font-size:10px;color:var(--text3);margin:4px 0 8px">Meta Ads Library · 30+ días activos · estimado</div>
+    <table class="spy-table spy-scout-table">
+      <tr><th>Anunciante</th><th>Promesa</th><th>Días</th><th>Ads</th><th>Landing</th></tr>
+      ${rowsHTML}
+    </table>
+    <div style="margin-top:8px;padding:7px 10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:6px;font-size:10px;color:#fca5a5">
+      ⚠️ <strong>Anti-espejismo:</strong> verificá que todos los creativos de cada anunciante lleven a la <em>misma landing</em>. Muchas marcas mezclan ofertas distintas — modelar eso es modelar humo con brillantina.
+    </div>`;
+}
+
+// ── VALIDATION RESPONSE ───────────────────────────────────
+function buildValidationResponse() {
+  if (!selectedAd) return `Para validar una oferta primero tenés que <strong>analizar un anuncio</strong>.<br><br>Andá al <strong>Paso 2 → Resultados</strong>, elegí un anuncio que te interese y hacé click en <span style="color:var(--violet)">🔍 Analizar</span>. Después volvé acá y te doy el veredicto completo.`;
+  const ad = selectedAd;
+  const conf = ad.score >= 80 ? 9 : ad.score >= 60 ? 6 : 3;
+  const confColor = conf >= 8 ? 'var(--green)' : conf >= 5 ? 'var(--yellow)' : 'var(--red)';
+  const verdict = conf >= 8 ? 'VALIDADA ✅' : conf >= 5 ? 'EN PROCESO ⚠️' : 'EXPERIMENTAL ❌';
+  const verdictClass = conf >= 8 ? 'verdict-si' : conf >= 5 ? 'verdict-duda' : 'verdict-no';
+
+  return `
+    <strong>Validación: ${ad.advertiser}</strong>
+    <div style="font-size:10px;color:var(--text3);margin:4px 0 8px">Análisis automático basado en datos de biblioteca</div>
+
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">
+      <div class="spy-field-row"><span class="spy-field-label">¿Anuncios activos?</span><span class="spy-field-val">Sí · estimado 8–12 creativos</span></div>
+      <div class="spy-field-row"><span class="spy-field-label">¿Hace cuánto corre?</span><span class="spy-field-val" style="color:var(--green)">${ad.days} días</span></div>
+      <div class="spy-field-row"><span class="spy-field-label">¿Landing coherente?</span><span class="spy-field-val">${ad.days > 90 ? 'Sí · consistente con el copy' : 'No verificada aún'}</span></div>
+      <div class="spy-field-row"><span class="spy-field-label">¿Todos van a misma URL?</span><span class="spy-field-val">${ad.days > 60 ? 'Sí · mismo dominio' : 'Requiere verificar manualmente'}</span></div>
+      <div class="spy-field-row"><span class="spy-field-label">¿Una sola oferta?</span><span class="spy-field-val">${ad.type} · oferta única detectada</span></div>
+    </div>
+
+    <div class="spy-verdict ${verdictClass}">
+      <div class="verdict-title">VEREDICTO: ${verdict}</div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:6px">Nivel de confianza para modelar:</div>
+      <div class="confidence-bar"><div class="confidence-fill" style="width:${conf*10}%;background:${confColor}"></div></div>
+      <div style="font-size:11px;font-weight:700;color:${confColor}">${conf}/10</div>
+    </div>
+
+    <div style="margin-top:10px;font-size:11px;color:var(--text2)"><strong>Riesgos de modelar:</strong>
+      <ul style="margin:6px 0 0 14px;line-height:1.8;font-size:10.5px">
+        ${ad.days < 90 ? '<li>Tiempo de actividad bajo — puede ser un test aún no validado</li>' : ''}
+        ${ad.signals.some(s=>s.warn) ? '<li>Señales mixtas detectadas en el copy — revisá competencia</li>' : ''}
+        ${conf < 8 ? '<li>Confianza media — verificar manualmente la landing page</li>' : '<li style="color:var(--green)">✓ Riesgo bajo — oferta consolidada con tracción comprobada</li>'}
+      </ul>
+    </div>`;
+}
+
+// ── CHECKLIST INVESTIGACIÓN ───────────────────────────────
+function buildChecklistResponse() {
+  if (!selectedAd) return `El checklist se genera con los datos del anuncio que estés analizando.<br><br>Andá al <strong>Paso 2 → Resultados</strong> y hacé click en <span style="color:var(--violet)">🔍 Analizar</span> en el anuncio que querés investigar. Volvé acá y te armo el checklist con sus URLs, IDs y datos reales.`;
+  const ad = selectedAd;
+  return `
+    <strong>📁 Checklist de investigación: ${ad.advertiser}</strong>
+    <div style="font-size:10px;color:var(--text3);margin:4px 0 10px">Tildá lo que ya tenés guardado</div>
+
+    <div class="spy-checklist">
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> URL del anuncio / Biblioteca: <span style="font-size:10px;color:var(--violet);margin-left:4px">${ad.libraryId}</span></label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> URL de landing: <span style="font-size:10px;color:var(--violet);margin-left:4px">${ad.landing}</span></label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Captura completa de la landing en PDF</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Videos / creativos duplicados descargados</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Transcripción del anuncio extraída</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Screenshot del copy y headline principal</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Precio / oferta anotada (${ad.price})</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Bonos detectados registrados (${ad.bonuses.length} bonos)</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Plataformas donde corre anotadas (${ad.platform})</label>
+      <label class="spy-check-item"><input type="checkbox" onchange="checkItem(this)"> Fecha de inicio registrada (${formatDate(ad.startDate)})</label>
+    </div>
+    <div id="checklist-progress" style="margin-top:10px;font-size:10px;color:var(--text3)">0 / 10 ítems completados</div>`;
+}
+
+function checkItem(cb) {
+  const container = cb.closest('.spy-checklist');
+  if (!container) return;
+  cb.closest('.spy-check-item').style.color = cb.checked ? 'var(--green)' : '';
+  const total = container.querySelectorAll('input[type=checkbox]').length;
+  const done  = container.querySelectorAll('input[type=checkbox]:checked').length;
+  const prog  = container.parentElement.querySelector('#checklist-progress');
+  if (prog) prog.textContent = `${done} / ${total} ítems completados${done === total ? ' ✅' : ''}`;
+}
+
+function submitNichoKw() {
+  const input = document.getElementById('nicho-kw-input');
+  if (!input || !input.value.trim()) return;
+  const val = input.value.trim();
+  input.closest('.nicho-input-row').remove();
+  addMsg(val, 'user');
+  chatState = 'waiting_niche_kw';
+  setTimeout(() => addMsg(getResponse(val), 'agent'), 900);
+}
+
+function submitNichoScout() {
+  const input = document.getElementById('nicho-scout-input');
+  if (!input || !input.value.trim()) return;
+  const val = input.value.trim();
+  input.closest('.nicho-input-row').remove();
+  addMsg(val, 'user');
+  chatState = 'waiting_niche_scout';
+  setTimeout(() => addMsg(getResponse(val), 'agent'), 900);
+}
+
+function sendSuggestion(el) {
+  const text = el.textContent;
+  document.getElementById('chat-suggestions').style.display = 'none';
+  addMsg(text, 'user');
+  setTimeout(() => addMsg(getResponse(text), 'agent'), 800);
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMsg(text, 'user');
+  document.getElementById('chat-suggestions').style.display = 'none';
+  setTimeout(() => addMsg(getResponse(text), 'agent'), 900);
+}
+
+function handleChatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } }
+
+function addMsg(text, role) {
+  const msgs = document.getElementById('chat-msgs');
+  const now = new Date().toLocaleTimeString('es', {hour:'2-digit',minute:'2-digit'});
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + role;
+  div.innerHTML = text + `<div class="msg-time">${now}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── ATTACH MENU ───────────────────────────────────────────
+function toggleAttachMenu() {
+  const menu = document.getElementById('attach-menu');
+  menu.classList.toggle('open');
+}
+
+// cerrar menu si click fuera
+document.addEventListener('click', (e) => {
+  const wrap = e.target.closest('.attach-wrap');
+  if (!wrap) document.getElementById('attach-menu').classList.remove('open');
+});
+
+function pickAttach(type) {
+  document.getElementById('attach-menu').classList.remove('open');
+  const inputId = {image:'att-img-input', audio:'att-audio-input', file:'att-file-input'}[type];
+  document.getElementById(inputId).click();
+}
+
+function handleAttach(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset para poder volver a subir el mismo archivo
+
+  const sizeMB = (file.size / 1048576).toFixed(2);
+  const msgs = document.getElementById('chat-msgs');
+
+  // construir preview como mensaje usuario
+  const div = document.createElement('div');
+  div.className = 'msg msg-user';
+  const now = new Date().toLocaleTimeString('es', {hour:'2-digit', minute:'2-digit'});
+
+  if (type === 'image') {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      div.innerHTML = `<div class="msg-attachment"><img class="att-img" src="${e.target.result}" alt="${file.name}"></div><div style="font-size:10px;color:rgba(212,168,67,0.7);margin-top:4px">${file.name}</div><div class="msg-time">${now}</div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+      setTimeout(() => addMsg(analyzeAttachment(file, type), 'agent'), 1200);
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  if (type === 'audio') {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      div.innerHTML = `<div class="msg-attachment"><audio class="att-audio" controls src="${e.target.result}"></audio></div><div style="font-size:10px;color:rgba(212,168,67,0.7);margin-top:4px">${file.name} · ${sizeMB} MB</div><div class="msg-time">${now}</div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+      setTimeout(() => addMsg(analyzeAttachment(file, type), 'agent'), 1400);
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  // file genérico
+  const icon = file.name.endsWith('.pdf') ? '📕' : file.name.endsWith('.doc') || file.name.endsWith('.docx') ? '📝' : file.name.endsWith('.csv') || file.name.endsWith('.xlsx') ? '📊' : '📄';
+  div.innerHTML = `<div class="msg-attachment"><div class="att-file"><span class="att-file-icon">${icon}</span><div><div class="att-file-name">${file.name}</div><div class="att-file-size">${sizeMB} MB</div></div></div></div><div class="msg-time">${now}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(() => addMsg(analyzeAttachment(file, type), 'agent'), 1000);
+}
+
+function analyzeAttachment(file, type) {
+  const name = file.name.toLowerCase();
+  if (type === 'image') {
+    if (name.includes('landing') || name.includes('web') || name.includes('page')) {
+      return `📸 <strong>Landing page detectada.</strong> Veo una página de destino. Revisando estructura...<br><br>✅ Elementos visibles: headline principal, sección de beneficios, CTA<br>⚠️ No detecto sección de testimonios visible<br>⚠️ Verificá que el precio esté above the fold<br><br>¿Querés que compare esta landing con las señales de éxito del anuncio seleccionado?`;
+    }
+    if (name.includes('ad') || name.includes('anuncio') || name.includes('creativo')) {
+      return `🖼️ <strong>Creativo publicitario recibido.</strong><br><br>Análisis preliminar:<br>• Formato: imagen estática<br>• Copy principal visible<br>• CTA presente<br><br>Para una validación completa, enviame también la URL del anuncio en la Biblioteca de Meta. ¿Tenés el <em>ID de biblioteca</em>?`;
+    }
+    return `🖼️ Imagen recibida (<strong>${file.name}</strong>). La analicé visualmente. ¿Es una captura de una landing, un creativo, o algo más? Decime el contexto para darte un análisis más preciso.`;
+  }
+  if (type === 'audio') {
+    const dur = Math.floor(Math.random() * 90) + 30;
+    return `🎵 <strong>Audio recibido · ~${dur}s</strong><br><br>Transcripción detectada (simulada):<br><div style="margin:8px 0;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:10.5px;color:var(--text2);line-height:1.7;font-style:italic">"...si querés aprender a generar ingresos sin trabajar para otros, este curso es para vos. Solo 50 cupos disponibles este mes. Entrá ya en el link de la bio..."</div>Señales detectadas: <span style="color:var(--green)">urgencia ✓</span> · <span style="color:var(--green)">número específico ✓</span> · <span style="color:var(--gold)">CTA directo ✓</span><br><br>¿Querés que extraiga el hook principal para usarlo como referencia de copy?`;
+  }
+  // file
+  if (name.endsWith('.pdf')) {
+    return `📕 <strong>${file.name}</strong> recibido.<br><br>Procesando como material de investigación... Detecto posibles secciones: presentación de oferta, precios, bonos, garantía.<br><br>Agregalo al <strong>checklist de investigación</strong> — escribí "checklist" para abrirlo y tildarlo.`;
+  }
+  if (name.endsWith('.csv') || name.endsWith('.xlsx')) {
+    return `📊 <strong>${file.name}</strong> — parece un export de datos. ¿Es un listado de anuncios, un reporte de métricas o un tracking de competencia? Decime qué contiene para ayudarte a interpretarlo.`;
+  }
+  return `📄 Archivo recibido: <strong>${file.name}</strong>. Guardalo en tu carpeta de investigación. ¿Querés que abra el checklist para registrarlo?`;
+}
+
+// ── EXCEL UPLOAD ──────────────────────────────────────────
+function handleExcelUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const preview = document.getElementById('excel-preview');
+  preview.style.display = 'block';
+
+  // Fase 1: procesando
+  preview.innerHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="padding:14px 16px;text-align:center;color:var(--text3);font-size:12px">
+        <div style="font-size:28px;margin-bottom:8px">⏳</div>
+        Leyendo <strong style="color:var(--text)">${file.name}</strong> y consultando Meta Ads API...
+      </div>
+    </div>`;
+
+  // Fase 2: simular delay y mostrar resultados
+  setTimeout(() => {
+    const mockRows = [
+      { url:'facebook.com/ads/library/?id=621843...', advertiser:'Academia Digital Pro', days:238, country:'AR', platforms:'IG · FB', budget:'$4,284', status:'found' },
+      { url:'mentoronline.com/membresia',              advertiser:'MentorOnline SA',      days:156, country:'AR', platforms:'IG',       budget:'$2,800', status:'found' },
+      { url:'finanzaslibres.ar/ebook',                advertiser:'FinanzasLibres.ar',     days:145, country:'AR · MX', platforms:'FB · IG', budget:'$1,900', status:'found' },
+    ];
+    const rowsHTML = mockRows.map((r, i) => {
+      const bg = i % 2 === 1 ? 'background:rgba(255,255,255,0.02)' : '';
+      const statusIcon = r.status === 'found'
+        ? `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--green-dim);color:var(--green);padding:2px 7px;border-radius:12px;font-size:9.5px;font-weight:700">✓ Encontrado</span>`
+        : `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--yellow-dim);color:var(--yellow);padding:2px 7px;border-radius:12px;font-size:9.5px;font-weight:700">? No encontrado</span>`;
+      return `<tr style="${bg}">
+        <td style="padding:8px 12px;color:var(--violet);font-size:10px">${r.url}</td>
+        <td style="padding:8px 12px;font-weight:600">${r.advertiser}</td>
+        <td style="padding:8px 12px;color:var(--green);font-weight:700">${r.days}</td>
+        <td style="padding:8px 12px;color:var(--text2)">${r.country}</td>
+        <td style="padding:8px 12px;color:var(--text2)">${r.platforms}</td>
+        <td style="padding:8px 12px;color:var(--text2)">${r.budget}</td>
+        <td style="padding:8px 12px">${statusIcon}</td>
+      </tr>`;
+    }).join('');
+
+    preview.innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <div style="padding:10px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;font-weight:700">📊 ${file.name}</span>
+          <span style="font-size:10px;background:var(--green-dim);color:var(--green);padding:2px 8px;border-radius:12px;font-weight:700">✓ ${mockRows.length} filas enriquecidas</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:10.5px">
+            <tr style="background:rgba(255,255,255,0.03)">
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">URL original</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">Anunciante</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">Días activos</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">País</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">Plataformas</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">Presupuesto est.</th>
+              <th style="padding:8px 12px;text-align:left;color:var(--text3);font-size:9px;text-transform:uppercase;white-space:nowrap">Estado</th>
+            </tr>
+            ${rowsHTML}
+          </table>
+        </div>
+        <div style="padding:12px 16px;display:flex;gap:8px;border-top:1px solid var(--border);align-items:center">
+          <button class="btn-gold" style="margin-top:0;flex:1" onclick="downloadEnrichedCSV()">⬇ Descargar Excel con datos completos</button>
+          <button class="btn-outline" onclick="goStep(2);showToast('📊 Mostrando resultados del archivo')">→ Ver como resultados</button>
+        </div>
+      </div>`;
+  }, 1800);
+
+  input.value = '';
+}
+
+function downloadEnrichedCSV() {
+  const csv = [
+    'url,anunciante,dias_activos,pais,plataformas,presupuesto_estimado_usd,estado',
+    'facebook.com/ads/library/?id=621843,Academia Digital Pro,238,AR,IG · FB,4284,activo',
+    'mentoronline.com/membresia,MentorOnline SA,156,AR,IG,2800,activo',
+    'finanzaslibres.ar/ebook,FinanzasLibres.ar,145,"AR · MX","FB · IG",1900,activo',
+  ].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'm1_enriquecido.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('⬇ m1_enriquecido.csv descargado');
+}
+
+function downloadExcelTemplate() {
+  const csv = [
+    'url',
+    'https://www.facebook.com/ads/library/?id=123456789',
+    'https://www.facebook.com/ads/library/?id=987654321',
+    'midominio.com/landing',
+    'otraoferta.com/curso',
+  ].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'm1_plantilla.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('⬇ m1_plantilla.csv descargada — abrila en Excel y completá con tus URLs');
+}
+
+// ── INIT ──────────────────────────────────────────────────
+goStep(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+═════════════════════════════════════════════════════════════════════
+  TESTEOLAB - TU ACCIÓN INMEDIATA (Hoy 11-Abril)
+═════════════════════════════════════════════════════════════════════
+
+STATUS: Listo para ejecutar
+TIEMPO: 45 minutos
+RESPONSABLE: TÚ (manual en Notion)
+
+─────────────────────────────────────────────────────────────────────
+✅ YA COMPLETADO (por ti)
+─────────────────────────────────────────────────────────────────────
+
+✓ Framework BLAST documentado
+✓ Base "Sobre Mí" creada en Notion
+✓ Base "Roadmap Master" creada en Notion
+✓ Backend Flask funcional
+✓ Dashboard HTML creado
+✓ Notion token validado
+✓ Google Calendar integrado
+
+─────────────────────────────────────────────────────────────────────
+🔴 AHORA: LO QUE NECESITAS HACER HOY
+─────────────────────────────────────────────────────────────────────
+
+PASO 1: Abrir archivo NOTION_EJECUCIÓN_DIRECTA.md
+        Ubicación: C:\apptesteo\NOTION_EJECUCIÓN_DIRECTA.md
+
+PASO 2: Seguir las instrucciones PASO A PASO
+
+        FASE 1 (5 min): Agregar 2 columnas a Roadmap Master
+        ├─ Originado Por (Select)
+        └─ Chat Agente (Button)
+
+        FASE 2 (10 min): Crear 4 vistas
+        ├─ Roadmap por Fase
+        ├─ Kanban por Estado
+        ├─ Bloqueadores
+        └─ Mis Tareas
+
+        FASE 3 (20 min): Cargar 5 tareas FASE 0
+        ├─ Documentar framework BLAST
+        ├─ Crear 'Sobre Mí'
+        ├─ Configurar Roadmap Master
+        ├─ Setup NAUTA 8:30 AM
+        └─ Setup NAUTA 21:30
+
+PASO 3: Una vez completado, envía evidencia (screenshot)
+        - Mostrar vista "Roadmap por Fase" con 5 tareas en FASE 0
+
+─────────────────────────────────────────────────────────────────────
+📚 ARCHIVOS DE REFERENCIA (Si necesitas detalles)
+─────────────────────────────────────────────────────────────────────
+
+NOTION_EJECUCIÓN_DIRECTA.md ........ ⭐ ABRE ESTE (instrucciones paso a paso)
+NOTION_COMPLETION_CHECKLIST.md ..... Checklist detallado de validación
+ESTADO_SISTEMA_TESTEOLAB.md ....... Visión general del sistema completo
+NAUTA_SCHEDULED_SETUP.md .......... Setup cronométrico (siguiente paso)
+
+─────────────────────────────────────────────────────────────────────
+⏰ TIMELINE
+─────────────────────────────────────────────────────────────────────
+
+HOY (Abril 11):
+└─ 45 minutos en Notion (NOTION_EJECUCIÓN_DIRECTA.md)
+   └─ Resultado: Notion estructurado + FASE 0 cargada
+
+MAÑANA (Abril 12):
+└─ Implementar NAUTA setup cronométrico
+   └─ 8:30 AM briefing automático
+   └─ 21:30 log cierre automático
+
+SEMANA 1 (Abril 15):
+└─ Testing completo NAUTA
+└─ Crear tabla "Análisis de Ofertas"
+
+SEMANA 2 (Abril 22):
+└─ Implementar M1 Espía agent
+└─ Testing flujo M1
+
+SEMANA 3+ (Abril 29+):
+└─ Implementar M2, M3, M4
+└─ Deploy a Render
+
+─────────────────────────────────────────────────────────────────────
+❓ PREGUNTAS FRECUENTES
+─────────────────────────────────────────────────────────────────────
+
+P: ¿Dónde hago esto?
+R: En Notion UI (https://www.notion.so)
+   Workspace: TesteoLab
+   Base de datos: Roadmap Master
+
+P: ¿Si algo sale mal?
+R: No hay riesgo. Solo estamos agregando columnas y filas.
+   Si cometes un error, puedes deshacer (Ctrl+Z en Notion)
+
+P: ¿Cuánto tiempo toma?
+R: ~45 minutos si sigues paso a paso
+   Si lo haces más rápido, mejor
+
+P: ¿Y si no termino hoy?
+R: Puedes continuar mañana. Pero es recomendable hoy
+   porque mañana necesitamos empezar con setup NAUTA
+
+P: ¿Y después?
+R: Eso corre por mi cuenta. Tú solo completa Notion.
+   Yo haré la implementación de NAUTA automático (APIs, etc)
+
+─────────────────────────────────────────────────────────────────────
+✨ RESULTADO ESPERADO
+─────────────────────────────────────────────────────────────────────
+
+Cuando termines, tu Notion tendrá:
+
+ROADMAP MASTER
+├─ Columnas: Name, Módulo, Asignado a, BLAST Step, Estado, Originado Por, ...
+│           ... Chat Agente, Esfuerzo, Prioridad, KPI, Timeline FASE, Owner
+├─ Vistas:
+│  ├─ Database (default)
+│  ├─ Roadmap por Fase (agrupa por FASE 0, FASE 1, 2, 3)
+│  ├─ Kanban por Estado (columnas TODO, IN PROGRESS, BLOCKED, DONE)
+│  ├─ Bloqueadores (solo tareas con Estado = BLOCKED)
+│  └─ Mis Tareas (solo tareas con Asignado a = YO)
+└─ Tareas FASE 0:
+   ├─ [DONE] Documentar framework BLAST
+   ├─ [DONE] Crear 'Sobre Mí'
+   ├─ [IN PROGRESS] Configurar Roadmap Master
+   ├─ [TODO] Setup NAUTA 8:30 AM
+   └─ [TODO] Setup NAUTA 21:30
+
+─────────────────────────────────────────────────────────────────────
+🚀 EMPEZAR
+─────────────────────────────────────────────────────────────────────
+
+1. Abre: C:\apptesteo\NOTION_EJECUCIÓN_DIRECTA.md
+2. Lee: PASO 1
+3. Haz: Agregar columnas en Notion
+4. Continúa: PASO 2, 3, 4
+5. Cuando termines: Envía screenshot como prueba
+
+═════════════════════════════════════════════════════════════════════
+
+⏱️ Timer empezó
+
+Adelante. 45 minutos y listo.
+
+═════════════════════════════════════════════════════════════════════

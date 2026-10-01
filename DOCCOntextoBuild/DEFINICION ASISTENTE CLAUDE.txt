@@ -1,0 +1,645 @@
+Esto que estáis viendo en pantalla no es
+un agente de IA genérico, es el
+asistente inteligente artificial más
+potente que he creado hasta la fecha. Y
+es que este agente lo sabe absolutamente
+todo. Y en este vídeo te voy a enseñar
+exactamente cómo tú puedes tener el tuyo
+desde cero. Un asistente que sabe todo,
+absolutamente todo sobre ti, sobre tu
+negocio, sobre tus prioridades, tus
+metas, tu equipo, tus finanzas, tus
+clientes, todo. Que no tienes que
+explicarle cada vez que abres una
+conversación quién eres. Nada de, "Hola,
+soy Víctor, este es mi negocio, quiero
+que me ayudes en No, ya lo sabe." Esto
+es lo que la IA realmente prometía que
+iba a ser tu asistente personal de IA y
+en vez de contratar a un asistente
+personal que te puede costar entre 1000,
+2000, 3000 € al mes, tienes esto por
+literalmente el 1% de ese precio, si no
+menos. Y en este vídeo no solo vamos a
+construir esto en vivo, sino que también
+te voy a dar el prom para que
+literalmente solo tengas que responder
+en castellano, explicarle quién eres,
+toda la información y que Cloud Code,
+esta plataforma que estás viendo aquí,
+ya cree tu asistente sin experiencia
+previa, sin nada, nada de nada. Y para
+quien no me conozca, mi nombre es Víctor
+Pérez y llevo 2 años desarrollando
+soluciones de inteligencia artificial
+para negocios a través de mi agencia
+bistral.com. Además de esto, formando a
+cientos de emprendedores a través de mi
+comunidad VIP monetizia Masters. Y te
+digo en serio que desde que salió Cloud
+Code no he hecho otra cosa que construir
+automatizaciones y automatizar partes de
+mi negocio, incluyendo la parte de
+contratar un asistente virtual o un
+asistente personal. Ahora no me hace
+falta, tengo Cloud Code, que no solo
+actúa como mi segundo cerebro, sino que
+también puede ejecutar tareas por mí y
+ahorrarme muchas, muchas horas. Es que
+no os lo imaginéis, os lo voy a enseñar.
+Para que os hagáis una idea, esto que os
+estoy enseñando ahora mismo no es una
+demo, es literalmente el asistente que
+yo utilizo en mi día a día para llevar
+tanto mi negociovistral.com como mi
+comunidad monetizia masters, como mi
+canal de YouTube, como a todo el equipo,
+incluso ya es que hasta mi vida
+personal, da igual, le digo todo. Llega
+un momento ya que la A pues ya está todo
+más fácil y tiene toda mi información,
+quién soy yo, cuál es mi negocio, cuáles
+son mis prioridades, cuáles son las
+metas a corto, medio y largo plazo que
+tenemos, cuál es mi equipo, cuál es el
+trabajo que hay que hacer en este Q2,
+absolutamente todo. Ahora lo
+entenderéis, pero esto se guarda todo en
+Qué es el Business OS y cómo está estructurado
+la misma carpeta. Está ordenado por
+carpetas y archivos, pero de esto no
+tienes que saber nada porque simplemente
+Cloud Code lo va a hacer para ti. Para
+que no sepa que está viendo ahora mismo
+en la pantalla, es Cloud Code y ese
+Cloud Code es una agente inteligente
+artificial que vive en tu terminal y que
+puede leer, escribir, ejecutar y
+modificar archivos en tu ordenador en
+tiempo real. Básicamente puedo hacer
+acciones por ti. Y en este caso lo he
+configurado para que en esta carpeta en
+específico llamado Business OS, sistema
+operativo de la empresa, tenga
+absolutamente todo. Desde reglas
+internas de cómo hablarme, como estáis
+viendo aquí le he puesto cómo tiene que
+hablarme, desde las habilidades que
+tiene que tener, que ahora veremos, una
+habilidad para investigar las empresas,
+como estáis viendo, todo el lenguaje
+natural, es que simplemente creando
+archivos de lenguaje natural, como si tú
+le explicaras a tu asistente personal
+qué es exactamente lo que tiene que
+hacer. Herramientas para buscarme ideas
+de vídeos virales, herramientas para
+sugerirme títulos, guiones, miniaturas,
+herramientas para investigar a los leads
+que entran para poder ver qué soluciones
+proponerles, qué dolores les puede
+solucionar nuestra agencia, herramientas
+para crear consultorías, propuestas
+comerciales y todo esto con todo el
+contexto de mis prioridades ahora mismo,
+de mis metas, de yo mismo, quién soy, de
+mi equipo, de mi trabajo. Tampoco voy a
+enseñar todo esto porque al final es
+literalmente el que utilizo y es real la
+información que hay aquí. Tampoco puedo
+enseñar todo, pero como veis tengo todo
+sobre mí, todo sobre mi equipo, el
+trabajo, proyectos. Aquí tampoco puedo
+entrar porque hay cosas que son un poco
+sensibles, pero es dónde están clientes
+actuales, clientes potenciales. Espace
+de cómo hacer cosas en la agencia, lo
+sabe absolutamente todo. Incluso tiene
+literalmente todo lo que tiene que saber
+en el archivo cloud.md, en este archivo
+Markdown. El Markdown simplemente es un
+tipo de lenguaje en el cual la ella lo
+lee muy bien. Esto que veis con
+asteriscos y con hashtags, bueno,
+almohadilla creo que se llama, donde
+aquí describe exactamente quién es. Eres
+el asistente ejecutivo y asesor
+estratégico de Víctor Pérez. Y como
+veis, no solo le hice quién es, sino que
+le hice todo el contexto, todas las
+carpetas que tiene. Tiene la carpeta
+donde le enseño todo sobre mí, todo mi
+trabajo, sobre mi equipo, sobre mis
+prioridades ahora mismo, las metas que
+tengo, todas las herramientas que tiene
+a día de hoy, todas las habilidades que
+tiene. Tiene absolutamente todo para que
+nunca se pueda perder y sepa qué es lo
+que tiene aquí en todo este enjambre de
+carpetas y archivos que veis. Con este
+documento, mi asistente sabe dónde está
+cada cosa y dónde escoger cada cosa para
+Demo en vivo: investigación de lead antes de una llamada
+poder llevar a cabo lo que yo quiero que
+haga. Y antes de enseñaros paso por paso
+cómo podéis crear desde cero vuestro
+propio asistente de inteligente
+artificial, vamos a probarlo. Y es que,
+por ejemplo, le voy a preguntar, "Oye,
+me ha entrado un lead hoy de una
+inmobiliaria llamado Living Luxury Real
+Estate, por favor, ¿me puedes hacer una
+investigación que ahora tengo la llamada
+de descubrimiento con ellos para ver qué
+soluciones les podría proponer y qué
+dolores podríamos ayudarles a resolver?"
+Le damos así, él ya sabe todo. Como
+veis, la gran ventaja de esto, que antes
+me pasaba a mí, seguramente te pase a ti
+también, es que tú entras en chat o
+Cloud o Gemina, la que utilizabas y le
+tenías que decir todo el rato, "Oye, soy
+este, soy Víctor Pérez, tengo un
+negocio." Le escribes super rápido y
+luego le dices, "Vale, quiero esto."
+Ahora ya no, simplemente le dices lo que
+quieres. Él tiene todo el contexto, pero
+no os imaginéis la cantidad de contexto
+que tiene mío y encima ese contexto se
+va actualizando periódicamente. Cuando
+yo le digo, le enviamos esto, lo que lee
+primero siempre es el archivo cloud.md,
+MD, que es donde tiene pues todo lo que
+es él, básicamente, donde va a leer
+quién es él, qué tiene que hacer, qué
+herramientas tiene. Se da cuenta de que
+tiene que utilizar la habilidad, la
+skill de investigación empresa, que para
+que no sepa que es el tema de las
+skills, tengo un vídeo entrando mucho
+más en profundidad sobre ello, pero
+básicamente son las herramientas que
+puede utilizar Cloud Code para hacer
+ciertas cosas. Son pasos,
+automatizaciones paso a paso que le
+puedes dar para que él las haga. Por
+ejemplo, si un proceso manual que yo
+hacía cada vez que entraba a un lead era
+pues entrar en su página web, mirar qué
+vende, mirar qué casos de éxito que
+hemos trabajado con ellos en la agencia
+se parecen a ellos, mirar qué les
+podemos ofrecer, qué dolor podemos
+ayudarles al final al negocio, instalar
+inteligente artificial que realmente les
+ayude a tener menos carga de trabajo, a
+poder ganar más con menos, a optimizar
+procesos, a poder vivir mejor. Y ahora
+eso lo hace directamente mi asistente,
+que en este caso vamos a darle a yes,
+vamos a darle que sí, que sí, que sí a
+todo. En este caso vamos a cambiar aquí
+el modo a bypass permissions. Esto
+tampoco lo recomiendo mucho si acabas de
+empezar porque esto lo que va a hacer es
+que no me va a pedir permiso para
+ejecutar acciones en mi nombre, pero una
+vez tienes bien configurado tu asistente
+de cloud, tampoco pasa nada porque no se
+va a salir básicamente y no va a hacer
+nada raro, pero siempre tener en cuenta
+que vuestro asistente de cloud tiene
+acceso a vuestro ordenador, puede
+eliminar archivos, puede crearlos y eso
+es muy poderoso, pero también es muy
+peligroso. Pero bueno, en este caso como
+está utilizando la skill y ya sé el paso
+paso que va a hacer sin fallar, le
+podemos decir que lo haga simplemente. Y
+como veis, mientras va haciendo todo, ya
+me va informando, ha mirado su perfil de
+LinkedIn, ha mirado pues su web, también
+ha añadido, como estamos viendo aquí en
+proyectos en leach a Living Luxer Real
+Estate, sin que yo le diga nada, ya sabe
+lo que hacer. Y ahora me va a dar un
+informe para que yo pueda leer todo
+antes de la reunión. Esto es
+literalmente lo que haría el asistente
+personal, que ahora mismo pues no tengo
+porque tengo esto, pero lo que hacía yo
+antes de una reunión. Y básicamente lo
+que me da es lo siguiente, un brief
+donde está todo explicado y me dice que
+lo más relevante para la llamada es que
+es una empresa boutique de lujo en
+Barcelona, 12 personas, 40 años de
+historia, tickets de 600k a
+10,00,000ones de euros, me da el nombre
+de la tomadora de decisiones, dólares
+principales, pues sin cobertura fuera de
+horario, los clientes internacionales
+que contactan y no reciben respuesta,
+base de datos de compradores
+cualificados que no se activa cuando
+entra a nuevo stock, sin automatización
+visible en ninguna parte del proceso.
+Enfoque de la llamada, no vendas
+automatización, vende atención premium
+247 sin perder el toque humano. Y en
+alerta crítica me dice que en el archivo
+WorkMD ya los lista como cliente activo
+con resultado previo. Esto es porque
+esto no es un lead, es un cliente real
+de la agencia. Entonces me dice que ya
+está ahí puesto, pero bueno, era para
+enseñároslo. Y me dice que bueno que
+tenga cuidado que parece que ya son
+clientes. Como veis, ya sabe todo lo de
+mi negocio. Y si nos vamos aquí al
+archivo MD que ha creado, incluso le
+podemos decir que haga un Google Docs o
+un PDF. Nos dice aquí toda la
+información. Primero nos avisa de que
+esto ya parece ser un cliente ideal, que
+es la verdad. y nos pone aquí en la
+ficha de empresa, pues toda la
+información, resuen del negocio, una
+boutique especializada en compraventa y
+alquiler de propiedades de lujo en
+Barcelona, tickets medios, dolores
+probables, me lo explica aquí, por qué
+agendó una hipótesis, cómo enfocar la
+llamada y soluciones a tener en mente
+para la llamada, por ejemplo, el sistema
+de seguimiento y atención al cliente 247
+mediante asistentes de WhatsApp,
+sistemas de reactivación de bases de
+datos con inteligencia artificial,
+sistema de agentes de voz para
+cualificar leads. Todo estos son
+sistemas que ya hemos implementado en
+negocios de este estilo, ticket estimado
+de la solución. preguntas clave que le
+tengo que hacer para la Discovery y un
+poco todo el resumen que tengo que
+leerme justo antes de la llamada. Y
+esto, como veis, es increíble. Esto es
+solo un ejemplo de lo que puede hacer
+este Assistent. Literalmente, el límite
+es entender estas tecnologías y poder
+utilizarlas para que haga tu trabajo
+mucho más fácil. Y ahora lo que vamos a
+ver es paso por paso desde cero cómo tú
+Instalación: editor de código + extensión Claude Code
+mismo puedes instalar esto para ti. Y es
+que para poder utilizar Cloud Code
+tienes que tener un editor de código.
+Esto no es más que un sitio en el cual
+se va a crear todo, las carpetas,
+archivos y donde va a vivir Cloud Code.
+Ya puede ser Visual Studio Code, incluso
+Google Antigravity o cualquier editor de
+código que tú ya tengas. Simplemente lo
+descargáis, esto es gratuito y una vez
+dentro de Visual Studio Code os va a
+salir lo siguiente. Aquí lo que tenéis
+que hacer es iros aquí a la izquierda a
+extensiones, buscar la extensión de
+Cloud Code, la oficial, y tendréis que
+dar y poner instalar. Yo la tengo
+instalada, así que tampoco me la voy a
+instalar otra vez. Y una vez estáis
+aquí, simplemente os saldrá aquí el logo
+de Cloud, donde podéis clicar y ya
+podréis tener acceso a Cloud Code dentro
+de vuestro Visual Studio Code. Y no
+quedaría nada más, simplemente vais a ir
+aquí arriba a la izquierda, vais a poner
+Open Folder. Esto es para crear una
+carpeta y en esta carpeta es donde van a
+vivir todos los archivos y todas las
+carpetas que tenga tu asistente de Cloud
+Code. Cada vez que abras esta carpeta
+estarás accediendo a ese agente de IA.
+Le vas a dar a Open folder, vas a poner
+nueva carpeta y vamos a poner asistente
+prueba, porque al final esto es una
+prueba. Le vas a dar a crear, vas a
+darle a abrir y ya se te va a abrir
+directamente aquí para que tú puedas
+abrirlo con el asistente. Vamos a quitar
+esto. Y ya estaríamos dentro, como veis
+aquí a la izquierda, estamos dentro de
+la carpeta asistente prueba. Tenemos ya
+nuestro cloud code. Y ahora es la parte
+casi más fácil, o sea, ahora faltaría la
+parte del prompt porque para crear todos
+los archivos, todas las carpetas que
+habéis visto, para que esté todo
+El prompt para crear tu asistente desde cero
+ordenado, tenemos un promestro. Este
+prom lo vi en un vídeo de Nate Her, que
+este tío es un crack de la IA,
+literalmente, hace como dos semanas creo
+que colgo el vídeo y desde entonces lo
+apliqué, lo utilicé y es una locura. Y
+este prom lo vais a tener exactamente
+así abajo en la descripción por si lo
+queréis utilizar. Pero básicamente aquí
+le dices todo lo que tiene que crear, no
+tienes que hacer nada más. Quiero que
+configure esta carpeta de proyecto como
+mi asistente ejecutivo personal, segundo
+cerebro en Cloud Code. Le hice cómo
+crear la estructura, las carpetas, los
+archivos dentro de las carpetas, las
+plantillas para que ahora te haga las
+preguntas a ti, no tengas ni que tú
+pensar. Simplemente vamos a darle a
+descargar, vamos a copiar todo este
+prompt y vamos a ir a Cloud Code y se lo
+vamos a dar así tal cual. Vamos a darle
+aquí a bypass permissions para que no
+nos pregunte nada y va a crearlo todo. Y
+a medida que nos va a crear todo también
+nos va a preguntar paso a paso todas las
+cosas para tener la información que
+necesita para poder ser un asistente
+personal. En este caso le vamos a dar a
+pum y lo va a empezar a crear como un
+loco. Pam, pam, pam. En este caso,
+cuanto más utilices este asistente,
+cuanto más lo personalices, cuanta más
+información le des, mejor te va a
+funcionar porque más variables va a
+tener en cuenta. Y como veis, ya empieza
+a crear las carpetas y las vamos viendo
+en tiempo real en la izquierda. Crea el
+archivo Cloud MD. Esto, si os acordáis,
+es el archivo donde va a tener todo de
+quién es él. Luego el archivo pun
+gitignor, esto tampoco hace falta que lo
+entendáis, pero por ejemplo gitgore es
+donde van a ir todas las variables
+sensibles, eh, por ejemplo, todas las
+claves de API para que tu agente se
+pueda conectar a, por ejemplo, a todo tu
+Gmail, a tu Google Calendar, a tu Google
+Sheets, Google Docs, todo donde tengas
+tu negocio. Yo, por ejemplo, tengo
+muchas partes de mi negocio, sobre todo
+tema finanzas en Google Sheets, y podrá
+tener acceso a todo eso. Y nos va
+Claude te hace preguntas para configurarlo todo
+preguntando esto, como estáis viendo
+aquí, nos pregunta, ¿cuál es tu nombre?
+¿Cuál es tu rolo título, cuál es tu zona
+horaria? en una frase que te dedicas y
+cuál es tu prioridad número uno. Vamos a
+decirle todo esto. Mi nombre es Víctor
+Pérez, mi rol soy CEO y fundador de mi
+agencia inteligente artificial
+bistral.com vystral.com.
+También tengo mi comunidad
+moneticiamasters, donde enseñamos a
+emprendedores desde cero a dominar la
+inteligencia artificial para poder
+vender soluciones a negocios. Mi zona
+horaria es de España. Vivo en España en
+una frase a que me dedico a ayudar tanto
+a negocios como a emprendedores a
+utilizar la inteligencia artificial para
+optimizar procesos y mejorar sus vidas.
+¿Y cuál es tu primera número uno? Ahora
+mismo estoy muy enfocado en escalar lo
+máximo posible mi marca personal para
+poder ayudar al máximo número de gente
+posible. A todo esto, también tengo un
+canal de YouTube llamado Víctor Pérez,
+en el cual espero estar en 100,000
+seguidores cuando acabe el año y haber
+ayudado a 100,000 personas a utilizar la
+IA. Pumba, para quien no sepa que estoy
+utilizando para el tema de la voz, se
+llama Whisper Flow. W H I S P R F L O W.
+Y esto es para poder hablar y tiene una
+prueba gratuita. Yo no estoy afiliado ni
+nada, solo lo uso porque me gusta. Como
+veis, eh, me dice pam, ha pillado todo
+menos la y de Vistral. Perfecto, me
+dice, "Perfecto, Víctor. Todo anotado.
+Ahora va a preguntarme sobre mi negocio
+y mi trabajo. Ya mencionaste Bistral y
+Moneticia Masters. Voy a decirle que se
+escribe Moneticia Masters y vamos a
+decirle, vamos a seguir respondiendo a
+las preguntas, ¿no? Principalmente estos
+son mis dos negocios actuales. También
+tengo pues una marca personal en
+YouTube, como te he comentado, productos
+o servicios. Básicamente en la Agencia
+inteligente artificial tenemos bastantes
+servicios, algunos personalizados al
+cliente, ya sean CRMs, automatizaciones
+internas, agentes de IA, pero también
+nos especializamos en los sistemas tanto
+de agentes de voz como sistemas de
+agentes de WhatsApp para la atención al
+cliente 247, para el seguimiento de
+leads y para la reactivación de bases de
+datos. Aproximadamente, ¿cuánto ingresa
+cada línea de negocio? Esto es privado,
+tampoco lo puedo decir. Vamos a ponerle
+unos 80 m000ones de euros. ¿Y qué
+herramientas usas en el día a día? Yo
+utilizo eh Notion, utilizo Google
+Sheets, utilizo N8N y todas las
+herramientas de Google Workspace en
+general. De momento no quiero que
+instales ningún MCP con Cloud Code. Ya
+lo haremos más adelante. Pam, pum. Le
+damos esto y él va, como veis, creando
+los archivos, como estáis viendo aquí,
+el archivo de, bueno, aquí tenemos las
+skills que ahora crearemos. Tenemos todo
+el contexto como current priorities, los
+goals, que serían las metas, las
+prioridades, esto todo sobre mí, sobre
+mi equipo, sobre mi trabajo, aquí las
+decisiones que voy tomando. Luego aquí
+los proyectos, aún no hay ninguno, pero
+irán habiendo. Y como veis, si vamos
+entrando en los diferentes archivos,
+ahora mismo están vacíos porque no ha
+rellenado aún nada de esto. Pero si
+vamos, por ejemplo, al de mí, nos dice
+que se rellenará en la fase tres. Ah,
+vale, aún no ha rellenado nada de esto.
+Bueno, mira, justo la fase tres. Tienes
+equipo. Vale, vamos a decirle, sí, tengo
+un equipo de 10 personas en la cual
+somos cinco desarrolladores. Estoy yo.
+Luego tengo a mi mano derecha que se
+llama Juan Carlos López de Lustro y
+tengo un director de Metaads, también
+tengo un director de contenido en
+YouTube donde se comunica mi equipo. Nos
+comunicamos a través de WhatsApp y
+Slack. Y mi mayor problema gestionando
+el equipo ahora mismo es que yo soy el
+cuello de botella. Vamos a darle aquí. Y
+ahora vais a ver cómo se va rellenando
+todo esto de la fase tres. Claro, el
+cuello de botellas, el problema clásico
+del fundador, que lo sabe todo, lo
+tenemos en cuenta. Y lo bueno es que
+cada vez se va a ir acostumbrando más a
+ti, va a tener más información tuya y va
+a poder hacerte mejores preguntas para
+que puedas crear un mejor asistente.
+Sección cuatro, prioridades, objetivos y
+proyectos. ¿Cuáles son las tres o cinco
+cosas en las que más estás enfocado
+ahora mismo? Ahora mismo estamos
+enfocado mucho en crecer la agencia,
+básicamente tener cuantos más casillos
+de éxito eh mejor. Hemos trabajado con
+más de 10 clientes en el último año.
+Deadline, elementos urgentes, ahora
+mismo no. Objetivos, ahora mismo puedes
+llegar a 85 millones de millones de
+euros. E, ¿qué proyectos activos estás
+gestionando? Más de 300 m,000000es de
+proyectos y ya estaría. V. Esto me lo
+estoy inventando porque es para que
+veáis que que lo vais rellenando.
+Obviamente yo ya tengo el mío, o sea,
+tampoco quiero aquí gastar muchos tokens
+en esto. Y me dice, "Entendido lo de la
+agencia y las cosas de éxito. Parece ser
+la última parte. Se cortó un poco, tal,
+no sé qué. Déjame confirmar. ¿Qué
+proyectos tienes activo ahora mismo?
+Ahora mismo tengo tres proyectos
+activos, uno con IKEA, otro con Nike y
+otro con Adidas. Preferencias de
+comunicación. Quiero que seas directo,
+eh, no uses nunca emojis ni cosas muy
+largas. Quiero que seas directo, corto,
+directo al grano, eh, quiero que tengas
+un tono pues amigable, la verdad, que
+tampoco sea todo tan serio, que la vida
+está para disfrutar y quiero que sea
+contenido para el contenido público, que
+sea un poco como yo, ya irás aprendiendo
+cómo voy hablando yo. Me pone perfecto,
+sin rollo, sin emojis, directo. Esto,
+como os he dicho, cuanta más información
+le deis, mejor os va a funcionar este
+asistente de IA. Os lo digo en serio,
+esto no es una exageración, es una
+locura. Esto es una locura. Es como
+tener tu asistente personal potenciado
+por el mejor modelo de inteligencia de
+ella del mundo ahora mismo, mientras
+estoy grabando esto, Cloud Opus 4.6,
+pero cuando salga otro modelo mejor,
+pues usará ese y tendrá la información.
+Ya vivimos en unos tiempos muy muy
+buenos. ¿Qué tareas te consumen más
+tiempo ahora mismo? Ahora mismo tengo
+que delegar parte de la estrategia de la
+creación de contenido. También tengo que
+delegar todo el equipo de
+desarrolladores técnicos, que mi tarea
+sea de supervisar más que de crear todo
+desde cero. Y también tengo que delegar
+la parte de metads que me consume mucho
+tiempo. Y como estáis viendo aquí, ahora
+que tiene toda la información va a
+cambiar el archivo mi, el de Work, el de
+Team, el de current priorities, todo
+Resultado final: archivos MD rellenos y listos
+esto. Y si vamos ahora a los archivos
+MD, veis que ya no estáis vacíos, sino
+que están con todo lo que le he dicho.
+Última actualización, pone la fecha.
+Aquí las prioridades actuales que tengo
+en los goals que son las metas, pues me
+pone aquí las metas. Esto cuanto más
+detallado, mejor. Tampoco le muestro
+mucha información como veis, pero tenéis
+que poner aquí cuanto más posible mejor,
+porque así tiene todo. ¿Quién soy yo?
+también el equipo, lo que le he dicho,
+el trabajo, todo lo tenéis en los
+archivos MDs, que esto es texto
+básicamente, o sea, esto es para que la
+lo leas, no es nada complicado, son
+archivos pund que es markdown, como
+hemos dicho, que es básicamente un
+estilo de lenguaje de programación,
+markdown para que esté todo como bien
+puesto. Y si nos vamos aquí a la
+asistente veremos que habrá acabado, nos
+dice que ya ha acabado. Aquí tienes el
+árbol de archivos, que todo esto es lo
+que ha hecho el prompt. Básicamente esto
+es lo que estáis viendo a la izquierda,
+pero bien puesto. La carpeta principal
+se llama asistente de prueba. Dentro de
+esta carpeta tenemos este archivo, este
+archivo, este archivo, esta carpeta.
+Dentro de esta carpeta tenemos este
+archivo, esta carpeta. Dentro de esta
+carpeta tenemos este archivo. Y así
+sucesivamente con el árbol de archivos
+que estáis viendo aquí. Luego el
+backlock de skills que ha pensado en
+meter. Básicamente skills son las
+herramientas, que esto tendría queos que
+decirle cómo hacer esto exactamente. Por
+ejemplo, guiones para YouTube, cómo
+hacerlo exactamente. Planificación de
+contenido, cómo hacerlo exactamente.
+Propuestas para clientes en Bistrar,
+cómo hacerlo exactamente, reportes de
+metad, ahora mismo están las skills,
+pero ha intentado intuir cómo hacerlas.
+Tú tendrías que ir una a una y decirle,
+"Vale, esto se hace así, así, así, así."
+Y ya lo sabe para siempre. Por eso te
+digo que es increíble. dice que revises
+las prioridades en current priorities.
+Trimestralmente actualiza las metas.
+Cuando tomes decisiones, regístralas en
+decisions logre se repita, conviértela
+en una skill. Te dice que si quieres que
+recuerde algo permanentemente, di que eh
+recuerda que siempre prefiero X y lo
+guarda. Y como veis, ya tendrías tu
+asistente creado desde cero. Y esto
+realmente es increíble. Ya lo verás, no
+hace falta que me creas, pruébalo y me
+CTA final y recursos
+cuenta. Y si eres un dueño de negocio
+que ha llegado hasta aquí y quiere
+automatizar su negocio con inteligencia
+artificial, tienes abajo la descripción
+un enlace para agendar una llamada con
+mi equipo para ver si te podemos ayudar.
+En el caso de que no seas un dueño de
+negocio, sino que quieres tú mismo
+formarte para poder crear y vender este
+tipo de soluciones de inteligencia
+artificial a negocios, te dejo abajo el
+enlace a mi comunidad VIP Moneticia
+Masters, donde tenemos cursos completos
+desde cero experto, además de todo el
+acompañamiento y el soporte técnico para
+que no te quedes encallado en ningún
+punto. Y en el caso de que simplemente
+te haya gustado el vídeo, se agradece
+ese like, suscripción y nos vemos en el
+siguiente vídeo. Gracias por ver. What?
