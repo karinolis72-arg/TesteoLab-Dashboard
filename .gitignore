@@ -26,3 +26,9 @@ wheels/
 node_modules/
 .DS_Store
 *.log
+
+.~lock.*#
+DOCCOntextoBuild/awesome-design-md-main/
+DOCCOntextoBuild/awesome-design-md-main.zip
+
+*.bak

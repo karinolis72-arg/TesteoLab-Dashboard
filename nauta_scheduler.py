@@ -904,6 +904,32 @@ def stop_scheduler():
         logger.info("✓ NAUTA Scheduler detenido")
 
 
+def ensure_briefing_data(force=False):
+    """Devuelve el briefing del dia, generandolo al momento si hace falta.
+
+    El job de las 8:30 guarda el briefing en nauta_state. Si el servidor
+    arranco despues de esa hora, o el guardado quedo de un dia anterior,
+    nauta_state["briefing_data"] esta vacio o viejo y el dashboard mostraba
+    "0 tareas planificadas" aunque hubiera tareas. Aca lo recalculamos.
+    """
+    data = nauta_state.get("briefing_data") or {}
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    vigente = bool(data) and str(data.get("timestamp", ""))[:10] == hoy
+
+    if vigente and not force:
+        return data
+
+    logger.info("Briefing ausente o de otro dia: generando en el momento.")
+    data = generate_briefing_data(
+        tasks_today=_get_today_tasks(),
+        top_q1=_get_top_q1(),
+        habits=_get_habits(),
+    )
+    nauta_state["last_briefing"] = datetime.now()
+    nauta_state["briefing_data"] = data
+    return data
+
+
 def get_briefing_state():
     """Retorna el último estado de briefing"""
     return {

@@ -22,6 +22,7 @@ try:
         start_scheduler,
         get_briefing_state,
         get_cierre_state,
+        ensure_briefing_data,
         nauta_state
     )
     NAUTA_ENABLED = True
@@ -450,7 +451,7 @@ def api_nauta_briefing():
             briefing_state = get_briefing_state()
             return jsonify({
                 "success": True,
-                "data": briefing_state.get("data", {}),
+                "data": ensure_briefing_data(),
                 "last_generated": briefing_state.get("last_briefing"),
                 "timestamp": datetime.now().isoformat()
             })
@@ -492,8 +493,7 @@ def api_nauta_briefing_html():
             calendar_events = body.get("events") or None
 
         if NAUTA_ENABLED:
-            briefing_state = get_briefing_state()
-            briefing_data = briefing_state.get("data", {})
+            briefing_data = ensure_briefing_data()
 
             from nauta_scheduler import generate_briefing_html
             html = generate_briefing_html(briefing_data, calendar_events=calendar_events)
@@ -1629,4 +1629,8 @@ Conversación:
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="127.0.0.1", port=port, debug=True)
+    # use_reloader=False: con el reloader activo, Flask levanta un proceso hijo
+    # y start_scheduler() corre DOS veces -> el briefing de 8:30 y el cierre de
+    # 21:30 se disparan duplicados. En produccion corre gunicorn, que no usa
+    # reloader, asi que esto solo afecta el arranque local.
+    app.run(host="127.0.0.1", port=port, debug=True, use_reloader=False)
