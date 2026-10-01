@@ -232,4 +232,90 @@ El orden no es negociable. Cada paso depende del anterior. Saltarse el Bosquejo 
 
 ---
 
-*Framework documentado a partir del sistema BLAST de construcción de apps full stack con IA generativa.*
+## EXTENSIÓN CRÍTICA: Context Engineering & Módulo "Sobre Mí"
+
+### ¿Por qué Context Engineering es fundamental?
+
+El BLAST define QUÉ construir. Pero hay un paso previo (casi invisible) que determina QUÉ tan bien lo construirá la IA: el **contexto del usuario**.
+
+Ejemplo: Si le pides a Claude "crea una app de infoproductos", obtendrás una app genérica. Pero si Claude tiene acceso a:
+- Tu historial de productos vendidos
+- Tus personas clave (mentores, clientes, socios)
+- Tu metodología personal
+- Tus transcripciones de cómo hablas
+- Tus notas diarias de decisiones
+
+Entonces Claude creará una app que suena *como tú*, que funciona *como tú quieres*, optimizada para *tu mercado específico*.
+
+### Estructura: La Base de Datos "Sobre Mí"
+
+Esta base de datos vive en:
+- **Obsidian** (recomendado para Context Engineering)
+- **Notion** (alternativa)
+- **Sistema de carpetas en GitHub** (backup)
+
+**Estructura de carpetas requerida:**
+
+```
+📦 Sobre Mí/
+├── 📄 mi-perfil.md (Quién eres, roles, objetivos)
+├── 📁 Personas/ (Mentores, clientes, socios, amigos)
+│   ├── 📄 [Nombre Mentor 1]
+│   ├── 📄 [Nombre Cliente Tipo]
+│   └── 📄 [Mi Pareja / Familia]
+├── 📁 Proyectos/ (Historial de lo que has creado)
+│   ├── 📄 [Proyecto 1 - Lecciones aprendidas]
+│   ├── 📄 [Proyecto 2 - Métricas]
+│   └── 📄 [Proyecto 3 - ROI]
+├── 📁 Transcripciones/ (Cómo hablas, tus patrones mentales)
+│   ├── 📄 charla-sobre-mi
+│   ├── 📄 video-entrevista
+│   └── 📄 podcast-ep01
+├── 📁 Notas Diarias/ (Decisiones, reflexiones, aprendizajes)
+│   ├── 📄 2026-04-11.md
+│   ├── 📄 2026-04-10.md
+│   └── 📄 2026-04-09.md
+├── 📁 Methodologías/ (Cómo trabajas, procesos, frameworks)
+│   ├── 📄 proceso-lanzamiento-oferta.md
+│   ├── 📄 estructura-funnel.md
+│   └── 📄 decisiones-tecnicas.md
+└── 📁 Ideología/ (Principios, valores, límites)
+    ├── 📄 que-vendo-y-que-no.md
+    ├── 📄 publico-ideal.md
+    └── 📄 rojo-límites.md
+```
+
+### El Asistente Coach Cronometrado (NAUTA)
+
+El concepto más poderoso: **Un agente de IA que se ejecuta automáticamente cada mañana a una hora específica y te hace preguntas sobre tu día.**
+
+**Implementación:**
+
+```
+⏰ Trigger: Todos los días a las 9:00 AM
+📝 Acción: NAUTA ejecuta script que pregunta:
+
+"Buenos días, [Nombre] 👋
+
+¿Qué tal tu día de hoy?
+¿Qué tareas prioritarias tenés?
+¿Hay algo donde te sentís perdido o necesites ayuda?
+¿Algún blockers o decisiones pendientes?"
+
+✅ El usuario responde en el chat
+🤖 NAUTA procesa la respuesta y:
+   1. Extrae tareas nuevas
+   2. Las mapea a proyectos existentes
+   3. Actualiza el dashboard
+   4. Sugiere next steps basado en "Sobre Mí"
+```
+
+**Esto requiere:**
+- Cron job (ejecución cronométrica)
+- Acceso a la base de datos "Sobre Mí"
+- Integración con Notion/Dashboard para persistencia
+- Context inyectado en cada ejecución
+
+---
+
+*Framework BLAST + Context Engineering: El combo que hace que la IA entienda no solo QUÉ construir, sino CÓMO construirlo para que sea una extensión natural de quién eres.*
