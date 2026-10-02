@@ -358,8 +358,12 @@ def get_rueda_vida() -> Dict[str, int]:
 
         for result in response.get("results", []):
             props = result["properties"]
-            area = props.get("Area", {}).get("select", {}).get("name", "")
-            score = props.get("Score", {}).get("number", 0)
+            # La propiedad en Notion se llama "Área" CON tilde. Leerla como
+            # "Area" devolvia siempre vacio, y la funcion caia al fallback
+            # hardcodeado: por eso la rueda mostraba siempre los mismos valores.
+            prop_area = props.get("Área") or props.get("Area") or {}
+            area = (prop_area.get("select") or {}).get("name", "")
+            score = (props.get("Score") or {}).get("number", 0)
 
             if area and area not in processed_areas:
                 rueda[area] = score
