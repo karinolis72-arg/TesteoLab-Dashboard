@@ -31,19 +31,56 @@ paquetes instalan. El build pasaba de largo `notion-client` por primera vez.
 Convive con llamadas relativas (`/api/...`), así que en producción parte del
 dashboard funciona y parte no. Arreglo: derivarlo de `window.location.origin`.
 
-## Spin-down del plan free — el límite real
+## Spin-down del plan free — RESUELTO con cron externo
 
 Render avisa: *"Your free instance will spin down with inactivity"*. Un servicio
-dormido **no ejecuta jobs de APScheduler**: a las 8:30 no hay proceso vivo que
-dispare el briefing. NAUTA está correctamente configurado en producción y aun así
-no va a correr solo mientras el servicio esté en free.
+dormido no ejecuta jobs de APScheduler. Confirmado en la práctica: un TEST RUN
+contra el servicio dormido devolvió 503 antes de llegar siquiera a Flask.
 
-Opciones evaluadas (sin decidir todavía):
-- Plan pago de Render — el servicio no duerme
-- Ping externo cada 10 min (UptimeRobot / cron-job.org) — gratis, lo mantiene vivo
-- Cron externo que llame a `/api/nauta/trigger-briefing` a las 8:30 — despierta
-  el servicio Y dispara el job. Hace innecesario APScheduler en producción.
-  Falta un endpoint equivalente para el cierre de 21:30.
+Solución montada en **cron-job.org**, zona horaria America/Argentina/Buenos_Aires:
+
+| Job | Hora | Método | URL |
+|---|---|---|---|
+| 01 Despierta | 8:25 | GET | `/api/health` |
+| 02 NAUTA Briefing | 8:30 | POST | `/api/nauta/trigger-briefing` |
+| 03 Despertar noche | 21:25 | GET | `/api/health` |
+| 04 NAUTA Cierre | 21:30 | POST | `/api/nauta/trigger-cierre` |
+
+Los dos GET van sin credenciales (`/api/health` está exento del guardia a
+propósito, para monitores externos). Los dos POST usan Basic auth con
+`NAUTA_USER` / `NAUTA_PASS`. Los cuatro probados con TEST RUN: OK.
+
+Los pings de 8:25 y 21:25 son imprescindibles: despiertan el servicio cinco
+minutos antes, porque el arranque en frío tarda hasta 50 segundos y el POST daría
+timeout. Con esto NAUTA corre todos los días sin plan pago y sin depender de que
+el proceso siga vivo entre medio.
+
+## Autenticación
+
+El servicio estaba **completamente abierto**: los 38 endpoints, en una URL pública
+escrita en los docs de un repo público. Cualquiera podía leer las tareas,
+borrarlas (`DELETE /api/tasks/<id>`), y gastar crédito de Anthropic vía
+`POST /api/chat`, sin tope.
+
+Resuelto el 01-oct con un `@app.before_request` de Basic auth (commit `95f3824`).
+Diseño: si `NAUTA_USER` y `NAUTA_PASS` no están definidas, la protección queda
+apagada y solo loguea un warning. Eso mantiene el desarrollo local sin fricción;
+en Render están cargadas, así que ahí sí exige credenciales.
+
+## Zona horaria del contenedor — PENDIENTE VERIFICAR
+
+Render corre en UTC. El `/api/health` devolvió `2026-10-02T00:36` cuando en
+Buenos Aires eran las 21:36 del 1-oct. Hay **31 llamadas a `datetime.now()` sin
+zona horaria**, siete de ellas calculando la fecha de hoy.
+
+Impacto: de 21:00 en adelante, en UTC ya es el día siguiente. El cierre de las
+21:30 se guardaría en Notion con la fecha de mañana y traería las tareas
+programadas para mañana. El briefing de 8:30 no se ve afectado (11:30 UTC, mismo
+día).
+
+Arreglo elegido: variable `TZ=America/Argentina/Buenos_Aires` en Render, en vez de
+tocar las 31 llamadas. En Linux, Python respeta esa variable. Falta confirmar que
+esté cargada: el timestamp de `/api/health` tiene que coincidir con el reloj local.
 
 ## Seguridad — incidente del 01-oct
 
@@ -64,13 +101,34 @@ siempre; lo único que lo neutraliza es rotarlo.
 Pendiente menor: pasar el repo a privado (no arregla el pasado, pero expone IDs
 de bases de Notion sin ninguna ganancia).
 
-## Archivos en juego
-- `notion_api.py` — app Flask principal, 38 endpoints. Render la busca acá, no mover
-- `nauta_scheduler.py` — APScheduler, cron 8:30 y 21:30 America/Argentina/Buenos_Aires
-- `dashboard_v2.html` — frontend real (126 KB). `dashboard.html` es la v1 de abril, obsoleta
-- `iniciar.bat` — lanzador corregido 01-oct
-- `run_dashboard.py` — ya no sirve el dashboard; redirige 9000 → 5000
-- Nueve `planner_semana_*.xlsx` — salidas, no fuente. No deberían ir al repo
+## Estructura (reorganizada el 01-oct)
+
+La raíz pasó de **68 entradas a 23**. Lo que quedó arriba es solo código y config.
+
+```
+TesteoLab/
+├── notion_api.py          app Flask, 38 endpoints. Render la busca acá, NO MOVER
+├── nauta_scheduler.py     APScheduler, cron 8:30 y 21:30 Buenos Aires
+├── dashboard_v2.html      frontend real (126 KB). NO MOVER: ruta relativa
+├── m1_supabase.py · supabase_client.py · run_dashboard.py · start_testeolab.py
+├── requirements.txt · Procfile · runtime.txt · .env · .gitattributes
+├── iniciar.bat            lanzador (corregido 01-oct)
+├── CLAUDE.md · blueprint.md
+├── salidas/               ignorado por git — se regenera, no es fuente
+│   ├── cierres/           13 archivos (NAUTA_CIERRE_*, etc.)
+│   ├── planners/          12 (planner_semana_*, .ics, eventos_gcal)
+│   └── reportes/          12 (ESTADO_*, RESUMEN_*, CONTROL_EJECUCION_*)
+├── _archivo/              ignorado — dashboard.html v1, los .bak, testImage/
+├── docs/ · Documentos/ · DOCCOntextoBuild/ · scripts/ · tests/
+└── M1/ · fronted-design/
+```
+
+**Dos archivos no se pueden mover**: `notion_api.py` (el Procfile dice
+`gunicorn notion_api:app`) y `dashboard_v2.html` (lo lee con ruta relativa al
+propio archivo).
+
+`testImage/` pasó a `_archivo/`: eran 12 capturas de debug que se habían subido a
+un repo público.
 
 ## Intentos fallidos — leer antes de repetirlos
 
@@ -100,9 +158,7 @@ blanco. Resuelto con `ensure_briefing_data()` (01-oct), que regenera si el
 guardado está vacío o es de otro día.
 
 ## Siguientes pasos
-1. Decidir cómo resolver el spin-down, o NAUTA en producción no corre nunca solo
+1. Confirmar la variable `TZ` en Render (ver arriba)
 2. Arreglar el `BASE_URL` hardcodeado
-3. Reorganizar: los 39 archivos de salida a `salidas/`, al `.gitignore`.
-   Incluye los `testImage/*.png` que se subieron a un repo público
-4. Pasar el repo a privado
-5. `git gc --prune=now` (quedaron temporales en `.git/objects`)
+3. Pasar el repo a privado
+4. `git gc --prune=now` (quedaron temporales en `.git/objects`)

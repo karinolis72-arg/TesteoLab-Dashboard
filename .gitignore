@@ -32,3 +32,7 @@ DOCCOntextoBuild/awesome-design-md-main/
 DOCCOntextoBuild/awesome-design-md-main.zip
 
 *.bak
+
+# Salidas del sistema: se regeneran, no son fuente
+salidas/
+_archivo/
