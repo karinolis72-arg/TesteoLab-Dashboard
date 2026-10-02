@@ -67,7 +67,7 @@ Diseño: si `NAUTA_USER` y `NAUTA_PASS` no están definidas, la protección qued
 apagada y solo loguea un warning. Eso mantiene el desarrollo local sin fricción;
 en Render están cargadas, así que ahí sí exige credenciales.
 
-## Zona horaria del contenedor — PENDIENTE VERIFICAR
+## Zona horaria del contenedor — RESUELTO
 
 Render corre en UTC. El `/api/health` devolvió `2026-10-02T00:36` cuando en
 Buenos Aires eran las 21:36 del 1-oct. Hay **31 llamadas a `datetime.now()` sin
@@ -78,9 +78,13 @@ Impacto: de 21:00 en adelante, en UTC ya es el día siguiente. El cierre de las
 programadas para mañana. El briefing de 8:30 no se ve afectado (11:30 UTC, mismo
 día).
 
-Arreglo elegido: variable `TZ=America/Argentina/Buenos_Aires` en Render, en vez de
-tocar las 31 llamadas. En Linux, Python respeta esa variable. Falta confirmar que
-esté cargada: el timestamp de `/api/health` tiene que coincidir con el reloj local.
+Arreglo: variable `TZ=America/Argentina/Buenos_Aires` cargada en Render el 01-oct,
+en vez de tocar las 31 llamadas. En Linux, Python respeta esa variable, así que
+todas pasan a devolver hora de Buenos Aires sin cambiar una línea de código.
+Local no se ve afectado: Windows ya está en esa zona.
+
+La prueba es el `timestamp` de `/api/health`: tiene que coincidir con el reloj
+de Buenos Aires, no ir tres horas adelante.
 
 ## Seguridad — incidente del 01-oct
 
@@ -158,7 +162,7 @@ blanco. Resuelto con `ensure_briefing_data()` (01-oct), que regenera si el
 guardado está vacío o es de otro día.
 
 ## Siguientes pasos
-1. Confirmar la variable `TZ` en Render (ver arriba)
-2. Arreglar el `BASE_URL` hardcodeado
-3. Pasar el repo a privado
-4. `git gc --prune=now` (quedaron temporales en `.git/objects`)
+1. Arreglar el `BASE_URL` hardcodeado (`dashboard_v2.html:1164`)
+2. Pasar el repo a privado
+3. `git gc --prune=now` (quedaron temporales en `.git/objects`)
+4. Mirar el history de cron-job.org después de la primera semana completa
