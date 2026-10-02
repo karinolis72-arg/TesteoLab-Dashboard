@@ -153,29 +153,29 @@ def _armar_recomendacion(zombies, pendientes_anoche, horas_estimadas, top_q1):
     if zombies:
         peor = zombies[0]
         extra = ("" if len(zombies) == 1
-                 else f" Tenes {len(zombies)} en esa situacion.")
+                 else f" Tenés {len(zombies)} en esa situación.")
         return (f"Antes de empezar: \"{peor['titulo']}\" lleva "
-                f"{peor['dias_atrasada']} dias arrastrandose. Eso ya no es una tarea, "
-                f"es una decision sin tomar. Hacela hoy, ponele fecha real, o matala."
+                f"{peor['dias_atrasada']} días arrastrándose. Eso ya no es una tarea, "
+                f"es una decisión sin tomar. Hacela hoy, ponele fecha real, o matala."
                 + extra)
 
     if horas_estimadas > HORAS_UTILES_DIA:
-        return (f"Tus tareas suman {horas_estimadas:.1f} horas estimadas y el dia "
-                f"tiene ~{HORAS_UTILES_DIA} horas utiles. Algo no va a entrar: "
-                f"elegi que cae ahora, no a las 19h.")
+        return (f"Tus tareas suman {horas_estimadas:.1f} horas estimadas y el día "
+                f"tiene ~{HORAS_UTILES_DIA} horas útiles. Algo no va a entrar: "
+                f"elegí qué cae ahora, no a las 19h.")
 
     if pendientes_anoche:
         n = len(pendientes_anoche)
-        cuantas = "quedo 1 pendiente" if n == 1 else f"quedaron {n} pendientes"
+        cuantas = "quedó 1 pendiente" if n == 1 else f"quedaron {n} pendientes"
         return (f"Anoche {cuantas}. "
-                f"Empeza por \"{pendientes_anoche[0]}\" antes de abrir nada nuevo.")
+                f"Empezá por \"{pendientes_anoche[0]}\" antes de abrir nada nuevo.")
 
     if top_q1:
-        return (f"Dia despejado. Arranca por \"{top_q1[0].get('titulo', '')}\", "
-                f"que es tu Q1 de mayor prioridad, y protege la primera hora.")
+        return (f"Día despejado. Arrancá por \"{top_q1[0].get('titulo', '')}\", "
+                f"que es tu Q1 de mayor prioridad, y protegé la primera hora.")
 
-    return ("No hay tareas cargadas para hoy. Si es correcto, usa el dia para cerrar "
-            "algo que ya este abierto. Si no, carga tu Q1 antes de empezar.")
+    return ("No hay tareas cargadas para hoy. Si es correcto, usá el día para cerrar "
+            "algo que ya esté abierto. Si no, cargá tu Q1 antes de empezar.")
 
 
 def _get_today_tasks(incluir_completadas=False):
@@ -404,7 +404,7 @@ def generate_briefing_html(briefing_data, calendar_events=None):
                 {_lista(ctx.get("agenda"), "Sin eventos.")}
                 <h4 style="margin:10px 0 2px;">📬 Pide respuesta</h4>
                 {_lista(ctx.get("mails"), "Nada que requiera respuesta.")}
-                <h4 style="margin:10px 0 2px;">🤝 Me comprometi a</h4>
+                <h4 style="margin:10px 0 2px;">🤝 Me comprometí a</h4>
                 {_lista(ctx.get("compromisos"), "Nada registrado.")}
             </div>"""
 
@@ -1041,14 +1041,14 @@ def nauta_cierre_job():
 
         total = len(completadas) + len(pendientes)
         if total == 0:
-            notas = "No habia tareas cargadas para hoy."
+            notas = "No había tareas cargadas para hoy."
         elif not completadas:
-            notas = f"Ninguna de las {total} tareas del dia quedo cerrada."
+            notas = f"Ninguna de las {total} tareas del día quedó cerrada."
         else:
             notas = f"Cerraste {len(completadas)} de {total} tareas."
             if zombies:
-                notas += (f" Quedan {len(zombies)} arrastrandose hace mas de "
-                          f"{DIAS_PARA_ZOMBIE} dias: manana hay que decidir sobre ellas.")
+                notas += (f" Quedan {len(zombies)} arrastrándose hace más de "
+                          f"{DIAS_PARA_ZOMBIE} días: mañana hay que decidir sobre ellas.")
 
         cierre_data = {
             "timestamp": datetime.now().isoformat(),
