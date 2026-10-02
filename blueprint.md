@@ -1,7 +1,7 @@
 # Blueprint — TesteoLab
 
 > Estado vivo del proyecto. Lo reescribe Claude Code; no hace falta editarlo a mano.
-> Última actualización: 2026-10-01
+> Última actualización: 2026-10-01 (deploy verificado)
 
 ## Qué quiero lograr
 Dashboard Flask + Notion con el scheduler NAUTA (briefing 8:30 / cierre 21:30),
@@ -11,28 +11,58 @@ desplegado en Render, con los datos persistiendo en Notion.
 - ✅ Proyecto en `C:\ClaudeProyectos\01-activos\TesteoLab`
 - ✅ Corre local: `python notion_api.py` → http://localhost:5000
 - ✅ Los 38 endpoints responden; NAUTA arranca con la app (notion_api.py línea ~56)
-- 🔴 **102 cambios sin commitear.** Último commit: 11-abr-2026
-- 🔴 **Producción (Render) está mutilada**: ver "Deuda crítica" abajo
+- ✅ **Todo commiteado y pusheado** (6 commits, ~2.700 líneas) el 01-oct
+- ✅ **Producción al día**: deploy `7e783c7` Live, NAUTA arranca en Render
+- 🟡 **Pero el plan free duerme el servicio**: ver "Spin-down" abajo
 - ✅ `.env` correctamente excluido por `.gitignore`
 
-## Deuda crítica — producción ≠ local
+## Deuda crítica — estado al 01-oct
 
-**1. Tres archivos de código nunca se commitearon** (sin trackear desde el día uno):
-`nauta_scheduler.py`, `supabase_client.py`, `m1_supabase.py`.
-`notion_api.py` los importa dentro de `try/except ImportError`, así que en Render
-`NAUTA_ENABLED = False` y **el briefing de 8:30 y el cierre de 21:30 nunca
-corrieron en producción**. Los `NAUTA_CIERRE_*.md` del repo salieron de
-ejecuciones locales.
+**1. Los tres archivos sin commitear** (`nauta_scheduler.py`, `supabase_client.py`,
+`m1_supabase.py`) — ✅ **RESUELTO**. Commit `cebc57b`. Verificado en el log de
+Render: `✓ NAUTA Scheduler iniciado`, `8:30 AM Briefing`, `21:30 Log de cierre`,
+timezone Buenos Aires. Primera vez que NAUTA corre en producción.
 
-**2. `requirements.txt` en origin no tiene** `APScheduler`, `anthropic` ni
-`supabase`. Aunque se suba el scheduler, Render falla al importar hasta
-commitear el requirements.
+**2. `requirements.txt` incompleto en origin** — ✅ **RESUELTO**. Los nueve
+paquetes instalan. El build pasaba de largo `notion-client` por primera vez.
 
-**3. `BASE_URL` hardcodeado** — `dashboard_v2.html` línea 1164:
-`BASE_URL = "http://localhost:5000/api"`. En Render eso apunta a la máquina de
-Kari, no al servidor. Convive con llamadas a rutas relativas (`/api/...`), así
-que en producción parte del dashboard funciona y parte no. **Pendiente**: hacerlo
-relativo o derivarlo de `window.location.origin`.
+**3. `BASE_URL` hardcodeado** — 🔴 **PENDIENTE**. `dashboard_v2.html` línea 1164:
+`BASE_URL = "http://localhost:5000/api"`. En Render apunta a la máquina de Kari.
+Convive con llamadas relativas (`/api/...`), así que en producción parte del
+dashboard funciona y parte no. Arreglo: derivarlo de `window.location.origin`.
+
+## Spin-down del plan free — el límite real
+
+Render avisa: *"Your free instance will spin down with inactivity"*. Un servicio
+dormido **no ejecuta jobs de APScheduler**: a las 8:30 no hay proceso vivo que
+dispare el briefing. NAUTA está correctamente configurado en producción y aun así
+no va a correr solo mientras el servicio esté en free.
+
+Opciones evaluadas (sin decidir todavía):
+- Plan pago de Render — el servicio no duerme
+- Ping externo cada 10 min (UptimeRobot / cron-job.org) — gratis, lo mantiene vivo
+- Cron externo que llame a `/api/nauta/trigger-briefing` a las 8:30 — despierta
+  el servicio Y dispara el job. Hace innecesario APScheduler en producción.
+  Falta un endpoint equivalente para el cierre de 21:30.
+
+## Seguridad — incidente del 01-oct
+
+GitHub Push Protection frenó un push con el token de Notion hardcodeado en
+`scripts/load_tasks.py:4`. Al revisar apareció que el repo es **público** y que un
+token más viejo estaba expuesto desde el 11-abr en el commit `c071d6c`, dentro de
+`ARCHIVOS_CREADOS_HOY.txt` y `CAMBIOS_REALIZADOS_HOY.md`. Forks: 0.
+
+Resuelto: token rotado, los dos `.env` actualizados (TesteoLab y
+`MetaAdsCLI/Configuracion/.env` compartían el mismo), variable actualizada en
+Render, `load_tasks.py` ahora lee de `os.environ`, docs redactados.
+
+**La lección**: el commit `71dcf1c "Limpieza: Remover token de documentación"`
+sacó el token del archivo pero NO del historial. En git, borrar una línea no
+borra el commit que la trajo. Un secreto commiteado está comprometido para
+siempre; lo único que lo neutraliza es rotarlo.
+
+Pendiente menor: pasar el repo a privado (no arregla el pasado, pero expone IDs
+de bases de Notion sin ninguna ganancia).
 
 ## Archivos en juego
 - `notion_api.py` — app Flask principal, 38 endpoints. Render la busca acá, no mover
@@ -70,10 +100,9 @@ blanco. Resuelto con `ensure_briefing_data()` (01-oct), que regenera si el
 guardado está vacío o es de otro día.
 
 ## Siguientes pasos
-1. Commitear en tandas: código → frontend → limpieza de los 38 borrados → docs
-2. `git push` y verificar en el log de Render que NO aparezca
-   `⚠️ Warning: nauta_scheduler no disponible`
-3. Arreglar el `BASE_URL` hardcodeado antes de confiar en producción
-4. Agregar `.gitattributes` (con `*.bat text eol=crlf`) y sacar del repo las
-   salidas: `NAUTA_CIERRE_*.md`, `planner_semana_*.xlsx`
-5. Limpiar las nueve versiones viejas de `planner_semana`
+1. Decidir cómo resolver el spin-down, o NAUTA en producción no corre nunca solo
+2. Arreglar el `BASE_URL` hardcodeado
+3. Reorganizar: los 39 archivos de salida a `salidas/`, al `.gitignore`.
+   Incluye los `testImage/*.png` que se subieron a un repo público
+4. Pasar el repo a privado
+5. `git gc --prune=now` (quedaron temporales en `.git/objects`)

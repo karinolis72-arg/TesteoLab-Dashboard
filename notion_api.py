@@ -6,6 +6,7 @@ Provides REST API endpoints to fetch task and habit data from Notion
 
 from flask import Flask, jsonify, request, send_file, Response
 from flask_cors import CORS
+import hmac
 import os
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
@@ -55,6 +56,41 @@ logging.getLogger().addHandler(_handler)
 # Iniciar NAUTA si está disponible
 if NAUTA_ENABLED:
     start_scheduler()
+
+
+# ===== PROTECCIÓN DE ACCESO =====
+# El servicio es público en Render: sin esto, cualquiera que conozca la URL
+# puede leer tus tareas, borrarlas y gastar tu crédito de Anthropic vía /api/chat.
+#
+# Si NAUTA_USER y NAUTA_PASS no están definidas, la protección queda APAGADA.
+# Eso mantiene el desarrollo local sin fricción; en Render hay que definirlas.
+NAUTA_USER = os.environ.get("NAUTA_USER", "")
+NAUTA_PASS = os.environ.get("NAUTA_PASS", "")
+AUTH_ACTIVA = bool(NAUTA_USER and NAUTA_PASS)
+
+if not AUTH_ACTIVA:
+    logging.warning(
+        "NAUTA_USER/NAUTA_PASS sin definir: el servicio queda ABIERTO a cualquiera."
+    )
+
+
+@app.before_request
+def _exigir_credenciales():
+    if not AUTH_ACTIVA:
+        return None
+    # /api/health queda libre para que los monitores externos puedan pingear.
+    if request.method == "OPTIONS" or request.path == "/api/health":
+        return None
+    cred = request.authorization
+    if (cred
+            and hmac.compare_digest(cred.username or "", NAUTA_USER)
+            and hmac.compare_digest(cred.password or "", NAUTA_PASS)):
+        return None
+    return Response(
+        "Acceso restringido",
+        401,
+        {"WWW-Authenticate": 'Basic realm="TesteoLab"'},
+    )
 
 # Notion Database IDs
 TAREAS_DB_ID = "3f0c07004c154bd4b5712141fc582815"
@@ -663,6 +699,21 @@ def api_trigger_briefing():
         nauta_briefing_job()
         return jsonify({"success": True, "message": "Briefing generado correctamente"})
     except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nauta/trigger-cierre", methods=["POST"])
+def api_trigger_cierre():
+    """Dispara el cierre manualmente. Lo usa el cron externo de las 21:30,
+    que de paso despierta el servicio dormido del plan free de Render."""
+    try:
+        if not NAUTA_ENABLED:
+            return jsonify({"success": False, "error": "NAUTA no habilitado"}), 503
+        from nauta_scheduler import nauta_cierre_job
+        nauta_cierre_job()
+        return jsonify({"success": True, "message": "Cierre generado correctamente"})
+    except Exception as e:
+        logging.error(f"Error disparando cierre: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
