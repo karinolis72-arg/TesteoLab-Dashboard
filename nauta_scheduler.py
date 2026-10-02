@@ -81,8 +81,59 @@ def _get_top_q1():
     return tasks[:3]
 
 
-def _get_today_tasks():
-    """Tareas de hoy + pendientes de días anteriores (arrastre automático)"""
+DIAS_PARA_ZOMBIE = 5      # una tarea arrastrada mas dias deja de ser tarea
+HORAS_UTILES_DIA = 6      # horas reales de trabajo entre anclas fijas
+
+
+def _dias_desde(fecha_str, hoy_str):
+    """Dias de atraso. 0 si no esta atrasada o la fecha es ilegible."""
+    try:
+        f = datetime.strptime(fecha_str, "%Y-%m-%d")
+        h = datetime.strptime(hoy_str, "%Y-%m-%d")
+        return max(0, (h - f).days)
+    except Exception:
+        return 0
+
+
+def _armar_recomendacion(zombies, pendientes_anoche, horas_estimadas, top_q1):
+    """Una sola recomendacion, deducida de los datos reales del dia.
+
+    Reemplaza el texto fijo que se repetia identico desde abril.
+    El orden importa: lo que mas traba el dia va primero.
+    """
+    if zombies:
+        peor = zombies[0]
+        extra = ("" if len(zombies) == 1
+                 else f" Tenes {len(zombies)} en esa situacion.")
+        return (f"Antes de empezar: \"{peor['titulo']}\" lleva "
+                f"{peor['dias_atrasada']} dias arrastrandose. Eso ya no es una tarea, "
+                f"es una decision sin tomar. Hacela hoy, ponele fecha real, o matala."
+                + extra)
+
+    if horas_estimadas > HORAS_UTILES_DIA:
+        return (f"Tus tareas suman {horas_estimadas:.1f} horas estimadas y el dia "
+                f"tiene ~{HORAS_UTILES_DIA} horas utiles. Algo no va a entrar: "
+                f"elegi que cae ahora, no a las 19h.")
+
+    if pendientes_anoche:
+        n = len(pendientes_anoche)
+        cuantas = "quedo 1 pendiente" if n == 1 else f"quedaron {n} pendientes"
+        return (f"Anoche {cuantas}. "
+                f"Empeza por \"{pendientes_anoche[0]}\" antes de abrir nada nuevo.")
+
+    if top_q1:
+        return (f"Dia despejado. Arranca por \"{top_q1[0].get('titulo', '')}\", "
+                f"que es tu Q1 de mayor prioridad, y protege la primera hora.")
+
+    return ("No hay tareas cargadas para hoy. Si es correcto, usa el dia para cerrar "
+            "algo que ya este abierto. Si no, carga tu Q1 antes de empezar.")
+
+
+def _get_today_tasks(incluir_completadas=False):
+    """Tareas de hoy + pendientes de días anteriores (arrastre automático).
+
+    incluir_completadas=True lo usa el cierre, que necesita contar lo hecho.
+    """
     today = datetime.now().strftime("%Y-%m-%d")
     try:
         from notion_client import Client
@@ -106,7 +157,7 @@ def _get_today_tasks():
         for page in response["results"]:
             props = page["properties"]
             estado = _sel(props.get("Estado")).get("name", "")
-            if estado == "✓ Completada":
+            if estado == "✓ Completada" and not incluir_completadas:
                 continue
             fecha_prog = _date(props.get("Fecha_programada"))
             tasks.append({
@@ -118,6 +169,7 @@ def _get_today_tasks():
                 "tiempo_estimado": _num(props.get("Tiempo_estimado")),
                 "fecha_programada": fecha_prog,
                 "atrasada": fecha_prog < today,
+                "dias_atrasada": _dias_desde(fecha_prog, today),
             })
         return tasks
     except Exception as e:
@@ -181,11 +233,32 @@ def generate_briefing_data(tasks_today, top_q1, habits):
     except:
         rueda_datos = {}
 
+    pendientes = [t for t in tasks_today if t.get("estado") != "✓ Completada"]
+
+    # Zombies: arrastradas mas de DIAS_PARA_ZOMBIE dias. Las mas viejas primero.
+    zombies = sorted(
+        [t for t in pendientes if t.get("dias_atrasada", 0) > DIAS_PARA_ZOMBIE],
+        key=lambda t: t.get("dias_atrasada", 0),
+        reverse=True,
+    )
+
+    # Continuidad: que quedo sin cerrar anoche
+    pendientes_anoche = (nauta_state.get("cierre_data") or {}).get("tareas_pendientes", [])
+
+    # Presupuesto de atencion: el campo Tiempo_estimado viene en minutos
+    horas_estimadas = sum(t.get("tiempo_estimado", 0) or 0 for t in pendientes) / 60.0
+
     return {
         "timestamp": datetime.now().isoformat(),
         "fecha": fecha_str,
         "hora_generado": datetime.now().strftime("%H:%M"),
         "total_tareas_hoy": len(tasks_today),
+        "zombies": zombies,
+        "pendientes_anoche": pendientes_anoche,
+        "horas_estimadas": round(horas_estimadas, 1),
+        "recomendacion": _armar_recomendacion(
+            zombies, pendientes_anoche, horas_estimadas, top_q1
+        ),
         "top_3_q1": top_q1[:3] if top_q1 else [],
         "tareas_pendientes": [t for t in tasks_today if t.get("estado") != "✓ Completada"],
         "habitos_esperados": habits[:5] if habits else [],
@@ -236,6 +309,27 @@ def generate_briefing_html(briefing_data, calendar_events=None):
                 </div>
                 <label for="cal-{ev_id}" style="font-weight:500;color:#1f2937;cursor:pointer;flex:1;">{titulo}</label>
             </div>"""
+
+    # Zombies: no se listan como tareas, se listan como decisiones pendientes.
+    zombies = briefing_data.get("zombies", [])
+    zombies_html = ""
+    if zombies:
+        filas = ""
+        for z in zombies[:5]:
+            filas += (
+                f'<li style="margin:6px 0;"><strong>{z.get("titulo", "")}</strong> — '
+                f'{z.get("dias_atrasada", 0)} días. '
+                f'<em>¿Hoy, fecha nueva, o la matás?</em></li>'
+            )
+        zombies_html = f"""
+            <div class="panel" style="border-left:4px solid #ef4444;">
+                <h2><span>🧟</span> Decisiones pendientes ({len(zombies)})</h2>
+                <p style="color:#6b7280; font-size:0.9em; margin-bottom:6px;">
+                    Arrastradas más de {DIAS_PARA_ZOMBIE} días. Dejaron de ser tareas.
+                </p>
+                <ul style="margin:0; padding-left:18px;">{filas}</ul>
+            </div>
+        """
 
     tareas_html = ""
     for i, tarea in enumerate(briefing_data.get("tareas_pendientes", [])[:4], 1):
@@ -623,11 +717,15 @@ def generate_briefing_html(briefing_data, calendar_events=None):
             <div class="panel panel-recommendation">
                 <div class="recommendation-content">
                     <h3>💡 Recomendación del Día</h3>
-                    <p>Hoy tienes {briefing_data.get('total_tareas_hoy', 0)} tareas planificadas.
-                    Sugiero comenzar con la tarea de mayor prioridad y hacer pausas cada 90 minutos.
-                    Recuerda balancear el trabajo con descanso y movimiento.</p>
+                    <p>{briefing_data.get('recomendacion', '')}</p>
+                    <p style="font-size:0.85em; opacity:0.75; margin-top:8px;">
+                        {briefing_data.get('total_tareas_hoy', 0)} tareas ·
+                        {briefing_data.get('horas_estimadas', 0)} h estimadas
+                    </p>
                 </div>
             </div>
+
+            {zombies_html}
 
             <!-- GRID PRINCIPAL: Tareas y Hábitos -->
             <div class="main-grid">
@@ -850,21 +948,40 @@ def nauta_cierre_job():
         logger.info("=" * 60)
         logger.info("🌙 NAUTA LOG DE CIERRE - Iniciando...")
 
+        # DATOS REALES de Notion. Hasta el 01-oct-2026 esto era un diccionario
+        # hardcodeado con tareas de ejemplo de abril: escribia lo mismo todas
+        # las noches sin consultar nada.
+        todas = _get_today_tasks(incluir_completadas=True)
+        completadas = [t for t in todas if t.get("estado") == "✓ Completada"]
+        pendientes = [t for t in todas if t.get("estado") != "✓ Completada"]
+        zombies = sorted(
+            [t for t in pendientes if t.get("dias_atrasada", 0) > DIAS_PARA_ZOMBIE],
+            key=lambda t: t.get("dias_atrasada", 0),
+            reverse=True,
+        )
+
+        total = len(completadas) + len(pendientes)
+        if total == 0:
+            notas = "No habia tareas cargadas para hoy."
+        elif not completadas:
+            notas = f"Ninguna de las {total} tareas del dia quedo cerrada."
+        else:
+            notas = f"Cerraste {len(completadas)} de {total} tareas."
+            if zombies:
+                notas += (f" Quedan {len(zombies)} arrastrandose hace mas de "
+                          f"{DIAS_PARA_ZOMBIE} dias: manana hay que decidir sobre ellas.")
+
         cierre_data = {
             "timestamp": datetime.now().isoformat(),
             "fecha": datetime.now().strftime("%d de %B de %Y").replace("of", "de"),
             "hora_cierre": datetime.now().strftime("%H:%M"),
-            "completadas": 2,
-            "pendientes": 2,
-            "tareas_completadas": [
-                "Investigar ofertas Meta Ads (M1)",
-                "Setup cronométrico NAUTA 8:30 AM"
-            ],
-            "tareas_pendientes": [
-                "Crear MVP landing page (M2) - 50% pendiente",
-                "Generar 62 ángulos de venta (M3)"
-            ],
-            "notas": "Hoy fue un día productivo. M1 se completó rápidamente. M2 tiene más complejidad de la esperada. Mañana necesito comenzar antes con M3 para ajustar timeline."
+            "completadas": len(completadas),
+            "pendientes": len(pendientes),
+            "tareas_completadas": [t.get("titulo", "") for t in completadas],
+            "tareas_pendientes": [t.get("titulo", "") for t in pendientes],
+            "zombies": [f'{t.get("titulo", "")} ({t.get("dias_atrasada", 0)} dias)'
+                        for t in zombies],
+            "notas": notas,
         }
 
         cierre_html = generate_cierre_html(cierre_data)

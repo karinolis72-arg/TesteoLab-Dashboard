@@ -134,6 +134,38 @@ propio archivo).
 `testImage/` pasó a `_archivo/`: eran 12 capturas de debug que se habían subido a
 un repo público.
 
+## NAUTA — qué cambió el 01-oct
+
+**El cierre de 21:30 era un diccionario hardcodeado.** No consultaba Notion:
+escribía `completadas: 2`, `pendientes: 2` y dos tareas de ejemplo de abril
+("Investigar ofertas Meta Ads (M1)", "Crear MVP landing page (M2)") todas las
+noches, con una nota inventada. Ahora lee las tareas reales del día y separa
+completadas de pendientes.
+
+**La "Recomendación del Día" era texto fijo.** Lo único variable era el número de
+tareas; decía exactamente lo mismo desde abril. Ahora la arma
+`_armar_recomendacion()` con cinco ramas deterministas, por orden de lo que más
+traba el día: zombies → sobrecarga de horas → pendientes de anoche → Q1 →
+día vacío. Es determinista a propósito: no depende de la API de Anthropic, no
+cuesta, y no puede fallar a las 8:30.
+
+**Tareas zombie.** Una tarea arrastrada más de `DIAS_PARA_ZOMBIE` (5) días deja de
+listarse como tarea y pasa a un panel propio como decisión pendiente: *"¿hoy,
+fecha nueva, o la matás?"*. Ataca el patrón de acumular frentes abiertos.
+
+**Continuidad briefing ↔ cierre.** El briefing ahora lee los pendientes del cierre
+de anoche desde `nauta_state["cierre_data"]`. Dejaron de ser dos reportes sueltos.
+
+**Presupuesto de atención.** Suma `Tiempo_estimado` (que estaba en Notion sin
+usarse) y lo compara con `HORAS_UTILES_DIA` (6). Si no entra, lo dice.
+
+### Pendiente en NAUTA
+- **La rueda de vida como alerta** necesita histórico; hoy solo hay el valor
+  actual, así que no se puede calcular tendencia sin persistir snapshots.
+- **El número del negocio** (gasto y CPA desde MetaAdsCLI) no se puede traer:
+  ese proyecto corre en la máquina de Kari y Render no lo alcanza. Haría falta
+  que MetaAdsCLI empuje el dato a Notion o a Supabase primero.
+
 ## Intentos fallidos — leer antes de repetirlos
 
 **`notion-client==2.0.1` no existe.** Un cambio sin commitear había bajado la
