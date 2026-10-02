@@ -95,6 +95,55 @@ def _dias_desde(fecha_str, hoy_str):
         return 0
 
 
+def _get_contexto_externo():
+    """Agenda y mails del dia, leidos de la base 'Contexto Externo NAUTA'.
+
+    POR QUE NOTION Y NO UNA LLAMADA DIRECTA: Render no tiene credenciales de
+    Google, y ni el contenedor de Claude ni la VM del equipo pueden alcanzar
+    el servicio en onrender.com (la red las bloquea). Notion si es alcanzable
+    desde los dos lados, asi que hace de puente: Claude escribe a las 8:20,
+    NAUTA lee a las 8:30 con el token que ya tiene.
+    """
+    db_id = os.environ.get("CONTEXTO_EXTERNO_DB_ID", "")
+    if not db_id:
+        return {}
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    try:
+        from notion_client import Client
+        notion = Client(auth=os.environ.get("NOTION_TOKEN"))
+        resp = notion.databases.query(
+            database_id=db_id,
+            filter={"property": "Fecha", "date": {"equals": hoy}},
+            sorts=[{"property": "Orden", "direction": "ascending"}],
+        )
+    except Exception as e:
+        logger.error(f"No pude leer el contexto externo: {e}")
+        return {}
+
+    ctx = {"agenda": [], "mails": [], "compromisos": [], "resumen": ""}
+    for page in resp.get("results", []):
+        props = page.get("properties", {})
+        titulo = ((props.get("Texto") or {}).get("title") or [{}])[0] \
+            .get("text", {}).get("content", "")
+        tipo = ((props.get("Tipo") or {}).get("select") or {}).get("name", "")
+        if not titulo:
+            continue
+        if tipo == "Agenda":
+            ctx["agenda"].append(titulo)
+        elif tipo == "Mail":
+            ctx["mails"].append(titulo)
+        elif tipo == "Compromiso":
+            ctx["compromisos"].append(titulo)
+        elif tipo == "Resumen":
+            ctx["resumen"] = titulo
+
+    if not any([ctx["agenda"], ctx["mails"], ctx["compromisos"], ctx["resumen"]]):
+        return {}
+    logger.info("Contexto externo: %d eventos, %d mails, %d compromisos",
+                len(ctx["agenda"]), len(ctx["mails"]), len(ctx["compromisos"]))
+    return ctx
+
+
 def _armar_recomendacion(zombies, pendientes_anoche, horas_estimadas, top_q1):
     """Una sola recomendacion, deducida de los datos reales del dia.
 
@@ -206,8 +255,7 @@ nauta_state = {
     "last_briefing": None,
     "last_cierre": None,
     "briefing_data": {},
-    "cierre_data": {},
-    "contexto_externo": {}
+    "cierre_data": {}
 }
 
 
@@ -249,18 +297,9 @@ def generate_briefing_data(tasks_today, top_q1, habits):
     # Presupuesto de atencion: el campo Tiempo_estimado viene en minutos
     horas_estimadas = sum(t.get("tiempo_estimado", 0) or 0 for t in pendientes) / 60.0
 
-    # Contexto externo (agenda + mails). Lo empuja una tarea de Claude al
-    # endpoint /api/nauta/contexto-externo, porque Render no tiene credenciales
-    # de Google. Se descarta si tiene mas de 18 horas: mejor no mostrar nada
-    # que mostrar la agenda de ayer como si fuera la de hoy.
-    ctx = nauta_state.get("contexto_externo") or {}
-    if ctx.get("recibido"):
-        try:
-            edad = (datetime.now() - datetime.fromisoformat(ctx["recibido"])).total_seconds()
-            if edad > 18 * 3600:
-                ctx = {"vencido": True}
-        except Exception:
-            ctx = {}
+    # Contexto externo: lo escribe Claude en Notion cada manana (ver
+    # _get_contexto_externo). Si no hay nada para hoy, el panel no se muestra.
+    ctx = _get_contexto_externo()
 
     return {
         "timestamp": datetime.now().isoformat(),
@@ -349,14 +388,7 @@ def generate_briefing_html(briefing_data, calendar_events=None):
     # Panel del mundo exterior: agenda y mails que empuja Claude.
     ctx = briefing_data.get("contexto_externo") or {}
     externo_html = ""
-    if ctx.get("vencido"):
-        externo_html = """
-            <div class="panel" style="border-left:4px solid #f59e0b;">
-                <h2><span>🌐</span> Agenda y mails</h2>
-                <p style="color:#6b7280;">El contexto externo es de hace mas de 18 horas.
-                No lo muestro para no confundirte con datos viejos.</p>
-            </div>"""
-    elif ctx.get("agenda") or ctx.get("mails") or ctx.get("compromisos"):
+    if ctx.get("agenda") or ctx.get("mails") or ctx.get("compromisos"):
         def _lista(items, vacio):
             if not items:
                 return f'<p style="color:#9ca3af; margin:4px 0;">{vacio}</p>'

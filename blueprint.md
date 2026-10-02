@@ -159,6 +159,34 @@ de anoche desde `nauta_state["cierre_data"]`. Dejaron de ser dos reportes suelto
 **Presupuesto de atención.** Suma `Tiempo_estimado` (que estaba en Notion sin
 usarse) y lo compara con `HORAS_UTILES_DIA` (6). Si no entra, lo dice.
 
+**Agenda y mails en el briefing — vía Notion.** Render no tiene credenciales de
+Google, así que NAUTA no puede ir a buscar Gmail ni Calendar. El primer diseño fue
+que Claude le empujara los datos por HTTP a un endpoint nuevo
+(`/api/nauta/contexto-externo`). **No funciona**: ni el contenedor de Claude ni la
+VM del equipo pueden alcanzar `testeolab-dashboard.onrender.com` — las dos
+devuelven HTTP 000, bloqueado por red. El endpoint se eliminó.
+
+La solución es Notion como puente, porque es alcanzable desde los dos lados:
+
+```
+8:20  Tarea programada de Claude (lee Gmail + Calendar con sus propias
+      credenciales) escribe filas en la base "🌐 Contexto Externo NAUTA"
+8:25  Cron externo despierta el servicio
+8:30  NAUTA lee esa base con el token de Notion que YA tiene y arma el panel
+```
+
+Base: `91f2f588-7ee3-461b-9a6b-f0cb789da610`, bajo *Sobre Mí / Perfil General*.
+Columnas: Texto (title), Fecha (date), Tipo (select: Agenda/Mail/Compromiso/
+Resumen), Orden (number). NAUTA filtra por `Fecha = hoy`, así que un contexto
+viejo nunca se muestra.
+
+Ventaja sobre el diseño anterior: **cero secretos nuevos**. No hace falta
+compartir la contraseña del dashboard ni una ingest key.
+
+Requiere `CONTEXTO_EXTERNO_DB_ID` en el `.env` y en Render, y que la integración
+de Notion de TesteoLab tenga acceso a esa base (se comparte desde el `•••` de la
+base → Conexiones).
+
 ### Pendiente en NAUTA
 - **La rueda de vida como alerta** necesita histórico; hoy solo hay el valor
   actual, así que no se puede calcular tendencia sin persistir snapshots.
