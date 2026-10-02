@@ -206,7 +206,8 @@ nauta_state = {
     "last_briefing": None,
     "last_cierre": None,
     "briefing_data": {},
-    "cierre_data": {}
+    "cierre_data": {},
+    "contexto_externo": {}
 }
 
 
@@ -248,8 +249,22 @@ def generate_briefing_data(tasks_today, top_q1, habits):
     # Presupuesto de atencion: el campo Tiempo_estimado viene en minutos
     horas_estimadas = sum(t.get("tiempo_estimado", 0) or 0 for t in pendientes) / 60.0
 
+    # Contexto externo (agenda + mails). Lo empuja una tarea de Claude al
+    # endpoint /api/nauta/contexto-externo, porque Render no tiene credenciales
+    # de Google. Se descarta si tiene mas de 18 horas: mejor no mostrar nada
+    # que mostrar la agenda de ayer como si fuera la de hoy.
+    ctx = nauta_state.get("contexto_externo") or {}
+    if ctx.get("recibido"):
+        try:
+            edad = (datetime.now() - datetime.fromisoformat(ctx["recibido"])).total_seconds()
+            if edad > 18 * 3600:
+                ctx = {"vencido": True}
+        except Exception:
+            ctx = {}
+
     return {
         "timestamp": datetime.now().isoformat(),
+        "contexto_externo": ctx,
         "fecha": fecha_str,
         "hora_generado": datetime.now().strftime("%H:%M"),
         "total_tareas_hoy": len(tasks_today),
@@ -330,6 +345,36 @@ def generate_briefing_html(briefing_data, calendar_events=None):
                 <ul style="margin:0; padding-left:18px;">{filas}</ul>
             </div>
         """
+
+    # Panel del mundo exterior: agenda y mails que empuja Claude.
+    ctx = briefing_data.get("contexto_externo") or {}
+    externo_html = ""
+    if ctx.get("vencido"):
+        externo_html = """
+            <div class="panel" style="border-left:4px solid #f59e0b;">
+                <h2><span>🌐</span> Agenda y mails</h2>
+                <p style="color:#6b7280;">El contexto externo es de hace mas de 18 horas.
+                No lo muestro para no confundirte con datos viejos.</p>
+            </div>"""
+    elif ctx.get("agenda") or ctx.get("mails") or ctx.get("compromisos"):
+        def _lista(items, vacio):
+            if not items:
+                return f'<p style="color:#9ca3af; margin:4px 0;">{vacio}</p>'
+            return "<ul style='margin:4px 0; padding-left:18px;'>" + "".join(
+                f"<li style='margin:4px 0;'>{i}</li>" for i in items[:6]
+            ) + "</ul>"
+
+        externo_html = f"""
+            <div class="panel" style="border-left:4px solid #3b82f6;">
+                <h2><span>🌐</span> Agenda y mails</h2>
+                {f'<p style="margin:6px 0 10px;">{ctx["resumen"]}</p>' if ctx.get("resumen") else ''}
+                <h4 style="margin:10px 0 2px;">📅 Hoy en la agenda</h4>
+                {_lista(ctx.get("agenda"), "Sin eventos.")}
+                <h4 style="margin:10px 0 2px;">📬 Pide respuesta</h4>
+                {_lista(ctx.get("mails"), "Nada que requiera respuesta.")}
+                <h4 style="margin:10px 0 2px;">🤝 Me comprometi a</h4>
+                {_lista(ctx.get("compromisos"), "Nada registrado.")}
+            </div>"""
 
     tareas_html = ""
     for i, tarea in enumerate(briefing_data.get("tareas_pendientes", [])[:4], 1):
@@ -726,6 +771,8 @@ def generate_briefing_html(briefing_data, calendar_events=None):
             </div>
 
             {zombies_html}
+
+            {externo_html}
 
             <!-- GRID PRINCIPAL: Tareas y Hábitos -->
             <div class="main-grid">

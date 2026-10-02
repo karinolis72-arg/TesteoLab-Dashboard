@@ -78,8 +78,12 @@ if not AUTH_ACTIVA:
 def _exigir_credenciales():
     if not AUTH_ACTIVA:
         return None
-    # /api/health queda libre para que los monitores externos puedan pingear.
-    if request.method == "OPTIONS" or request.path == "/api/health":
+    # /api/health queda libre para los monitores externos.
+    # /api/nauta/contexto-externo tiene su propia llave (X-Ingest-Key), mas
+    # acotada: solo permite escribir contexto, no leer ni borrar nada.
+    if request.method == "OPTIONS" or request.path in (
+        "/api/health", "/api/nauta/contexto-externo"
+    ):
         return None
     cred = request.authorization
     if (cred
@@ -700,6 +704,39 @@ def api_trigger_briefing():
         return jsonify({"success": True, "message": "Briefing generado correctamente"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/nauta/contexto-externo", methods=["POST"])
+def api_contexto_externo():
+    """Recibe el contexto del mundo exterior (agenda y mails) para el briefing.
+
+    Render no tiene credenciales de Google, asi que no puede ir a buscarlo.
+    En vez de eso lo empuja quien SI las tiene (una tarea programada de Claude),
+    autenticandose con NAUTA_INGEST_KEY. Esa llave solo habilita esta escritura.
+
+    Body esperado:
+      {"agenda": [...], "mails": [...], "compromisos": [...], "resumen": "..."}
+    """
+    clave = os.environ.get("NAUTA_INGEST_KEY", "")
+    if not clave:
+        return jsonify({"success": False,
+                        "error": "NAUTA_INGEST_KEY no configurada"}), 503
+    if not hmac.compare_digest(request.headers.get("X-Ingest-Key", ""), clave):
+        return jsonify({"success": False, "error": "llave invalida"}), 401
+
+    body = request.get_json(silent=True) or {}
+    contexto = {
+        "agenda": body.get("agenda", []),
+        "mails": body.get("mails", []),
+        "compromisos": body.get("compromisos", []),
+        "resumen": body.get("resumen", ""),
+        "recibido": datetime.now().isoformat(),
+    }
+    if NAUTA_ENABLED:
+        nauta_state["contexto_externo"] = contexto
+    logging.info("Contexto externo recibido: %d eventos, %d mails",
+                 len(contexto["agenda"]), len(contexto["mails"]))
+    return jsonify({"success": True, "recibido": contexto["recibido"]})
 
 
 @app.route("/api/nauta/trigger-cierre", methods=["POST"])
